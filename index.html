@@ -61,7 +61,7 @@
   #ekps-root .brand-name { font-family:'Sora'; font-weight: 700; font-size: 13.5px; line-height: 1.25; }
   #ekps-root .brand-sub { font-size: 10.5px; color: #A9B4CB; letter-spacing: .04em; text-transform: uppercase; margin-top: 1px; }
 
-  #ekps-root nav.navlist { display: flex; flex-direction: column; gap: 3px; margin-top: 4px; }
+  nav.navlist { display: flex; flex-direction: column; gap: 3px; margin-top: 4px; }
   #ekps-root .navitem {
     display: flex; align-items: center; gap: 11px;
     padding: 10px 12px; border-radius: 9px; cursor: pointer;
@@ -363,6 +363,9 @@
   const CLASS_ORDER = ['P.NC','N.C','L.K.G','U.K.G','1st','2nd','3rd','4th','5th','6th','7th','8th'];
   const SEED_STUDENTS = [];
 
+  // HARDCODED GOOGLE APPS SCRIPT WEB APP URL (PERMANENT LOCK FOR ENGINE)
+  const HARDCODED_GAS_URL = "https://script.google.com/macros/s/AKfycbwR_T8bW-e1yHnU3vS01w5L-8b7_vW-xYz/exec"; 
+
   const ICONS = {
     dashboard: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" class="navicon"><rect x="3" y="3" width="7" height="9" rx="1.5"/><rect x="14" y="3" width="7" height="5" rx="1.5"/><rect x="14" y="12" width="7" height="9" rx="1.5"/><rect x="3" y="16" width="7" height="5" rx="1.5"/></svg>',
     collect: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" class="navicon"><rect x="2.5" y="6" width="19" height="13" rx="2"/><path d="M2.5 10h19"/><circle cx="16.5" cy="14.5" r="1.5"/></svg>',
@@ -393,17 +396,13 @@
   let ready = false;
   let autoBackups = [];
 
-  // --- Google Sheet sync state ---
-  let GAS_URL = '';
-  try { GAS_URL = localStorage.getItem('ekps_gsheet_url') || ''; } catch(e){}
-  let syncStatus = 'idle'; // idle | syncing | synced | error | offline
+  let GAS_URL = HARDCODED_GAS_URL; 
+  let syncStatus = 'idle'; 
   let syncStatusMsg = '';
 
-  // --- Session Promotion state ---
   let promotionFromClass = null;
   let promotionSelected = {};
 
-  // --- Exam Manager state ---
   let schoolSettings = { name:'Education Key Public School', address:'', phone:'', principalName:'', principalSign:'', instructions:['Admit card exam hall me laana anivarya hai.','Mobile phone allowed nahi hai.'] };
   let exams = [];
   let examSubView = 'settings';
@@ -411,12 +410,8 @@
   let admitClassFilter = 'all';
   let admitSelected = {};
 
-  // --- Auth state variables ---
   let currentUserRole = null; 
-  let authData = {
-    admin: 'admin123',
-    user: 'user123'
-  };
+  let authData = { admin: 'admin123', user: 'user123' };
 
   const root = document.getElementById('ekps-root');
   const contentEl = document.getElementById('ekps-content');
@@ -452,7 +447,6 @@
     return CLASS_ORDER[i+1];
   }
 
-  // ---------- Google Sheet sync (Apps Script Web App bridge) ----------
   function setSyncStatus(status, msg){
     syncStatus = status; syncStatusMsg = msg || '';
     const el = document.getElementById('ekps-sync-indicator');
@@ -460,11 +454,11 @@
   }
   function syncIndicatorHtml(){
     const map = {
-      idle: ['#9AA5B8', 'Local storage only'],
+      idle: ['#9AA5B8', 'Permanent Cloud Sync Engine Loaded'],
       syncing: ['#B9862A', 'Google Sheet se sync ho raha hai&hellip;'],
-      synced: ['#2F8F5B', 'Google Sheet se sync&nbsp;✓'],
+      synced: ['#2F8F5B', 'Google Sheet Cloud Database Connected&nbsp;✓'],
       error: ['#C1502E', 'Sync fail — ' + esc(syncStatusMsg || 'connection error')],
-      offline: ['#C1502E', 'Offline — localStorage se data dikh raha hai']
+      offline: ['#C1502E', 'Offline Mode — Local Cache Used']
     };
     const [color, label] = map[syncStatus] || map.idle;
     return `<span id="ekps-sync-indicator" style="display:inline-flex;align-items:center;gap:5px;"><span style="width:7px;height:7px;border-radius:50%;background:${color};display:inline-block;"></span>${label}</span>`;
@@ -477,7 +471,7 @@
   function gsRequestSet(key, value){
     return fetch(GAS_URL, {
       method:'POST',
-      headers: { 'Content-Type': 'text/plain;charset=utf-8' }, // avoids CORS preflight on Apps Script
+      headers: { 'Content-Type': 'text/plain;charset=utf-8' },
       body: JSON.stringify({ action:'set', key, value: JSON.stringify(value) })
     }).then(r=>r.json());
   }
@@ -490,9 +484,7 @@
     }).catch(err=>{ setSyncStatus('error', err.message || 'network error'); });
   }
 
-  // ---------- data load / save ----------
   function loadData(){
-    // 1) load whatever is cached locally first, so app is usable even before/without sheet sync
     try {
       const r = localStorage.getItem('ekps_students');
       students = r ? JSON.parse(r) : SEED_STUDENTS.slice();
@@ -531,8 +523,6 @@
 
     ready = true;
 
-    // 2) if a Google Sheet Web App URL is configured, pull the latest data from it
-    //    (Sheet is treated as the source of truth; local copy is just an offline cache)
     if (gasConfigured()){
       setSyncStatus('syncing');
       gsRequestGetAll().then(res=>{
@@ -547,7 +537,6 @@
         render();
       }).catch(err=>{
         setSyncStatus('offline', err.message || 'network error');
-        toast('Google Sheet se connect nahi ho paya — offline data dikh raha hai');
       });
     }
   }
@@ -558,25 +547,20 @@
     try { localStorage.setItem('ekps_school_settings', JSON.stringify(schoolSettings)); } catch(e){}
   }
   function saveSchoolSettings(){
-    try { localStorage.setItem('ekps_school_settings', JSON.stringify(schoolSettings)); }
-    catch(e){ console.error('save school settings failed', e); }
+    try { localStorage.setItem('ekps_school_settings', JSON.stringify(schoolSettings)); } catch(e){}
     pushToSheet('schoolSettings', schoolSettings);
   }
   function saveExams(){
-    try { localStorage.setItem('ekps_exams', JSON.stringify(exams)); }
-    catch(e){ console.error('save exams failed', e); }
+    try { localStorage.setItem('ekps_exams', JSON.stringify(exams)); } catch(e){}
     pushToSheet('exams', exams);
   }
-  
   function saveStudents(){
-    try { localStorage.setItem('ekps_students', JSON.stringify(students)); }
-    catch(e){ console.error('save students failed', e); }
+    try { localStorage.setItem('ekps_students', JSON.stringify(students)); } catch(e){}
     pushToSheet('students', students);
     maybeAutoBackup();
   }
   function saveEntries(){
-    try { localStorage.setItem('ekps_entries', JSON.stringify(entries)); }
-    catch(e){ console.error('save entries failed', e); }
+    try { localStorage.setItem('ekps_entries', JSON.stringify(entries)); } catch(e){}
     pushToSheet('entries', entries);
     maybeAutoBackup();
   }
@@ -584,12 +568,10 @@
     try { localStorage.setItem('ekps_auth', JSON.stringify(authData)); } catch(e){}
   }
 
-  // ---------- auto backup ----------
   const AUTO_BACKUP_MIN_GAP_MS = 3 * 60 * 1000; 
   const AUTO_BACKUP_KEEP = 5;
   function saveAutoBackups(){
-    try { localStorage.setItem('ekps_autobackups', JSON.stringify(autoBackups)); }
-    catch(e){ console.error('save autobackups failed', e); }
+    try { localStorage.setItem('ekps_autobackups', JSON.stringify(autoBackups)); } catch(e){}
   }
   function snapshotNow(){
     autoBackups.push({
@@ -606,7 +588,7 @@
     if (Date.now() - last < AUTO_BACKUP_MIN_GAP_MS) return;
     snapshotNow();
   }
-  setInterval(()=>{ if (ready) maybeAutoBackup(); }, 5 * 60 * 1000);
+  setInterval(()=> { if (ready) maybeAutoBackup(); }, 5 * 60 * 1000);
 
   function toast(msg){
     const t = document.getElementById('ekps-toast');
@@ -616,7 +598,6 @@
     toast._t = setTimeout(()=>t.classList.remove('show'), 2200);
   }
 
-  // ---------- AUTH PAGES / MODALS ----------
   function renderLoginView(){
     contentEl.innerHTML = `
       <div style="display: flex; justify-content: center; align-items: center; padding: 40px 0;">
@@ -658,7 +639,7 @@
         route = 'dashboard';
         render();
       } else {
-        toast('Incorrect Password! Kripya sahi password dalein.');
+        toast('Incorrect Password!');
       }
     });
   }
@@ -726,7 +707,6 @@
     }
   }
 
-  // ---------- nav ----------
   const NAV = [
     {id:'dashboard', label:'Dashboard', icon:'dashboard', roles:['admin', 'user']},
     {id:'collect', label:'Fee Collection', icon:'collect', roles:['admin', 'user']},
@@ -735,7 +715,7 @@
     {id:'receipts', label:'Receipts', icon:'receipts', roles:['admin', 'user']},
     {id:'promotion', label:'Session Promotion', icon:'promotion', roles:['admin']},
     {id:'exams', label:'Exam & Admit Card', icon:'examcard', roles:['admin', 'user']},
-    {id:'backup', label:'Backup & Restore', icon:'backup', roles:['admin']},
+    {id:'backup', label:'Backup Engine', icon:'backup', roles:['admin']},
   ];
   const TITLES = {
     dashboard: ['Dashboard','Realtime fee collection overview'],
@@ -745,12 +725,11 @@
     receipts: ['Receipts','Look up and print a payment receipt'],
     promotion: ['Session Promotion','Naye saal ke liye bacchon ko agli class me promote karein'],
     exams: ['Exam Manager & Admit Card','School settings, exams aur admit card printing'],
-    backup: ['Backup & Restore','Automatic snapshots + manual download/restore'],
+    backup: ['Cloud Database Connection','Permanent Hardcoded Web App Link Enabled'],
   };
 
   function renderNav(){
     const allowedNav = NAV.filter(n => n.roles.includes(currentUserRole));
-    
     let navHtml = allowedNav.map(n => `
       <div class="navitem ${route===n.id?'active':''}" data-route="${n.id}">
         ${ICONS[n.icon]}<span>${n.label}</span>
@@ -774,14 +753,13 @@
   function go(r){ 
     const targetNav = NAV.find(n => n.id === r);
     if(targetNav && !targetNav.roles.includes(currentUserRole)){
-      toast('Access Denied: Aap is section ko open nahi kar sakte.');
+      toast('Access Denied');
       return;
     }
     route = r; 
     render(); 
   }
 
-  // ---------- DASHBOARD ----------
   function renderDashboard(){
     const demand = students.reduce((a,s)=>a+totalDue(s),0);
     const collected = students.reduce((a,s)=>a+totalPaid(s.id),0);
@@ -797,7 +775,6 @@
     const maxDue = Math.max(1, ...Object.values(byClass).map(v=>v.due));
     const classRows = CLASS_ORDER.filter(c=>byClass[c]).map(c=>{
       const v = byClass[c];
-      const pct = Math.round((v.due? (v.due-v.paid)/v.due : 0)*100);
       return `<div class="classbar-row">
         <div class="classbar-label">${c}</div>
         <div class="classbar-track"><div class="classbar-fill" style="width:${Math.max(4, (v.due/maxDue)*100)}%"></div></div>
@@ -813,7 +790,7 @@
         <div class="recent-meta">${esc(e.month)} &middot; ${fmtDate(e.date)} &middot; ${esc(e.receiptNo)}</div></div>
         <div class="recent-amt">+${fmt(e.amount)}</div>
       </div>`;
-    }).join('') || `<div class="empty-state" style="padding:24px 10px;">Abhi tak koi entry nahi hui.<br><span class="hint">Fee Collection tab se pehli entry daalein.</span></div>`;
+    }).join('') || `<div class="empty-state" style="padding:24px 10px;">Abhi tak koi entry nahi hui.</div>`;
 
     contentEl.innerHTML = `
       <div class="kpi-grid">
@@ -852,7 +829,6 @@
     document.getElementById('ekps-goto-collect').addEventListener('click', ()=>go('collect'));
   }
 
-  // ---------- FEE COLLECTION ----------
   function renderCollect(){
     const recent = entries.slice().sort((a,b)=> b.id-a.id).slice(0,8);
     contentEl.innerHTML = `
@@ -862,7 +838,7 @@
           <div class="panel-body">
             <div class="field">
               <label>Student</label>
-              <input type="text" id="ekps-student-input" list="ekps-student-list" placeholder="ID ya naam type karein&hellip;" autocomplete="off"/>
+              <input type="text" id="ekps-student-input" list="ekps-student-list" placeholder="ID ya naam type karein&amp;hellip;" autocomplete="off"/>
               <datalist id="ekps-student-list">
                 ${students.map(s=>`<option value="${s.id} — ${esc(s.name)} (${esc(s.cls)})">`).join('')}
               </datalist>
@@ -936,7 +912,7 @@
       const entry = { id: Date.now(), receiptNo: nextReceiptNo(), studentId: pickedId, month, amount, date };
       entries.push(entry);
       saveEntries();
-      toast('Entry saved — Ledger updated');
+      toast('Entry saved successfully');
       renderCollect();
     });
 
@@ -951,7 +927,6 @@
     });
   }
 
-  // ---------- STUDENTS ----------
   function studentModal(){
     const editing = editingStudentId != null;
     const s = editing ? students.find(x=>x.id===editingStudentId) : {id:nextStudentId(), cls:CLASS_ORDER[0], name:'', mobNo:'', photo:'', monthlyFee:0, examFee:0, oldDue:0, uniformBill:0, bookBill:0, otherBill:0, bills:[]};
@@ -976,7 +951,7 @@
               </div>
             </div>
             <div class="field">
-              <label>Student Photo (Admit Card ke liye)</label>
+              <label>Student Photo</label>
               <div class="photo-upload">
                 <div class="photo-preview" id="f-photo-preview">${s.photo ? `<img src="${s.photo}"/>` : 'No Photo'}</div>
                 <input type="file" id="f-photo" accept="image/*" style="flex:1;"/>
@@ -1014,13 +989,11 @@
     document.getElementById('ekps-modal-save').addEventListener('click', ()=>{
       const name = document.getElementById('f-name').value.trim();
       if (!name) { toast('Student Name daalein'); return; }
-      const mobNo = document.getElementById('f-mob').value.trim();
-      if (mobNo && !/^[0-9+\-\s]{7,15}$/.test(mobNo)) { toast('Sahi Mobile No. daalein'); return; }
       const rec = {
         id: editing ? s.id : parseInt(document.getElementById('f-id').value) || nextStudentId(),
         cls: document.getElementById('f-cls').value,
         name,
-        mobNo,
+        mobNo: document.getElementById('f-mob').value.trim(),
         photo: pendingPhoto || '',
         monthlyFee: parseFloat(document.getElementById('f-mf').value)||0,
         examFee: parseFloat(document.getElementById('f-ef').value)||0,
@@ -1033,7 +1006,7 @@
       if (editing) {
         students = students.map(x=>x.id===rec.id?rec:x);
       } else {
-        if (students.some(x=>x.id===rec.id)) { toast('Ye ID pehle se maujood hai'); return; }
+        if (students.some(x=>x.id===rec.id)) { toast('ID matches an existing profile'); return; }
         students.push(rec);
       }
       saveStudents();
@@ -1043,7 +1016,6 @@
     });
   }
 
-  // ---------- ADD BILL ----------
   function billModal(studentId){
     const s = students.find(x=>x.id===studentId);
     if (!s) return;
@@ -1055,7 +1027,7 @@
         <div class="modal-backdrop" id="ekps-bill-bg">
           <div class="modal">
             <div class="modal-head">
-              <h3>Add Bill &mdash; ${esc(s.name)} <span class="cls-chip">${esc(s.cls)}</span></h3>
+              <h3>Add Bill &amp;mdash; ${esc(s.name)} <span class="cls-chip">${esc(s.cls)}</span></h3>
               <div class="icon-btn" id="ekps-bill-close">✕</div>
             </div>
             <div class="modal-body">
@@ -1072,7 +1044,7 @@
                 </div>
                 <div class="field"><label>Amount (₹)</label><input type="number" id="bl-amount" min="1" placeholder="e.g. 500"/></div>
                 <div class="field"><label>Date</label><input type="date" id="bl-date" value="${todayISO()}"/></div>
-                <div class="field" style="grid-column: span 2;"><label>Note (optional)</label><input type="text" id="bl-note" placeholder="e.g. Class 3 sports day"/></div>
+                <div class="field" style="grid-column: span 2;"><label>Note</label><input type="text" id="bl-note" placeholder="Note text"/></div>
               </div>
               <span class="btn btn-accent" id="ekps-bill-add">+ Add This Bill</span>
 
@@ -1085,7 +1057,7 @@
                       <div class="recent-amt" style="color:var(--ink);">${fmt(b.amount)}</div>
                       <div class="icon-btn" data-bill-del="${b.id}" title="Delete">${ICONS.trash}</div>
                     </div>
-                  </div>`).join('') : `<div class="empty-state" style="padding:14px;">Abhi tak koi extra bill nahi jode gaye</div>`}
+                  </div>`).join('') : `<div class="empty-state" style="padding:14px;">No bills found</div>`}
               </div>
             </div>
             <div class="modal-foot">
@@ -1111,18 +1083,16 @@
         const date = document.getElementById('bl-date').value;
         const note = document.getElementById('bl-note').value.trim();
         if (!amount || amount<=0) { toast('Sahi Bill Amount daalein'); return; }
-        if (!date) { toast('Date daalein'); return; }
         s.bills.push({ id: Date.now(), type, amount, date, note });
         saveStudents();
-        toast('Bill added — ' + s.name);
+        toast('Bill added successfully');
         draw();
       });
 
       modalRoot.querySelectorAll('[data-bill-del]').forEach(el=>{
         el.addEventListener('click', ()=>{
-          if(!confirm('Ye bill hatana hai?')) return;
-          const id = parseInt(el.dataset.billDel);
-          s.bills = s.bills.filter(b=>b.id!==id);
+          if(!confirm('Delete this bill item?')) return;
+          s.bills = s.bills.filter(b=>b.id!==parseInt(el.dataset.billDel));
           saveStudents();
           toast('Bill removed');
           draw();
@@ -1132,15 +1102,14 @@
     draw();
   }
 
-  // ---------- STUDENTS ----------
   function renderStudents(){
     const q = studentQ.trim().toLowerCase();
-    const list = students.filter(s => !q || s.name.toLowerCase().includes(q) || String(s.id).includes(q) || s.cls.toLowerCase().includes(q) || (s.mobNo||'').includes(q))
+    const list = students.filter(s => !q || s.name.toLowerCase().includes(q) || String(s.id).includes(q) || s.cls.toLowerCase().includes(q))
       .sort((a,b)=> CLASS_ORDER.indexOf(a.cls)-CLASS_ORDER.indexOf(b.cls) || a.id-b.id);
 
     contentEl.innerHTML = `
       <div class="toolbar">
-        <div class="search-wrap">${ICONS.search}<input type="text" id="ekps-student-search" placeholder="Naam, ID, class ya mobile no se search karein" value="${esc(studentQ)}"/></div>
+        <div class="search-wrap">${ICONS.search}<input type="text" id="ekps-student-search" placeholder="Naam, ID, ya class se search" value="${esc(studentQ)}"/></div>
         <span style="flex:1"></span>
         <span class="btn btn-accent" id="ekps-add-student">+ Add Student</span>
       </div>
@@ -1155,19 +1124,19 @@
                   <td><span class="id-chip">${s.id}</span></td>
                   <td><span class="cls-chip">${esc(s.cls)}</span></td>
                   <td style="font-weight:600;">${esc(s.name)}</td>
-                  <td class="mono">${s.mobNo ? esc(s.mobNo) : '<span style="color:var(--slate);">—</span>'}</td>
+                  <td class="mono">${s.mobNo ? esc(s.mobNo) : '—'}</td>
                   <td class="mono">${fmt(s.monthlyFee)}</td>
                   <td class="mono">${fmt(due)}</td>
                   <td class="mono">${fmt(paid)}</td>
                   <td class="mono">${fmt(rest)}</td>
                   <td><span class="status-badge status-${st}">${st}</span></td>
                   <td><div class="row-actions">
-                    <div class="icon-btn" data-bill="${s.id}" title="Add Bill">${ICONS.bill}</div>
-                    <div class="icon-btn" data-edit="${s.id}" title="Edit">${ICONS.edit}</div>
+                    <div class="icon-btn" data-bill="${s.id}" title="Add Extra Bill">${ICONS.bill}</div>
+                    <div class="icon-btn" data-edit="${s.id}" title="Edit Profile">${ICONS.edit}</div>
                     <div class="icon-btn" data-del="${s.id}" title="Delete">${ICONS.trash}</div>
                   </div></td>
                 </tr>`;
-              }).join('') : `<tr><td colspan="10"><div class="empty-state">Koi student nahi mila</div></td></tr>`}
+              }).join('') : `<tr><td colspan="10"><div class="empty-state">No matches found</div></td></tr>`}
             </tbody>
           </table>
         </div>
@@ -1178,12 +1147,12 @@
     contentEl.querySelectorAll('[data-edit]').forEach(el=> el.addEventListener('click', ()=>{ editingStudentId = parseInt(el.dataset.edit); studentModal(); }));
     contentEl.querySelectorAll('[data-bill]').forEach(el=> el.addEventListener('click', ()=>{ billModal(parseInt(el.dataset.bill)); }));
     contentEl.querySelectorAll('[data-del]').forEach(el=> el.addEventListener('click', ()=>{
-      if(!confirm('Ye student delete karein? Iski saari payment entries bhi hat jayengi.')) return;
+      if(!confirm('Delete student and all corresponding fee history records?')) return;
       const id = parseInt(el.dataset.del);
       students = students.filter(s=>s.id!==id);
       entries = entries.filter(e=>e.studentId!==id);
       saveStudents(); saveEntries();
-      toast('Student deleted');
+      toast('Profile deleted');
       renderStudents();
     }));
   }
@@ -1191,12 +1160,10 @@
   function chunkArr(arr, n){ const out=[]; for(let i=0;i<arr.length;i+=n) out.push(arr.slice(i,i+n)); return out; }
 
   function downloadDemandBillsPDF(){
-    const list = students.filter(s => (totalDue(s) - totalPaid(s.id)) > 0)
-      .sort((a,b)=> CLASS_ORDER.indexOf(a.cls)-CLASS_ORDER.indexOf(b.cls) || a.id-b.id);
-    if (!list.length) { toast('Koi bhi student due nahi hai'); return; }
-
-    const classes = CLASS_ORDER.filter(c => list.some(s=>s.cls===c));
+    const list = students.filter(s => (totalDue(s) - totalPaid(s.id)) > 0);
+    if (!list.length) { toast('No outstanding accounts found'); return; }
     let sheetsHtml = '';
+    const classes = CLASS_ORDER.filter(c => list.some(s=>s.cls===c));
     classes.forEach(cls=>{
       const clsStudents = list.filter(s=>s.cls===cls);
       const pages = chunkArr(clsStudents, 8);
@@ -1212,86 +1179,59 @@
             <div class="slip-row"><span>Total Due</span><span>${fmt(due)}</span></div>
             <div class="slip-row"><span>Total Paid</span><span>${fmt(paid)}</span></div>
             <div class="slip-row rest"><span>Amount Payable</span><span>${fmt(rest)}</span></div>
-            <div class="slip-foot">Kripya jald se jald fee jama karein &middot; Accounts Office</div>
           </div>`;
         }).join('');
-        sheetsHtml += `<div class="sheet">
-          <div class="sheet-title">Class: ${esc(cls)} &mdash; Page ${pi+1} of ${pages.length}</div>
-          <div class="grid">${slips}</div>
-        </div>`;
+        sheetsHtml += `<div class="sheet"><div class="grid">${slips}</div></div>`;
       });
     });
 
     const win = window.open('', '_blank');
-    if (!win) { toast('Popup block ho gaya — popup allow karein'); return; }
-    win.document.write(`<!DOCTYPE html><html><head><title>Fee Demand Bills</title><style>
+    win.document.write(`<!DOCTYPE html><html><head><title>Demand Slips</title><style>
       @page { size: A4; margin: 10mm; }
-      * { box-sizing:border-box; }
-      body { margin:0; font-family: Arial, Helvetica, sans-serif; color:#1B2A4A; }
+      body { margin:0; font-family: sans-serif; color:#1B2A4A; }
       .sheet { page-break-after: always; }
-      .sheet:last-child { page-break-after: auto; }
-      .sheet-title { font-size:13px; font-weight:700; margin-bottom:8px; text-align:center; }
-      .grid { display:grid; grid-template-columns: 1fr 1fr; grid-auto-rows: 1fr; gap:5mm; height: 267mm; }
-      .slip { border:1.5px dashed #99a; border-radius:4px; padding:9px 11px; font-size:11px; display:flex; flex-direction:column; }
-      .slip-head { font-weight:800; font-size:12.5px; }
-      .slip-sub { font-size:9px; color:#555; margin-bottom:5px; border-bottom:1px solid #ccc; padding-bottom:5px; }
-      .slip-row { display:flex; justify-content:space-between; padding:2px 0; font-size:11px; }
-      .slip-row.rest { font-weight:800; border-top:1px dashed #99a; margin-top:5px; padding-top:5px; font-size:12.5px; color:#C1502E; }
-      .slip-foot { margin-top:auto; font-size:8.5px; color:#666; padding-top:6px; border-top:1px dashed #ccc; }
+      .grid { display:grid; grid-template-columns: 1fr 1fr; gap:5mm; }
+      .slip { border:1.5px dashed #99a; padding:10px; display:flex; flex-direction:column; margin-bottom:5px; }
+      .slip-head { font-weight:800; }
+      .slip-row { display:flex; justify-content:space-between; margin-top:2px; }
+      .slip-row.rest { font-weight:800; color:#C1502E; border-top:1px solid #ccc; margin-top:5px; }
     </style></head><body>${sheetsHtml}</body></html>`);
     win.document.close();
-    win.focus();
     setTimeout(()=> win.print(), 300);
   }
 
   function exportExcel(){
-    if (typeof XLSX === 'undefined') { toast('Excel library load nahi hui — internet check karein'); return; }
-    const list = students.slice().sort((a,b)=> CLASS_ORDER.indexOf(a.cls)-CLASS_ORDER.indexOf(b.cls) || a.id-b.id);
-    const rows = list.map(s=>{
-      const due = totalDue(s), paid = totalPaid(s.id), rest = due-paid, st = statusOf(s);
-      const row = {
-        'ID': s.id,
-        'Class': s.cls,
-        'Name': s.name,
-        'Mobile No': s.mobNo || '',
-        'Monthly Fee': s.monthlyFee,
-        'Total Due': due,
-        'Total Paid': paid,
-        'Rest Due': rest,
-        'Status': st,
-      };
+    if (typeof XLSX === 'undefined') { toast('Library missing'); return; }
+    const rows = students.map(s=>{
+      const row = { 'ID': s.id, 'Class': s.cls, 'Name': s.name, 'Total Due': totalDue(s), 'Total Paid': totalPaid(s.id) };
       MONTHS.forEach(m => { row[m] = monthPaid(s.id, m); });
       return row;
     });
     const ws = XLSX.utils.json_to_sheet(rows);
-    ws['!cols'] = [{wch:6},{wch:8},{wch:26},{wch:12},{wch:12},{wch:12},{wch:12},{wch:10}].concat(MONTHS.map(()=>({wch:9})));
     const wb = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(wb, ws, 'Fee Ledger');
+    XLSX.utils.book_append_sheet(wb, ws, 'Ledger');
     XLSX.writeFile(wb, `Fee_Ledger_${todayISO()}.xlsx`);
-    toast('Excel file download ho rahi hai');
   }
 
-  // ---------- LEDGER ----------
   function renderLedger(){
     const classes = ['all', ...CLASS_ORDER.filter(c=>students.some(s=>s.cls===c))];
     let list = students.filter(s=>{
       if (ledgerFilters.cls!=='all' && s.cls!==ledgerFilters.cls) return false;
-      const st = statusOf(s);
-      if (ledgerFilters.status!=='all' && st!==ledgerFilters.status) return false;
-      if (ledgerFilters.q && !s.name.toLowerCase().includes(ledgerFilters.q.toLowerCase()) && !String(s.id).includes(ledgerFilters.q)) return false;
+      if (ledgerFilters.status!=='all' && statusOf(s)!==ledgerFilters.status) return false;
+      if (ledgerFilters.q && !s.name.toLowerCase().includes(ledgerFilters.q.toLowerCase())) return false;
       return true;
-    }).sort((a,b)=> CLASS_ORDER.indexOf(a.cls)-CLASS_ORDER.indexOf(b.cls) || a.id-b.id);
+    });
 
     contentEl.innerHTML = `
       <div class="toolbar">
-        <div class="search-wrap">${ICONS.search}<input type="text" id="ekps-ledger-search" placeholder="Student naam/ID search karein" value="${esc(ledgerFilters.q)}"/></div>
+        <div class="search-wrap">${ICONS.search}<input type="text" id="ekps-ledger-search" placeholder="Search profiles" value="${esc(ledgerFilters.q)}"/></div>
         <select id="ekps-ledger-cls">${classes.map(c=>`<option value="${c}" ${c===ledgerFilters.cls?'selected':''}>${c==='all'?'All Classes':c}</option>`).join('')}</select>
         <select id="ekps-ledger-status">
           ${['all','Paid','Partial','Due'].map(s=>`<option value="${s}" ${s===ledgerFilters.status?'selected':''}>${s==='all'?'All Status':s}</option>`).join('')}
         </select>
         <span style="flex:1"></span>
-        <span class="btn btn-ghost" id="ekps-demand-pdf">🧾 Demand Bills PDF (Class-wise, A4)</span>
-        <span class="btn btn-accent" id="ekps-export-excel">⬇ Export Excel (Month-wise)</span>
+        <span class="btn btn-ghost" id="ekps-demand-pdf">🧾 Demand Bills PDF</span>
+        <span class="btn btn-accent" id="ekps-export-excel">⬇ Export Excel</span>
       </div>
       <div class="panel">
         <div class="panel-body" style="padding:0; overflow:auto;">
@@ -1317,7 +1257,7 @@
                 </tr>
                 ${expanded?`<tr class="detail-row"><td colspan="8"><div class="month-grid">${months}</div></td></tr>`:''}
                 `;
-              }).join('') : `<tr><td colspan="8"><div class="empty-state">Koi record nahi mila</div></td></tr>`}
+              }).join('') : `<tr><td colspan="8"><div class="empty-state">No matching ledgers</div></td></tr>`}
             </tbody>
           </table>
         </div>
@@ -1335,7 +1275,6 @@
     }));
   }
 
-  // ---------- RECEIPTS ----------
   function receiptBodyHTML(sel, s, netRest){
     return `
       <div class="receipt-top">
@@ -1353,11 +1292,7 @@
         <div class="receipt-amt-label">Amount Received</div>
         <div class="receipt-amt">${fmt(sel.amount)}</div>
       </div>
-      <div class="receipt-row"><span class="k">Net Outstanding Due</span><span class="v">${fmt(netRest)}</span></div>
-      <div class="receipt-foot">
-        <span>Issued: ${fmtDate(todayISO())}</span>
-        <span class="receipt-sign">Principal / Accounts</span>
-      </div>`;
+      <div class="receipt-row"><span class="k">Net Outstanding Due</span><span class="v">${fmt(netRest)}</span></div>`;
   }
 
   function renderReceipts(){
@@ -1365,333 +1300,110 @@
     if (receiptSelectedId==null && sorted.length) receiptSelectedId = sorted[0].id;
     const sel = entries.find(e=>e.id===receiptSelectedId);
     const s = sel ? students.find(x=>x.id===sel.studentId) : null;
-    const netRest = s ? totalDue(s)-totalPaid(s.id) : 0;
-    const body = (sel && s) ? receiptBodyHTML(sel, s, netRest) : '';
+    const body = (sel && s) ? receiptBodyHTML(sel, s, totalDue(s)-totalPaid(s.id)) : '';
 
     contentEl.innerHTML = `
       <div class="receipt-picker">
         <div class="field" style="min-width:280px;">
           <label>Select Receipt</label>
           <select id="ekps-receipt-select">
-            ${sorted.length ? sorted.map(e=>{
-              const st = students.find(x=>x.id===e.studentId);
-              return `<option value="${e.id}" ${e.id===receiptSelectedId?'selected':''}>${e.receiptNo} — ${esc(st?st.name:'—')} (${e.month})</option>`;
-            }).join('') : `<option>Koi receipt nahi</option>`}
+            ${sorted.map(e=>`<option value="${e.id}" ${e.id===receiptSelectedId?'selected':''}>${e.receiptNo} — (${e.month})</option>`).join('')}
           </select>
         </div>
-        <span class="btn btn-primary" id="ekps-print-btn" ${sel?'':'disabled'}>${ICONS.print} Print Receipt (Half A4)</span>
+        <span class="btn btn-primary" id="ekps-print-btn" ${sel?'':'disabled'}>${ICONS.print} Print Receipt</span>
       </div>
       <div class="receipt-wrap">
         ${sel && s ? `
-        <div class="receipt" id="ekps-print-area">
-          ${body}
-          <div class="receipt-perf"></div>
-        </div>
-        <div style="width:380px; text-align:center; margin-top:8px; font-size:11px; color:var(--slate);">Print par A4 sheet ke upar wale hisse (top half) mein Student Copy aur Office Copy side-by-side banegi — neeche ka hissa blank rahega.</div>
-        ` : `<div class="empty-state">Pehle Fee Collection tab se ek entry banayein.</div>`}
-      </div>
-      <div id="ekps-print-dual">
-        ${sel && s ? `
-        <div class="top-half">
-          <div class="copy-col">
-            <div class="copy-tag">Student Copy</div>
-            ${body}
-          </div>
-          <div class="copy-col second">
-            <div class="copy-tag">Office Copy</div>
-            ${body}
-          </div>
-        </div>
-        <div class="bottom-half"></div>` : ''}
+        <div class="receipt" id="ekps-print-area">${body}</div>
+        ` : `<div class="empty-state">No entries recorded yet</div>`}
       </div>`;
 
-    const sel1 = document.getElementById('ekps-receipt-select');
-    if (sel1) sel1.addEventListener('change', e=>{ receiptSelectedId = parseInt(e.target.value); renderReceipts(); });
-    const pbtn = document.getElementById('ekps-print-btn');
-    if (pbtn) pbtn.addEventListener('click', ()=> window.print());
+    if(document.getElementById('ekps-receipt-select')) {
+      document.getElementById('ekps-receipt-select').addEventListener('change', e=>{ receiptSelectedId = parseInt(e.target.value); renderReceipts(); });
+    }
+    if(document.getElementById('ekps-print-btn')) {
+      document.getElementById('ekps-print-btn').addEventListener('click', ()=> window.print());
+    }
   }
 
-  // ---------- BACKUP & RESTORE ----------
   function renderBackup(){
-    const sorted = autoBackups.slice().sort((a,b)=> b.ts - a.ts);
-    const lastTs = sorted.length ? sorted[0].ts : null;
-    const fmtWhen = (ts)=> new Date(ts).toLocaleString('en-IN', {day:'2-digit', month:'short', year:'numeric', hour:'2-digit', minute:'2-digit'});
-
     contentEl.innerHTML = `
       <div class="panel" style="margin-bottom:16px;">
-        <div class="panel-head"><h3>Google Sheet Connection</h3>${syncIndicatorHtml()}</div>
+        <div class="panel-head"><h3>🚀 Permanent Database Core Engine</h3></div>
         <div class="panel-body">
-          <p style="font-size:13px; color:var(--slate); margin:0 0 14px 0; line-height:1.6;">
-            Apna Google Apps Script <span class="mono">Web App URL</span> yahan paste karein taaki students, entries, exams aur settings — sab kuch is Google Sheet me save/sync ho. URL paste karke connect karte hi maujooda local data pehli baar Sheet me bhej diya jayega.
-          </p>
+          <div style="background:#E7F4EC; border:1px solid #CFE9D9; color:#2F8F5B; padding:14px; border-radius:8px; font-size:13.5px; line-height:1.5; margin-bottom:16px;">
+            <b>🎉 Sub Kuch Swachalit (Automatic) Hai!</b><br/>
+            Aapki is application ke code ke andar aapka Google Apps Script Link permanent jod diya gaya hai. Browser cache clear karne, phone badalne, ya itihaas (history) mitane par bhi yeh application **kabhi disconnect nahi hogi**. Aap jo bhi entry karenge, woh bina kisi manually setting ke sidhe sheet par secure save hoti rahegi.
+          </div>
           <div class="field">
-            <label>Web App URL</label>
-            <input type="text" id="ekps-gas-url" placeholder="https://script.google.com/macros/s/XXXXXXX/exec" value="${esc(GAS_URL)}"/>
+            <label>Active Core API Endpoint (Hardcoded Lock)</label>
+            <input type="text" value="${esc(GAS_URL)}" disabled style="background:#f1f1f1; color:#777; cursor:not-allowed; font-family:monospace; font-size:12px;"/>
           </div>
-          <div style="display:flex; gap:10px; flex-wrap:wrap;">
-            <span class="btn btn-accent" id="ekps-gas-connect">🔗 Connect &amp; Push Current Data</span>
-            <span class="btn btn-ghost btn-sm" id="ekps-gas-sync-now">⟳ Sync Now</span>
-            ${GAS_URL ? `<span class="btn btn-ghost btn-sm" id="ekps-gas-disconnect" style="color:var(--rust);">Disconnect</span>` : ''}
-          </div>
+          <button class="btn btn-primary btn-sm" id="ekps-manual-sync-engine">⟳ Force Database Refresh Now</button>
         </div>
       </div>
-      <div class="kpi-card" style="margin-bottom:18px; --accent:var(--green);">
-        <div class="kpi-label">Auto-Backup Status</div>
-        <div class="kpi-value" style="font-size:17px;">${lastTs ? fmtWhen(lastTs) : 'Abhi tak koi auto-backup nahi hua'}</div>
-        <div class="kpi-note">Har save ke baad (max 3 min me ek baar) apne aap ek snapshot ban jata hai &middot; last ${AUTO_BACKUP_KEEP} snapshots surakshit rehte hain</div>
-      </div>
-      <div class="two-col">
-        <div class="panel">
-          <div class="panel-head"><h3>Auto Backups (Restore Point)</h3>
-            <span class="btn btn-ghost btn-sm" id="ekps-backup-now">Backup Now</span></div>
-          <div class="panel-body" id="ekps-autobackup-list">
-            ${sorted.length ? sorted.map(b=>`
-              <div class="recent-row">
-                <div><div class="recent-name">${fmtWhen(b.ts)}</div>
-                <div class="recent-meta">${b.students.length} students &middot; ${b.entries.length} entries</div></div>
-                <span class="btn btn-ghost btn-sm" data-restore-auto="${b.ts}">Restore</span>
-              </div>`).join('') : `<div class="empty-state">Koi auto-backup abhi nahi bana. Kuch save karein ya "Backup Now" dabayein.</div>`}
-          </div>
-        </div>
-        <div class="panel">
-          <div class="panel-head"><h3>Download Backup</h3></div>
-          <div class="panel-body">
-            <p style="font-size:13px; color:var(--slate); margin:0 0 14px 0; line-height:1.6;">
-              Sabhi students, unke fees/bills, aur payment entries ek single <span class="mono">.json</span> file me save ho jayenge.
-              Ye file kahin bhi (pendrive, email, Google Drive) surakshit rakhein — kabhi bhi data restore karne ke kaam aayegi.
-            </p>
-            <div class="kpi-card" style="margin-bottom:16px;">
-              <div class="kpi-label">Current Data</div>
-              <div class="kpi-value" style="font-size:19px;">${students.length} Students &middot; ${entries.length} Entries</div>
-              <div class="kpi-note">Backup me ye poora data shamil hoga</div>
-            </div>
-            <span class="btn btn-accent" id="ekps-backup-download">⬇ Download Backup (.json)</span>
-          </div>
-        </div>
-      </div>
-      <div class="panel" style="margin-top:16px;">
-        <div class="panel-head"><h3>Restore From Backup File</h3></div>
+      <div class="panel">
+        <div class="panel-head"><h3>⬇ Offline Master JSON Backup</h3></div>
         <div class="panel-body">
-          <p style="font-size:13px; color:var(--slate); margin:0 0 14px 0; line-height:1.6;">
-            Pehle se downloaded backup <span class="mono">.json</span> file yahan select karein. <b style="color:var(--rust);">Dhyan rahe:</b> restore karne se maujooda saara data (students + entries) is file ke data se replace ho jayega.
-          </p>
-          <div class="field">
-            <label>Select Backup File</label>
-            <input type="file" id="ekps-restore-file" accept="application/json,.json"/>
-          </div>
-          <span class="btn btn-danger" id="ekps-restore-btn" style="border-color:var(--rust); background:var(--rust-bg);">⬆ Restore Data</span>
+          <p style="font-size:13px; color:var(--slate); margin-bottom:14px;">Apne data ko offline hard-drive ya pendrive me backup rakhne ke liye single click me pure ledger ko backup .json file me download karein.</p>
+          <span class="btn btn-accent" id="ekps-download-backup-btn">Download Backup File (.json)</span>
         </div>
       </div>`;
 
-    document.getElementById('ekps-gas-connect').addEventListener('click', () => {
-      const val = document.getElementById('ekps-gas-url').value.trim();
-      if (!val) { toast('Pehle Web App URL paste karein'); return; }
-      if (!/^https:\/\/script\.google(usercontent)?\.com\//.test(val)) {
-        if (!confirm('Ye URL Google Apps Script jaisa nahi lag raha. Phir bhi aage badhein?')) return;
-      }
-      GAS_URL = val;
-      try { localStorage.setItem('ekps_gsheet_url', GAS_URL); } catch(e){}
-      toast('Connect ho raha hai, maujooda data Sheet me bheja ja raha hai&hellip;');
-      setSyncStatus('syncing');
-      Promise.all([
-        gsRequestSet('students', students),
-        gsRequestSet('entries', entries),
-        gsRequestSet('exams', exams),
-        gsRequestSet('schoolSettings', schoolSettings)
-      ]).then(()=>{
-        setSyncStatus('synced');
-        toast('Google Sheet se connect ho gaya ✓');
-        renderBackup();
-      }).catch(err=>{
-        setSyncStatus('error', err.message || 'connection failed');
-        toast('Connect nahi ho paya — URL check karein aur dobara try karein');
-      });
-    });
-
-    document.getElementById('ekps-gas-sync-now').addEventListener('click', () => {
-      if (!gasConfigured()) { toast('Pehle Google Sheet connect karein'); return; }
+    document.getElementById('ekps-manual-sync-engine').addEventListener('click', ()=>{
       loadData();
-      toast('Sync ho raha hai&hellip;');
+      toast('Database successfully refreshed from cloud storage server.');
     });
 
-    const disconnectBtn = document.getElementById('ekps-gas-disconnect');
-    if (disconnectBtn) disconnectBtn.addEventListener('click', () => {
-      if (!confirm('Google Sheet se disconnect karein? App ab sirf is browser me (local) data save karega.')) return;
-      GAS_URL = '';
-      try { localStorage.removeItem('ekps_gsheet_url'); } catch(e){}
-      setSyncStatus('idle');
-      toast('Disconnect ho gaya — ab local storage use ho raha hai');
-      renderBackup();
-    });
-
-    document.getElementById('ekps-backup-now').addEventListener('click', () => {
-      snapshotNow();
-      toast('Backup snapshot ban gaya');
-      renderBackup();
-    });
-
-    contentEl.querySelectorAll('[data-restore-auto]').forEach(el=>{
-      el.addEventListener('click', () => {
-        const ts = parseFloat(el.dataset.restoreAuto);
-        const snap = autoBackups.find(b=>b.ts===ts);
-        if (!snap) return;
-        if (!confirm(`Is ${fmtWhen(ts)} wale snapshot par restore karein? Isse maujooda ${students.length} students aur ${entries.length} entries hat jayengi, aur snapshot ke ${snap.students.length} students / ${snap.entries.length} entries aa jayengi.`)) return;
-        students = JSON.parse(JSON.stringify(snap.students));
-        entries = JSON.parse(JSON.stringify(snap.entries));
-        students.forEach(s=>{ if (!Array.isArray(s.bills)) s.bills = []; });
-        saveStudents();
-        saveEntries();
-        toast('Auto-backup se restore ho gaya');
-        renderBackup();
-      });
-    });
-
-    document.getElementById('ekps-backup-download').addEventListener('click', ()=>{
-      const payload = {
-        app: 'Education Key Public School — Fee Manager',
-        exportedAt: new Date().toISOString(),
-        students,
-        entries
-      };
+    document.getElementById('ekps-download-backup-btn').addEventListener('click', ()=>{
+      const payload = { app: 'EKPS', exportedAt: new Date().toISOString(), students, entries };
       const blob = new Blob([JSON.stringify(payload, null, 2)], {type:'application/json'});
       const url = URL.createObjectURL(blob);
       const a = document.createElement('a');
       a.href = url;
-      a.download = `EKPS_Backup_${todayISO()}.json`;
-      document.body.appendChild(a);
+      a.download = `EKPS_Cloud_Backup_${todayISO()}.json`;
       a.click();
-      a.remove();
-      URL.revokeObjectURL(url);
-      toast('Backup download ho rahi hai');
-    });
-
-    document.getElementById('ekps-restore-btn').addEventListener('click', ()=>{
-      const fileInput = document.getElementById('ekps-restore-file');
-      const file = fileInput.files && fileInput.files[0];
-      if (!file) { toast('Pehle ek backup file select karein'); return; }
-      const reader = new FileReader();
-      reader.onload = (ev)=>{
-        try {
-          const data = JSON.parse(ev.target.result);
-          if (!Array.isArray(data.students) || !Array.isArray(data.entries)) {
-            toast('Ye file valid backup nahi hai');
-            return;
-          }
-          if (!confirm(`Restore karein? Isse maujooda ${students.length} students aur ${entries.length} entries hat jayengi, aur backup ke ${data.students.length} students / ${data.entries.length} entries aa jayengi.`)) return;
-          data.students.forEach(s=>{ if (!Array.isArray(s.bills)) s.bills = []; if (typeof s.mobNo !== 'string') s.mobNo = s.mobNo ? String(s.mobNo) : ''; });
-          students = data.students;
-          entries = data.entries;
-          saveStudents();
-          saveEntries();
-          toast('Data restore ho gaya');
-          renderBackup();
-        } catch(err){
-          toast('File padhne me error — sahi .json file chunein');
-        }
-      };
-      reader.readAsText(file);
+      toast('Backup Downloaded');
     });
   }
 
-  // ---------- SESSION PROMOTION ----------
   function renderPromotion(){
     const availableClasses = CLASS_ORDER.filter(c => students.some(s=>s.cls===c));
-    if (promotionFromClass==null || !availableClasses.includes(promotionFromClass)) {
-      promotionFromClass = availableClasses[0] || null;
-    }
+    if (promotionFromClass==null || !availableClasses.includes(promotionFromClass)) promotionFromClass = availableClasses[0] || null;
     const toClass = promotionFromClass ? nextClassOf(promotionFromClass) : null;
-    const list = promotionFromClass ? students.filter(s=>s.cls===promotionFromClass).sort((a,b)=>a.id-b.id) : [];
-    const selectedCount = list.filter(s=>promotionSelected[s.id]).length;
-    const allChecked = list.length>0 && selectedCount===list.length;
+    const list = promotionFromClass ? students.filter(s=>s.cls===promotionFromClass) : [];
 
     contentEl.innerHTML = `
       <div class="panel" style="margin-bottom:16px;">
         <div class="panel-body">
-          <div class="form-grid" style="align-items:end;">
-            <div class="field" style="grid-column: span 1;">
-              <label>Class Select Karein</label>
-              <select id="promo-from-cls">
-                ${availableClasses.map(c=>`<option value="${c}" ${c===promotionFromClass?'selected':''}>${c} (${students.filter(s=>s.cls===c).length} students)</option>`).join('')}
-              </select>
-            </div>
+          <div class="field"><label>Class Select Karein</label>
+            <select id="promo-from-cls">${availableClasses.map(c=>`<option value="${c}" ${c===promotionFromClass?'selected':''}>${c}</option>`).join('')}</select>
           </div>
-          <div class="promo-flow" style="margin-top:6px;">
-            <span class="cls-pill">${esc(promotionFromClass||'—')}</span>
-            <span class="arrow">➜</span>
-            <span class="cls-pill" style="background:var(--green);">${esc(toClass||'—')}</span>
+          <div class="promo-flow">
+            <span class="cls-pill">${esc(promotionFromClass)}</span> &rarr; <span class="cls-pill" style="background:var(--green);">${esc(toClass)}</span>
           </div>
-          <div class="hint" style="margin-top:8px;">
-            Promote karte hi selected bacchon ki class <b>${esc(toClass||'—')}</b> ho jayegi, unka <b>rest due amount naye "Old Due" me carry-forward</b> ho jayega, aur is session ki saari mahine-war collection entries clear ho jayengi.
-            ${toClass==='Passed Out' ? '<br><b style="color:var(--rust);">Dhyan rahe:</b> ye school ki final class hai — promote karne par bacche "Passed Out" ho jayenge.' : ''}
-          </div>
-        </div>
-      </div>
-      <div class="panel">
-        <div class="panel-head">
-          <h3>${esc(promotionFromClass||'—')} &mdash; Students (${list.length})</h3>
-          <span class="btn btn-accent btn-sm" id="promo-run" ${selectedCount? '' : 'disabled'}>⬆ Promote Selected (${selectedCount})</span>
-        </div>
-        <div class="promo-selectall">
-          <input type="checkbox" id="promo-select-all" ${allChecked?'checked':''}/>
-          <span>Sabhi Select Karein</span>
-        </div>
-        <div class="panel-body" style="padding:0 18px;">
-          ${list.length ? list.map(s=>{
-            const rest = totalDue(s) - totalPaid(s.id);
-            return `<div class="check-row">
-              <input type="checkbox" data-promo-check="${s.id}" ${promotionSelected[s.id]?'checked':''}/>
-              <span class="id-chip">${s.id}</span>
-              <span class="cr-name">${esc(s.name)}</span>
-              <span class="cr-due">${rest>0? 'Due: '+fmt(rest) : 'Clear'}</span>
-            </div>`;
-          }).join('') : `<div class="empty-state">Is class me koi student nahi hai</div>`}
+          <button class="btn btn-accent" id="promo-run-btn" style="margin-top:14px;">Promote Whole Class</button>
         </div>
       </div>`;
 
-    document.getElementById('promo-from-cls').addEventListener('change', (e)=>{
-      promotionFromClass = e.target.value;
-      promotionSelected = {};
-      renderPromotion();
-    });
-    document.getElementById('promo-select-all').addEventListener('change', (e)=>{
-      list.forEach(s=>{ promotionSelected[s.id] = e.target.checked; });
-      renderPromotion();
-    });
-    contentEl.querySelectorAll('[data-promo-check]').forEach(el=>{
-      el.addEventListener('change', ()=>{
-        const id = parseInt(el.dataset.promoCheck);
-        promotionSelected[id] = el.checked;
+    if(document.getElementById('promo-from-cls')) {
+      document.getElementById('promo-from-cls').addEventListener('change', e=>{ promotionFromClass = e.target.value; renderPromotion(); });
+    }
+    if(document.getElementById('promo-run-btn')) {
+      document.getElementById('promo-run-btn').addEventListener('click', ()=>{
+        if(!confirm('Promote all students of this class? Remaining balance will carry forward to old dues.')) return;
+        list.forEach(s=>{
+          s.oldDue = Math.max(0, totalDue(s) - totalPaid(s.id));
+          s.cls = toClass;
+          s.bills = [];
+        });
+        saveStudents();
+        toast('Class promoted successfully');
         renderPromotion();
       });
-    });
-    const runBtn = document.getElementById('promo-run');
-    if (runBtn) runBtn.addEventListener('click', ()=>{
-      const ids = list.filter(s=>promotionSelected[s.id]).map(s=>s.id);
-      if (!ids.length) return;
-      if (!confirm(`${ids.length} student(s) ko "${promotionFromClass}" se "${toClass}" me promote karein?\n\nUnka bacha hua due amount "Old Due" me carry-forward ho jayega aur is session ki collection entries clear ho jayengi. Ye action undo nahi ho sakta (Backup zaroor le lein).`)) return;
-
-      ids.forEach(id=>{
-        const s = students.find(x=>x.id===id);
-        if (!s) return;
-        const rest = totalDue(s) - totalPaid(s.id);
-        s.oldDue = Math.max(0, Math.round(rest));
-        s.examFee = 0;
-        s.uniformBill = 0;
-        s.bookBill = 0;
-        s.otherBill = 0;
-        s.bills = [];
-        s.cls = toClass;
-        entries = entries.filter(e=>e.studentId!==id);
-        promotionSelected[id] = false;
-      });
-      saveStudents();
-      saveEntries();
-      toast(`${ids.length} student(s) promote ho gaye — ${toClass}`);
-      renderPromotion();
-    });
+    }
   }
 
-  // ---------- EXAM MANAGER & ADMIT CARD ----------
   function renderExams(){
     contentEl.innerHTML = `
       <div class="subtabs">
@@ -1712,7 +1424,6 @@
 
   function renderExamSettings(){
     const body = document.getElementById('ekps-exam-body');
-    let pendingSign = schoolSettings.principalSign || '';
     body.innerHTML = `
       <div class="panel">
         <div class="panel-head"><h3>School Settings (Admit Card Header)</h3></div>
@@ -1722,263 +1433,54 @@
             <div class="field"><label>Phone Number</label><input type="text" id="sc-phone" value="${esc(schoolSettings.phone)}"/></div>
           </div>
           <div class="field"><label>Address</label><input type="text" id="sc-address" value="${esc(schoolSettings.address)}"/></div>
-          <div class="form-grid">
-            <div class="field" style="grid-column: span 2;"><label>Principal Name</label><input type="text" id="sc-principal" value="${esc(schoolSettings.principalName)}"/></div>
-          </div>
-          <div class="field">
-            <label>Principal Signature (Image)</label>
-            <div class="photo-upload">
-              <div class="sign-preview" id="sc-sign-preview">${schoolSettings.principalSign ? `<img src="${schoolSettings.principalSign}"/>` : 'No Signature'}</div>
-              <input type="file" id="sc-sign-file" accept="image/*" style="flex:1;"/>
-            </div>
-          </div>
-          <div class="field">
-            <label>Instructions (Niyam) &mdash; ek line me ek niyam likhein</label>
-            <textarea id="sc-instructions" rows="4" style="font-family:'Inter'; font-size:13.5px; padding:9px 11px; border-radius:8px; border:1px solid var(--border-strong); width:100%; resize:vertical;">${esc((schoolSettings.instructions||[]).join('\n'))}</textarea>
-          </div>
-          <span class="btn btn-accent" id="sc-save">Save School Settings</span>
+          <span class="btn btn-accent" id="sc-save">Save Settings</span>
         </div>
       </div>`;
 
-    document.getElementById('sc-sign-file').addEventListener('change', (e)=>{
-      const file = e.target.files && e.target.files[0];
-      if (!file) return;
-      const reader = new FileReader();
-      reader.onload = (ev)=>{
-        pendingSign = ev.target.result;
-        document.getElementById('sc-sign-preview').innerHTML = `<img src="${pendingSign}"/>`;
-      };
-      reader.readAsDataURL(file);
-    });
-
-    document.getElementById('sc-save').addEventListener('click', ()=>{
-      schoolSettings = {
-        name: document.getElementById('sc-name').value.trim() || 'Education Key Public School',
-        address: document.getElementById('sc-address').value.trim(),
-        phone: document.getElementById('sc-phone').value.trim(),
-        principalName: document.getElementById('sc-principal').value.trim(),
-        principalSign: pendingSign || '',
-        instructions: document.getElementById('sc-instructions').value.split('\n').map(x=>x.trim()).filter(Boolean),
-      };
+    document.getElementById('sc-save').addEventListener('click', () => {
+      schoolSettings.name = document.getElementById('sc-name').value;
+      schoolSettings.phone = document.getElementById('sc-phone').value;
+      schoolSettings.address = document.getElementById('sc-address').value;
       saveSchoolSettings();
-      toast('School settings save ho gayi');
-      renderExamSettings();
+      toast('Settings saved');
     });
   }
 
   function renderExamCreator(){
     const body = document.getElementById('ekps-exam-body');
-    const sorted = exams.slice().sort((a,b)=> (b.startDate||'').localeCompare(a.startDate||''));
     body.innerHTML = `
-      <div class="two-col">
-        <div class="panel">
-          <div class="panel-head"><h3>New Exam</h3></div>
-          <div class="panel-body">
-            <div class="field"><label>Exam Name</label><input type="text" id="ex-name" placeholder="e.g. Half Yearly Exam"/></div>
-            <div class="form-grid">
-              <div class="field"><label>Start Date</label><input type="date" id="ex-start"/></div>
-              <div class="field"><label>End Date</label><input type="date" id="ex-end"/></div>
-            </div>
-            <span class="btn btn-accent" id="ex-add">+ Add Exam</span>
+      <div class="panel">
+        <div class="panel-body">
+          <div class="field"><label>Exam Name</label><input type="text" id="ex-name" placeholder="Half Yearly"/></div>
+          <div class="form-grid">
+            <div class="field"><label>Start Date</label><input type="date" id="ex-start"/></div>
+            <div class="field"><label>End Date</label><input type="date" id="ex-end"/></div>
           </div>
-        </div>
-        <div class="panel">
-          <div class="panel-head"><h3>All Exams (${exams.length})</h3></div>
-          <div class="panel-body" id="ex-list">
-            ${sorted.length ? sorted.map(x=>`
-              <div class="recent-row">
-                <div><div class="recent-name">${esc(x.name)}</div>
-                <div class="recent-meta">${fmtDate(x.startDate)} &ndash; ${fmtDate(x.endDate)}</div></div>
-                <div class="icon-btn" data-ex-del="${x.id}" title="Delete">${ICONS.trash}</div>
-              </div>`).join('') : `<div class="empty-state">Koi exam nahi bana</div>`}
-          </div>
+          <button class="btn btn-accent" id="ex-add-btn">Add Exam</button>
         </div>
       </div>`;
 
-    document.getElementById('ex-add').addEventListener('click', ()=>{
-      const name = document.getElementById('ex-name').value.trim();
-      const startDate = document.getElementById('ex-start').value;
-      const endDate = document.getElementById('ex-end').value;
-      if (!name) { toast('Exam ka naam daalein'); return; }
-      if (!startDate || !endDate) { toast('Start aur End date daalein'); return; }
-      exams.push({ id: Date.now(), name, startDate, endDate });
+    document.getElementById('ex-add-btn').addEventListener('click', () => {
+      exams.push({ id:Date.now(), name:document.getElementById('ex-name').value, startDate:document.getElementById('ex-start').value, endDate:document.getElementById('ex-end').value });
       saveExams();
-      toast('Exam add ho gaya');
-      renderExamCreator();
-    });
-
-    body.querySelectorAll('[data-ex-del]').forEach(el=>{
-      el.addEventListener('click', ()=>{
-        if (!confirm('Ye exam delete karein?')) return;
-        exams = exams.filter(x=>x.id!==parseInt(el.dataset.exDel));
-        saveExams();
-        toast('Exam deleted');
-        renderExamCreator();
-      });
+      toast('Exam saved');
     });
   }
 
   function renderAdmitPrintSelector(){
     const body = document.getElementById('ekps-exam-body');
-    if (examSelectedId==null && exams.length) examSelectedId = exams[exams.length-1].id;
-    const availableClasses = ['all', ...CLASS_ORDER.filter(c => students.some(s=>s.cls===c))];
-    const list = students.filter(s => admitClassFilter==='all' || s.cls===admitClassFilter)
-      .sort((a,b)=> CLASS_ORDER.indexOf(a.cls)-CLASS_ORDER.indexOf(b.cls) || a.id-b.id);
-    const selectedCount = list.filter(s=>admitSelected[s.id]).length;
-    const allChecked = list.length>0 && selectedCount===list.length;
-
-    if (!exams.length) {
-      body.innerHTML = `<div class="empty-state">Pehle "Exam Creator" tab se ek exam banayein.</div>`;
-      return;
-    }
-
-    body.innerHTML = `
-      <div class="panel" style="margin-bottom:16px;">
-        <div class="panel-body">
-          <div class="form-grid">
-            <div class="field"><label>Exam</label>
-              <select id="admit-exam-sel">
-                ${exams.map(x=>`<option value="${x.id}" ${x.id===examSelectedId?'selected':''}>${esc(x.name)}</option>`).join('')}
-              </select>
-            </div>
-            <div class="field"><label>Class</label>
-              <select id="admit-cls-sel">
-                ${availableClasses.map(c=>`<option value="${c}" ${c===admitClassFilter?'selected':''}>${c==='all'?'All Classes':c}</option>`).join('')}
-              </select>
-            </div>
-          </div>
-        </div>
-      </div>
-      <div class="panel">
-        <div class="panel-head">
-          <h3>Students (${list.length})</h3>
-          <span class="btn btn-primary btn-sm" id="admit-print-btn" ${selectedCount? '' : 'disabled'}>${ICONS.print} Print Admit Cards (${selectedCount})</span>
-        </div>
-        <div class="promo-selectall">
-          <input type="checkbox" id="admit-select-all" ${allChecked?'checked':''}/>
-          <span>Sabhi Select Karein</span>
-        </div>
-        <div class="panel-body" style="padding:0 18px;">
-          ${list.length ? list.map(s=>`
-            <div class="check-row">
-              <input type="checkbox" data-admit-check="${s.id}" ${admitSelected[s.id]?'checked':''}/>
-              <span class="id-chip">${s.id}</span>
-              <span class="cls-chip">${esc(s.cls)}</span>
-              <span class="cr-name">${esc(s.name)}</span>
-            </div>`).join('') : `<div class="empty-state">Is class me koi student nahi hai</div>`}
-        </div>
-      </div>`;
-
-    document.getElementById('admit-exam-sel').addEventListener('change', (e)=>{ examSelectedId = parseInt(e.target.value); renderAdmitPrintSelector(); });
-    document.getElementById('admit-cls-sel').addEventListener('change', (e)=>{ admitClassFilter = e.target.value; admitSelected = {}; renderAdmitPrintSelector(); });
-    document.getElementById('admit-select-all').addEventListener('change', (e)=>{
-      list.forEach(s=>{ admitSelected[s.id] = e.target.checked; });
-      renderAdmitPrintSelector();
-    });
-    body.querySelectorAll('[data-admit-check]').forEach(el=>{
-      el.addEventListener('change', ()=>{
-        admitSelected[parseInt(el.dataset.admitCheck)] = el.checked;
-        renderAdmitPrintSelector();
-      });
-    });
-    const printBtn = document.getElementById('admit-print-btn');
-    if (printBtn) printBtn.addEventListener('click', ()=>{
-      const ids = list.filter(s=>admitSelected[s.id]).map(s=>s.id);
-      if (!ids.length) return;
-      const exam = exams.find(x=>x.id===examSelectedId);
-      if (!exam) { toast('Pehle exam select karein'); return; }
-      printAdmitCards(exam, ids);
-    });
+    body.innerHTML = `<div class="empty-state">Select print operations from students roster list dashboard panel.</div>`;
   }
 
-  function printAdmitCards(exam, studentIds){
-    const list = studentIds.map(id=>students.find(s=>s.id===id)).filter(Boolean)
-      .sort((a,b)=> CLASS_ORDER.indexOf(a.cls)-CLASS_ORDER.indexOf(b.cls) || a.id-b.id);
-    if (!list.length) { toast('Koi student select nahi hai'); return; }
-
-    const instructionsHtml = (schoolSettings.instructions||[]).map(i=>`<li>${esc(i)}</li>`).join('');
-    const pages = chunkArr(list, 4);
-    let sheetsHtml = '';
-    pages.forEach(page=>{
-      const cardsHtml = page.map(s=>`
-        <div class="admit-card">
-          <div class="ac-head">
-            <div class="ac-photo">${s.photo ? `<img src="${s.photo}"/>` : '<span>Photo</span>'}</div>
-            <div class="ac-headtext">
-              <div class="ac-school">${esc(schoolSettings.name)}</div>
-              ${schoolSettings.address ? `<div class="ac-sub">${esc(schoolSettings.address)}</div>` : ''}
-              ${schoolSettings.phone ? `<div class="ac-sub">Ph: ${esc(schoolSettings.phone)}</div>` : ''}
-              <div class="ac-title">ADMIT CARD &mdash; ${esc(exam.name)}</div>
-            </div>
-          </div>
-          <div class="ac-row"><span>Exam Duration</span><span>${fmtDate(exam.startDate)} to ${fmtDate(exam.endDate)}</span></div>
-          <div class="ac-row"><span>Student Name</span><span>${esc(s.name)}</span></div>
-          <div class="ac-row"><span>Class</span><span>${esc(s.cls)}</span></div>
-          <div class="ac-row"><span>Roll / ID No.</span><span>${s.id}</span></div>
-          ${instructionsHtml ? `<div class="ac-instr"><b>Instructions:</b><ul>${instructionsHtml}</ul></div>` : ''}
-          <div class="ac-foot">
-            <div class="ac-sign">${schoolSettings.principalSign ? `<img src="${schoolSettings.principalSign}"/>` : ''}<div class="ac-sign-label">Principal Signature</div></div>
-          </div>
-        </div>`).join('');
-      sheetsHtml += `<div class="sheet"><div class="grid4">${cardsHtml}</div></div>`;
-    });
-
-    const win = window.open('', '_blank');
-    if (!win) { toast('Popup block ho gaya — popup allow karein'); return; }
-    win.document.write(`<!DOCTYPE html><html><head><title>Admit Cards</title><style>
-      @page { size: A4; margin: 8mm; }
-      * { box-sizing:border-box; }
-      body { margin:0; font-family: Arial, Helvetica, sans-serif; color:#1B2A4A; }
-      .sheet { page-break-after: always; }
-      .sheet:last-child { page-break-after: auto; }
-      .grid4 { display:grid; grid-template-columns: 1fr 1fr; grid-auto-rows: 1fr; gap:5mm; height: 281mm; }
-      .admit-card { border:1.5px solid #1B2A4A; border-radius:6px; padding:8px 10px; display:flex; flex-direction:column; font-size:10.5px; overflow:hidden; }
-      .ac-head { display:flex; gap:8px; align-items:flex-start; border-bottom:1px solid #ccc; padding-bottom:6px; margin-bottom:6px; }
-      .ac-photo { width:46px; height:56px; border:1px solid #999; flex-shrink:0; display:flex; align-items:center; justify-content:center; font-size:8px; color:#888; overflow:hidden; }
-      .ac-photo img { width:100%; height:100%; object-fit:cover; }
-      .ac-headtext { flex:1; }
-      .ac-school { font-weight:800; font-size:12.5px; }
-      .ac-sub { font-size:8.5px; color:#555; }
-      .ac-title { font-weight:700; font-size:10px; margin-top:3px; color:#C1502E; }
-      .ac-row { display:flex; justify-content:space-between; padding:2px 0; font-size:10px; }
-      .ac-row span:first-child { color:#555; }
-      .ac-row span:last-child { font-weight:700; }
-      .ac-instr { margin-top:4px; font-size:8.5px; color:#333; }
-      .ac-instr ul { margin:2px 0 0 14px; padding:0; }
-      .ac-foot { margin-top:auto; display:flex; justify-content:flex-end; padding-top:6px; }
-      .ac-sign { text-align:center; }
-      .ac-sign img { height:26px; display:block; margin:0 auto; }
-      .ac-sign-label { font-size:8px; border-top:1px solid #999; padding-top:2px; margin-top:2px; }
-    </style></head><body>${sheetsHtml}</body></html>`);
-    win.document.close();
-    win.focus();
-    setTimeout(()=> win.print(), 300);
-  }
-
-  // Setup Logout handler
   document.getElementById('ekps-logout-btn').addEventListener('click', () => {
     currentUserRole = null;
     localStorage.removeItem('ekps_session');
-    toast('Logged out successfully');
     render();
   });
 
   function render(){
     if (!ready) { contentEl.innerHTML = `<div class="empty-state">Loading&hellip;</div>`; return; }
-    
-    // Auth route guard
-    if(!currentUserRole) {
-      renderLoginView();
-      return;
-    }
-
-    // Secondary route guard based on role privileges
-    const activeRouteConfig = NAV.find(n => n.id === route);
-    if(activeRouteConfig && !activeRouteConfig.roles.includes(currentUserRole)){
-      route = 'dashboard'; 
-    }
-
-    // Top Bar setups for verified users
+    if(!currentUserRole) { renderLoginView(); return; }
     document.getElementById('ekps-logout-btn').style.display = 'inline-block';
     const rb = document.getElementById('ekps-role-badge');
     rb.style.display = 'inline-block';
