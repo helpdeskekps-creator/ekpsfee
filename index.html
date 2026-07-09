@@ -948,9 +948,10 @@
   }
 
   // ---------- STUDENTS ----------
+// ---------- STUDENTS ----------
   function studentModal(){
     const editing = editingStudentId != null;
-    const s = editing ? students.find(x=>x.id===editingStudentId) : {id:nextStudentId(), cls:CLASS_ORDER[0], name:'', mobNo:'', photo:'', monthlyFee:0, examFee:0, oldDue:0, uniformBill:0, bookBill:0, otherBill:0, bills:[]};
+    const s = editing ? students.find(x=>x.id===editingStudentId) : {id:nextStudentId(), cls:CLASS_ORDER[0], name:'', fatherName:'', address:'', mobNo:'', photo:'', monthlyFee:0, examFee:0, oldDue:0, uniformBill:0, bookBill:0, otherBill:0, bills:[]};
     let pendingPhoto = s.photo || '';
     modalRoot.innerHTML = `
       <div class="modal-backdrop" id="ekps-modal-bg">
@@ -966,10 +967,15 @@
               <div class="field" style="grid-column: span 1;"><label>Student Name</label><input type="text" id="f-name" value="${esc(s.name)}"/></div>
             </div>
             <div class="form-grid">
+              <div class="field" style="grid-column: span 1;"><label>Father's Name</label><input type="text" id="f-father" value="${esc(s.fatherName||'')}"/></div>
               <div class="field" style="grid-column: span 1;">
                 <label>Mobile No.</label>
                 <input type="tel" id="f-mob" value="${esc(s.mobNo||'')}" maxlength="15" placeholder="e.g. 9876543210"/>
               </div>
+            </div>
+            <div class="field">
+              <label>Address</label>
+              <input type="text" id="f-address" value="${esc(s.address||'')}" placeholder="Enter full address..."/>
             </div>
             <div class="field">
               <label>Student Photo (Admit Card ke liye)</label>
@@ -1010,12 +1016,16 @@
     document.getElementById('ekps-modal-save').addEventListener('click', ()=>{
       const name = document.getElementById('f-name').value.trim();
       if (!name) { toast('Student Name daalein'); return; }
+      const fatherName = document.getElementById('f-father').value.trim();
+      const address = document.getElementById('f-address').value.trim();
       const mobNo = document.getElementById('f-mob').value.trim();
       if (mobNo && !/^[0-9+\-\s]{7,15}$/.test(mobNo)) { toast('Sahi Mobile No. daalein'); return; }
       const rec = {
         id: editing ? s.id : parseInt(document.getElementById('f-id').value) || nextStudentId(),
         cls: document.getElementById('f-cls').value,
         name,
+        fatherName,
+        address,
         mobNo,
         photo: pendingPhoto || '',
         monthlyFee: parseFloat(document.getElementById('f-mf').value)||0,
