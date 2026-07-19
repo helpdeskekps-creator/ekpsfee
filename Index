@@ -61,7 +61,7 @@
   #ekps-root .brand-name { font-family:'Sora'; font-weight: 700; font-size: 13.5px; line-height: 1.25; }
   #ekps-root .brand-sub { font-size: 10.5px; color: #A9B4CB; letter-spacing: .04em; text-transform: uppercase; margin-top: 1px; }
 
-  #ekps-root nav.navlist { display: flex; flex-direction: column; gap: 3px; margin-top: 4px; }
+  nav.navlist { display: flex; flex-direction: column; gap: 3px; margin-top: 4px; }
   #ekps-root .navitem {
     display: flex; align-items: center; gap: 11px;
     padding: 10px 12px; border-radius: 9px; cursor: pointer;
@@ -184,6 +184,16 @@
   #ekps-root .status-Paid { background: var(--green-bg); color: var(--green); }
   #ekps-root .status-Partial { background: var(--amber-bg); color: var(--amber); }
   #ekps-root .status-Due { background: var(--rust-bg); color: var(--rust); }
+  #ekps-root .status-Admitted { background: var(--green-bg); color: var(--green); }
+  #ekps-root .status-Registered { background: var(--amber-bg); color: var(--amber); }
+  #ekps-root .status-InStock { background: var(--green-bg); color: var(--green); }
+  #ekps-root .status-Low { background: var(--amber-bg); color: var(--amber); }
+  #ekps-root .status-Out { background: var(--rust-bg); color: var(--rust); }
+  #ekps-root .aging-bucket { font-family:'IBM Plex Mono'; font-size:11.5px; padding:2px 7px; border-radius:5px; display:inline-block; }
+  #ekps-root .aging-0 { background:#EFEBDD; color:var(--ink-2); }
+  #ekps-root .aging-1 { background: var(--amber-bg); color: var(--amber); }
+  #ekps-root .aging-2 { background:#FCE3D3; color:#B15420; }
+  #ekps-root .aging-3 { background: var(--rust-bg); color: var(--rust); }
 
   #ekps-root .row-actions { display:flex; gap:6px; }
   #ekps-root .icon-btn {
@@ -335,7 +345,7 @@
       <div id="ekps-logout-btn" style="cursor: pointer; font-size: 11px; padding: 4px 8px; background: rgba(255,255,255,0.1); border-radius: 5px; display: none;" title="Logout">Logout</div>
     </div>
     <nav class="navlist" id="ekps-nav"></nav>
-    <div class="sidebar-foot">Data saved privately to your account.<br/>Academic Year 2026&ndash;27</div>
+    <div class="sidebar-foot"><span id="ekps-sync-indicator">Local storage only</span><br/>Academic Year 2026&ndash;27</div>
   </aside>
 
   <div class="main">
@@ -361,7 +371,7 @@
 (function(){
   const MONTHS = ['April','May','June','July','August','September','October','November','December','January','February','March'];
   const CLASS_ORDER = ['P.NC','N.C','L.K.G','U.K.G','1st','2nd','3rd','4th','5th','6th','7th','8th'];
-  const SEED_STUDENTS = [{"id": 21, "cls": "N.C", "name": "Laksh Kr", "monthlyFee": 700, "examFee": 400, "oldDue": 1400, "uniformBill": 0, "bookBill": 0, "otherBill": 0}, {"id": 22, "cls": "N.C", "name": "Pallavi Kr", "monthlyFee": 300, "examFee": 400, "oldDue": 500, "uniformBill": 0, "bookBill": 0, "otherBill": 0}, {"id": 23, "cls": "N.C", "name": "Sahil Kr", "monthlyFee": 700, "examFee": 400, "oldDue": 700, "uniformBill": 0, "bookBill": 0, "otherBill": 0}, {"id": 24, "cls": "N.C", "name": "Kavya Pandey", "monthlyFee": 800, "examFee": 400, "oldDue": 0, "uniformBill": 0, "bookBill": 0, "otherBill": 0}, {"id": 25, "cls": "N.C", "name": "Anjeet Kr", "monthlyFee": 800, "examFee": 400, "oldDue": 800, "uniformBill": 0, "bookBill": 0, "otherBill": 0}, {"id": 26, "cls": "N.C", "name": "Deepa Kr - Mansapur", "monthlyFee": 0, "examFee": 0, "oldDue": 0, "uniformBill": 0, "bookBill": 0, "otherBill": 0}, {"id": 27, "cls": "N.C", "name": "Chhoti Kri - Jiwanpur", "monthlyFee": 0, "examFee": 0, "oldDue": 0, "uniformBill": 0, "bookBill": 0, "otherBill": 0}, {"id": 28, "cls": "N.C", "name": "Aryan Kumar - Bhasinbigha", "monthlyFee": 0, "examFee": 0, "oldDue": 0, "uniformBill": 0, "bookBill": 0, "otherBill": 0}, {"id": 29, "cls": "N.C", "name": "Ritik Kr - Bijalpur", "monthlyFee": 0, "examFee": 0, "oldDue": 0, "uniformBill": 0, "bookBill": 0, "otherBill": 0}, {"id": 30, "cls": "N.C", "name": "Roshni Kri - Mahrampur", "monthlyFee": 0, "examFee": 0, "oldDue": 0, "uniformBill": 0, "bookBill": 0, "otherBill": 0}, {"id": 41, "cls": "L.K.G", "name": "Suhani Kumari", "monthlyFee": 800, "examFee": 400, "oldDue": 2400, "uniformBill": 0, "bookBill": 0, "otherBill": 0}, {"id": 42, "cls": "L.K.G", "name": "Rajnandani Kumari", "monthlyFee": 900, "examFee": 400, "oldDue": 1800, "uniformBill": 0, "bookBill": 0, "otherBill": 0}, {"id": 43, "cls": "L.K.G", "name": "Ashish Kr", "monthlyFee": 400, "examFee": 400, "oldDue": 750, "uniformBill": 0, "bookBill": 0, "otherBill": 0}, {"id": 44, "cls": "L.K.G", "name": "Aman / Dilkhush", "monthlyFee": 1400, "examFee": 800, "oldDue": 3225, "uniformBill": 0, "bookBill": 0, "otherBill": 0}, {"id": 45, "cls": "L.K.G", "name": "Shashikant Kr", "monthlyFee": 400, "examFee": 400, "oldDue": 195, "uniformBill": 0, "bookBill": 0, "otherBill": 0}, {"id": 46, "cls": "L.K.G", "name": "Swati / Suhani / Ayansh", "monthlyFee": 1900, "examFee": 1200, "oldDue": 0, "uniformBill": 0, "bookBill": 0, "otherBill": 0}, {"id": 47, "cls": "L.K.G", "name": "Satyam Kr", "monthlyFee": 800, "examFee": 400, "oldDue": 0, "uniformBill": 0, "bookBill": 0, "otherBill": 0}, {"id": 48, "cls": "L.K.G", "name": "Sintu Kr", "monthlyFee": 800, "examFee": 400, "oldDue": 2400, "uniformBill": 0, "bookBill": 0, "otherBill": 0}, {"id": 49, "cls": "L.K.G", "name": "Shiva Kr", "monthlyFee": 400, "examFee": 400, "oldDue": 600, "uniformBill": 0, "bookBill": 0, "otherBill": 0}, {"id": 50, "cls": "L.K.G", "name": "Shidhant Kr", "monthlyFee": 800, "examFee": 400, "oldDue": 0, "uniformBill": 0, "bookBill": 0, "otherBill": 0}, {"id": 51, "cls": "L.K.G", "name": "Shivraj Kr", "monthlyFee": 400, "examFee": 400, "oldDue": 400, "uniformBill": 0, "bookBill": 0, "otherBill": 0}, {"id": 52, "cls": "L.K.G", "name": "Piyansh / Himanshu", "monthlyFee": 700, "examFee": 800, "oldDue": 300, "uniformBill": 0, "bookBill": 0, "otherBill": 0}, {"id": 53, "cls": "L.K.G", "name": "Rishav Kr", "monthlyFee": 800, "examFee": 400, "oldDue": 0, "uniformBill": 0, "bookBill": 0, "otherBill": 0}, {"id": 54, "cls": "L.K.G", "name": "Divanshu / Kajal", "monthlyFee": 1100, "examFee": 800, "oldDue": 3100, "uniformBill": 0, "bookBill": 0, "otherBill": 0}, {"id": 55, "cls": "L.K.G", "name": "Kirti / Yuvraj", "monthlyFee": 1600, "examFee": 800, "oldDue": 1840, "uniformBill": 0, "bookBill": 0, "otherBill": 0}, {"id": 56, "cls": "L.K.G", "name": "Raj / Tegar / Kartik", "monthlyFee": 1800, "examFee": 1200, "oldDue": 4300, "uniformBill": 0, "bookBill": 0, "otherBill": 0}, {"id": 57, "cls": "L.K.G", "name": "Shivani / Raja / Pari / Rashmi / Rajan Kr", "monthlyFee": 3400, "examFee": 1600, "oldDue": 200, "uniformBill": 0, "bookBill": 0, "otherBill": 0}, {"id": 58, "cls": "L.K.G", "name": "Amrit Kr - Karthik", "monthlyFee": 0, "examFee": 0, "oldDue": 0, "uniformBill": 0, "bookBill": 0, "otherBill": 0}, {"id": 59, "cls": "L.K.G", "name": "Dilkhush Kr - Tulsigarh", "monthlyFee": 0, "examFee": 0, "oldDue": 0, "uniformBill": 0, "bookBill": 0, "otherBill": 0}, {"id": 60, "cls": "L.K.G", "name": "Kartik Kumar - Mansapur", "monthlyFee": 0, "examFee": 0, "oldDue": 0, "uniformBill": 0, "bookBill": 0, "otherBill": 0}, {"id": 61, "cls": "U.K.G", "name": "Tarun Kumar", "monthlyFee": 400, "examFee": 400, "oldDue": 1450, "uniformBill": 0, "bookBill": 0, "otherBill": 0}, {"id": 62, "cls": "U.K.G", "name": "Sunny / Aryan", "monthlyFee": 400, "examFee": 400, "oldDue": 650, "uniformBill": 0, "bookBill": 0, "otherBill": 0}, {"id": 63, "cls": "U.K.G", "name": "Surbhi / Purvi Kr", "monthlyFee": 1600, "examFee": 800, "oldDue": 1600, "uniformBill": 0, "bookBill": 0, "otherBill": 0}, {"id": 64, "cls": "U.K.G", "name": "Lovely / Shweta", "monthlyFee": 950, "examFee": 800, "oldDue": 600, "uniformBill": 0, "bookBill": 0, "otherBill": 0}, {"id": 65, "cls": "U.K.G", "name": "Aryan Singh", "monthlyFee": 800, "examFee": 400, "oldDue": 700, "uniformBill": 0, "bookBill": 0, "otherBill": 0}, {"id": 66, "cls": "U.K.G", "name": "Ritik Rustam", "monthlyFee": 800, "examFee": 800, "oldDue": 700, "uniformBill": 0, "bookBill": 0, "otherBill": 0}, {"id": 67, "cls": "U.K.G", "name": "Aryan Raj - Jiwanpur", "monthlyFee": 0, "examFee": 0, "oldDue": 0, "uniformBill": 0, "bookBill": 0, "otherBill": 0}, {"id": 68, "cls": "U.K.G", "name": "Sunny Kumar - Bhasinbigha", "monthlyFee": 0, "examFee": 0, "oldDue": 0, "uniformBill": 0, "bookBill": 0, "otherBill": 0}, {"id": 69, "cls": "U.K.G", "name": "Rustam Kumar - Mansapur", "monthlyFee": 0, "examFee": 0, "oldDue": 0, "uniformBill": 0, "bookBill": 0, "otherBill": 0}, {"id": 70, "cls": "U.K.G", "name": "Rishav Kumar - Mansapur", "monthlyFee": 0, "examFee": 0, "oldDue": 0, "uniformBill": 0, "bookBill": 0, "otherBill": 0}, {"id": 71, "cls": "U.K.G", "name": "Komal Kumar - Mansapur", "monthlyFee": 0, "examFee": 0, "oldDue": 0, "uniformBill": 0, "bookBill": 0, "otherBill": 0}, {"id": 81, "cls": "1st", "name": "Surya / Nisha / Abhikant", "monthlyFee": 2200, "examFee": 1200, "oldDue": 9150, "uniformBill": 0, "bookBill": 0, "otherBill": 0}, {"id": 82, "cls": "1st", "name": "Priti / Suruti", "monthlyFee": 750, "examFee": 800, "oldDue": 594, "uniformBill": 0, "bookBill": 0, "otherBill": 0}, {"id": 83, "cls": "1st", "name": "Bobby Kr", "monthlyFee": 450, "examFee": 400, "oldDue": 750, "uniformBill": 0, "bookBill": 0, "otherBill": 0}, {"id": 84, "cls": "1st", "name": "Satyam Kr", "monthlyFee": 850, "examFee": 400, "oldDue": 1700, "uniformBill": 0, "bookBill": 0, "otherBill": 0}, {"id": 85, "cls": "1st", "name": "Vivan Kr", "monthlyFee": 850, "examFee": 400, "oldDue": 800, "uniformBill": 0, "bookBill": 0, "otherBill": 0}, {"id": 86, "cls": "1st", "name": "Aarti / Chandan", "monthlyFee": 850, "examFee": 800, "oldDue": 300, "uniformBill": 0, "bookBill": 0, "otherBill": 0}, {"id": 87, "cls": "1st", "name": "Honey Kr", "monthlyFee": 850, "examFee": 400, "oldDue": 945, "uniformBill": 0, "bookBill": 0, "otherBill": 0}, {"id": 88, "cls": "1st", "name": "Kanhaiya Raj", "monthlyFee": 850, "examFee": 400, "oldDue": 0, "uniformBill": 0, "bookBill": 0, "otherBill": 0}, {"id": 89, "cls": "1st", "name": "Ravi Ranjan Kr", "monthlyFee": 750, "examFee": 800, "oldDue": 700, "uniformBill": 0, "bookBill": 0, "otherBill": 0}, {"id": 90, "cls": "1st", "name": "Rinki Kri", "monthlyFee": 450, "examFee": 400, "oldDue": 0, "uniformBill": 0, "bookBill": 0, "otherBill": 0}, {"id": 91, "cls": "1st", "name": "Mohit Kr", "monthlyFee": 850, "examFee": 400, "oldDue": 525, "uniformBill": 0, "bookBill": 0, "otherBill": 0}, {"id": 92, "cls": "1st", "name": "Saurav Kr", "monthlyFee": 850, "examFee": 400, "oldDue": 514, "uniformBill": 0, "bookBill": 0, "otherBill": 0}, {"id": 93, "cls": "1st", "name": "Ananya Kri", "monthlyFee": 750, "examFee": 400, "oldDue": 700, "uniformBill": 0, "bookBill": 0, "otherBill": 0}, {"id": 101, "cls": "2nd", "name": "Arman / Muskaan / Alok", "monthlyFee": 1150, "examFee": 1200, "oldDue": 2100, "uniformBill": 0, "bookBill": 0, "otherBill": 0}, {"id": 102, "cls": "2nd", "name": "Archi / Prithvi", "monthlyFee": 850, "examFee": 400, "oldDue": 8295, "uniformBill": 0, "bookBill": 0, "otherBill": 0}, {"id": 103, "cls": "2nd", "name": "Deepak Kr", "monthlyFee": 850, "examFee": 800, "oldDue": 0, "uniformBill": 0, "bookBill": 0, "otherBill": 0}, {"id": 104, "cls": "2nd", "name": "Anushka / Rajniti", "monthlyFee": 850, "examFee": 800, "oldDue": 12890, "uniformBill": 0, "bookBill": 0, "otherBill": 0}, {"id": 105, "cls": "2nd", "name": "Sandhiya / Ayush", "monthlyFee": 850, "examFee": 400, "oldDue": 585, "uniformBill": 0, "bookBill": 0, "otherBill": 0}, {"id": 106, "cls": "2nd", "name": "Bajrangi Kr", "monthlyFee": 450, "examFee": 400, "oldDue": 2010, "uniformBill": 0, "bookBill": 0, "otherBill": 0}, {"id": 107, "cls": "2nd", "name": "Raju Kumar + Sandhiya Kr", "monthlyFee": 0, "examFee": 0, "oldDue": 0, "uniformBill": 0, "bookBill": 0, "otherBill": 0}, {"id": 108, "cls": "2nd", "name": "Anshu Kumari + Ansh Kumar + Ritik Kumar", "monthlyFee": 0, "examFee": 0, "oldDue": 0, "uniformBill": 0, "bookBill": 0, "otherBill": 0}];
+  const SEED_STUDENTS = [];
 
   const ICONS = {
     dashboard: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" class="navicon"><rect x="3" y="3" width="7" height="9" rx="1.5"/><rect x="14" y="3" width="7" height="5" rx="1.5"/><rect x="14" y="12" width="7" height="9" rx="1.5"/><rect x="3" y="16" width="7" height="5" rx="1.5"/></svg>',
@@ -378,7 +388,13 @@
     backup: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" class="navicon"><path d="M12 3v12"/><path d="M7 10l5 5 5-5"/><path d="M4 17v2a2 2 0 002 2h12a2 2 0 002-2v-2"/></svg>',
     password: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" class="navicon"><circle cx="12" cy="10" r="3"/><path d="M12 2a10 10 0 0110 10c0 5.523-4.477 10-10 10S2 17.523 2 12c0-2.33.796-4.471 2.126-6.174L7 9m7-4l2 2m-5-3.5V6"/></svg>',
     promotion: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" class="navicon"><path d="M12 19V5"/><path d="M5 12l7-7 7 7"/><path d="M5 19h14"/></svg>',
-    examcard: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" class="navicon"><rect x="2.5" y="5" width="19" height="14" rx="2.2"/><circle cx="8" cy="11.2" r="2.1"/><path d="M5.3 16.5c.4-1.7 1.7-2.6 2.7-2.6s2.3.9 2.7 2.6"/><path d="M14 9.5h5M14 12.5h5M14 15.5h3"/></svg>'
+    examcard: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" class="navicon"><rect x="2.5" y="5" width="19" height="14" rx="2.2"/><circle cx="8" cy="11.2" r="2.1"/><path d="M5.3 16.5c.4-1.7 1.7-2.6 2.7-2.6s2.3.9 2.7 2.6"/><path d="M14 9.5h5M14 12.5h5M14 15.5h3"/></svg>',
+    admission: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" class="navicon"><path d="M8 3H5.5A1.5 1.5 0 004 4.5v15A1.5 1.5 0 005.5 21h13a1.5 1.5 0 001.5-1.5V9l-6-6H8z"/><path d="M13.5 3v5a1 1 0 001 1H19.5"/><path d="M9 14.5l2 2 4-4.2"/></svg>',
+    transport: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" class="navicon"><rect x="2.5" y="6.5" width="19" height="10.5" rx="2"/><path d="M2.5 11h19"/><circle cx="7" cy="19.3" r="1.6"/><circle cx="17" cy="19.3" r="1.6"/><path d="M6 6.5V4.5a1 1 0 011-1h10a1 1 0 011 1v2"/></svg>',
+    inventory: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" class="navicon"><path d="M3.5 7.5L12 3l8.5 4.5L12 12z"/><path d="M3.5 7.5V16l8.5 4.5V12"/><path d="M20.5 7.5V16L12 20.5"/><path d="M7 5.3l8.5 4.5"/></svg>',
+    route: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="6" cy="6" r="2.5"/><circle cx="18" cy="18" r="2.5"/><path d="M8.2 7.2C9.5 9 11 10 13 10.5c2.7.7 4.3 2.3 4.8 4.5"/></svg>',
+    box: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3.5 7.5L12 3l8.5 4.5L12 12z"/><path d="M3.5 7.5V16l8.5 4.5V12"/><path d="M20.5 7.5V16L12 20.5"/></svg>',
+    stamp: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 3h6v5H9z"/><path d="M7 15h10l1.5 5H5.5z"/><path d="M9 8c-1.5 1-2 3-1 5h8c1-2 .5-4-1-5"/></svg>'
   };
 
   let students = [];
@@ -392,6 +408,11 @@
   let receiptSelectedId = null;
   let ready = false;
   let autoBackups = [];
+
+  // --- Google Sheet locked sync state ---
+  const GAS_URL = 'https://script.google.com/macros/s/AKfycby2kp-czkh2Qs6EC8qPk4ALp4huZ9RtQXiS9hmII2k6JInvbZiOpfwTdbPdeTGjoAY/exec';
+  let syncStatus = 'idle'; // idle | syncing | synced | error | offline
+  let syncStatusMsg = '';
 
   // --- Session Promotion state ---
   let promotionFromClass = null;
@@ -411,6 +432,28 @@
     admin: 'admin123',
     user: 'user123'
   };
+
+  // --- Admission / Registration state ---
+  let admissions = [];
+  let editingAdmissionId = null;
+  let admissionQ = '';
+  let admissionFilter = 'all'; // all | Registered | Admitted
+
+  // --- Transport Management state ---
+  let transportRoutes = [];
+  let transportEntries = [];
+  let editingRouteId = null;
+  let transportSubView = 'routes'; // routes | assign | collect
+  let transportAssignClsFilter = 'all';
+  let transportCollectPickedId = null;
+
+  // --- Inventory Management state ---
+  let inventoryItems = [];
+  let inventoryTxns = [];
+  let editingItemId = null;
+  let inventorySubView = 'items'; // items | stock
+  let inventoryQ = '';
+  let stockPickedItemId = null;
 
   const root = document.getElementById('ekps-root');
   const contentEl = document.getElementById('ekps-content');
@@ -446,7 +489,107 @@
     return CLASS_ORDER[i+1];
   }
 
-  // ---------- standard localStorage conversion to fix loading error ----------
+  // ---------- Admission helpers ----------
+  function nextAdmissionId(){ return admissions.length ? Math.max(...admissions.map(a=>a.id))+1 : 1; }
+  function nextAdmissionNo(){
+    const yr = new Date().getFullYear();
+    const n = admissions.length + 1;
+    return 'ADM-' + yr + '-' + String(n).padStart(3,'0');
+  }
+
+  // ---------- Current month / multi-level due helpers ----------
+  function currentMonthIndex(){
+    // MONTHS array is academic-year ordered starting April (index 0)
+    const jsMonth = new Date().getMonth(); // 0=Jan
+    return (jsMonth + 9) % 12;
+  }
+  function currentMonthName(){ return MONTHS[currentMonthIndex()]; }
+  function currentMonthDueOf(s){
+    return Math.max(0, (s.monthlyFee||0) - monthPaid(s.id, currentMonthName()));
+  }
+  // Aging buckets for monthly tuition dues (multi-level due statement)
+  function studentDueBuckets(s){
+    const curIdx = currentMonthIndex();
+    const elapsed = MONTHS.slice(0, curIdx+1);
+    const buckets = { current:0, b1_2:0, b3_5:0, b6plus:0 };
+    elapsed.forEach((m, i)=>{
+      const age = curIdx - i;
+      const due = Math.max(0, (s.monthlyFee||0) - monthPaid(s.id, m));
+      if (due <= 0) return;
+      if (age === 0) buckets.current += due;
+      else if (age <= 2) buckets.b1_2 += due;
+      else if (age <= 5) buckets.b3_5 += due;
+      else buckets.b6plus += due;
+    });
+    const otherCharges = (s.examFee||0) + (s.oldDue||0) + (s.uniformBill||0) + (s.bookBill||0) + (s.otherBill||0) + billsTotal(s);
+    const total = buckets.current + buckets.b1_2 + buckets.b3_5 + buckets.b6plus + otherCharges;
+    return Object.assign({ otherCharges, total }, buckets);
+  }
+
+  // ---------- Transport helpers ----------
+  function nextRouteId(){ return transportRoutes.length ? Math.max(...transportRoutes.map(r=>r.id))+1 : 1; }
+  function routeOf(s){ return transportRoutes.find(r=>r.id===s.transportRouteId); }
+  function transportStudentEntries(id){ return transportEntries.filter(e=>e.studentId===id); }
+  function transportTotalPaid(id){ return transportStudentEntries(id).reduce((a,e)=>a+e.amount,0); }
+  function transportMonthPaid(id, month){ return transportStudentEntries(id).filter(e=>e.month===month).reduce((a,e)=>a+e.amount,0); }
+  function transportTotalDue(s){
+    const r = routeOf(s);
+    if (!r) return 0;
+    return (r.fee||0) * 12;
+  }
+  function nextTransportReceiptNo(){ return 'TR-' + String(transportEntries.length+1).padStart(4,'0'); }
+
+  // ---------- Inventory helpers ----------
+  function nextItemId(){ return inventoryItems.length ? Math.max(...inventoryItems.map(i=>i.id))+1 : 1; }
+  function itemStock(itemId){
+    return inventoryTxns.filter(t=>t.itemId===itemId).reduce((a,t)=> a + (t.type==='in' ? t.qty : -t.qty), 0);
+  }
+  function itemStatus(item){
+    const stock = itemStock(item.id);
+    if (stock <= 0) return 'Out';
+    if (stock <= (item.reorderLevel||0)) return 'Low';
+    return 'InStock';
+  }
+
+  // ---------- Google Sheet sync (Apps Script Web App bridge) ----------
+  function setSyncStatus(status, msg){
+    syncStatus = status; syncStatusMsg = msg || '';
+    const el = document.getElementById('ekps-sync-indicator');
+    if (el) el.outerHTML = syncIndicatorHtml();
+  }
+  function syncIndicatorHtml(){
+    const map = {
+      idle: ['#9AA5B8', 'Google Sheet Connected'],
+      syncing: ['#B9862A', 'Google Sheet se sync ho raha hai&hellip;'],
+      synced: ['#2F8F5B', 'Google Sheet se sync&nbsp;✓'],
+      error: ['#C1502E', 'Sync fail — ' + esc(syncStatusMsg || 'connection error')],
+      offline: ['#C1502E', 'Offline — localStorage se data dikh raha hai']
+    };
+    const [color, label] = map[syncStatus] || map.idle;
+    return `<span id="ekps-sync-indicator" style="display:inline-flex;align-items:center;gap:5px;"><span style="width:7px;height:7px;border-radius:50%;background:${color};display:inline-block;"></span>${label}</span>`;
+  }
+  function gasConfigured(){ return !!(GAS_URL && GAS_URL.trim()); }
+  function gsRequestGetAll(){
+    return fetch(GAS_URL + (GAS_URL.includes('?') ? '&' : '?') + 'action=get', { method:'GET' })
+      .then(r=>r.json());
+  }
+  function gsRequestSet(key, value){
+    return fetch(GAS_URL, {
+      method:'POST',
+      headers: { 'Content-Type': 'text/plain;charset=utf-8' }, // avoids CORS preflight on Apps Script
+      body: JSON.stringify({ action:'set', key, value: JSON.stringify(value) })
+    }).then(r=>r.json());
+  }
+  function pushToSheet(key, value){
+    if (!gasConfigured()) return;
+    setSyncStatus('syncing');
+    gsRequestSet(key, value).then(res=>{
+      if (res && res.ok) setSyncStatus('synced');
+      else setSyncStatus('error', (res && res.error) || 'unknown');
+    }).catch(err=>{ setSyncStatus('error', err.message || 'network error'); });
+  }
+
+  // ---------- data load / save ----------
   function loadData(){
     try {
       const r = localStorage.getItem('ekps_students');
@@ -484,25 +627,118 @@
       exams = r ? JSON.parse(r) : [];
     } catch(e){ exams = []; }
 
+    try {
+      const r = localStorage.getItem('ekps_admissions');
+      admissions = r ? JSON.parse(r) : [];
+    } catch(e){ admissions = []; }
+
+    try {
+      const r = localStorage.getItem('ekps_transport_routes');
+      transportRoutes = r ? JSON.parse(r) : [];
+    } catch(e){ transportRoutes = []; }
+
+    try {
+      const r = localStorage.getItem('ekps_transport_entries');
+      transportEntries = r ? JSON.parse(r) : [];
+    } catch(e){ transportEntries = []; }
+
+    try {
+      const r = localStorage.getItem('ekps_inventory_items');
+      inventoryItems = r ? JSON.parse(r) : [];
+    } catch(e){ inventoryItems = []; }
+
+    try {
+      const r = localStorage.getItem('ekps_inventory_txns');
+      inventoryTxns = r ? JSON.parse(r) : [];
+    } catch(e){ inventoryTxns = []; }
+
     ready = true;
+
+    if (gasConfigured()){
+      setSyncStatus('syncing');
+      gsRequestGetAll().then(res=>{
+        if (!res || !res.ok || !res.data) { setSyncStatus('error', 'bad response'); return; }
+        const d = res.data;
+        try { if (d.students) { students = JSON.parse(d.students); students.forEach(s=>{ if (!Array.isArray(s.bills)) s.bills = []; if (typeof s.mobNo !== 'string') s.mobNo = s.mobNo ? String(s.mobNo) : ''; }); } } catch(e){}
+        try { if (d.entries) entries = JSON.parse(d.entries); } catch(e){}
+        try { if (d.exams) exams = JSON.parse(d.exams); } catch(e){}
+        try { if (d.schoolSettings) schoolSettings = Object.assign({}, schoolSettings, JSON.parse(d.schoolSettings)); } catch(e){}
+        try { if (d.admissions) admissions = JSON.parse(d.admissions); } catch(e){}
+        try { if (d.transportRoutes) transportRoutes = JSON.parse(d.transportRoutes); } catch(e){}
+        try { if (d.transportEntries) transportEntries = JSON.parse(d.transportEntries); } catch(e){}
+        try { if (d.inventoryItems) inventoryItems = JSON.parse(d.inventoryItems); } catch(e){}
+        try { if (d.inventoryTxns) inventoryTxns = JSON.parse(d.inventoryTxns); } catch(e){}
+        cacheLocally();
+        setSyncStatus('synced');
+        render();
+      }).catch(err=>{
+        setSyncStatus('offline', err.message || 'network error');
+        toast('Google Sheet se connect nahi ho paya — offline data dikh raha hai');
+      });
+    }
+  }
+  function cacheLocally(){
+    try { localStorage.setItem('ekps_students', JSON.stringify(students)); } catch(e){}
+    try { localStorage.setItem('ekps_entries', JSON.stringify(entries)); } catch(e){}
+    try { localStorage.setItem('ekps_exams', JSON.stringify(exams)); } catch(e){}
+    try { localStorage.setItem('ekps_school_settings', JSON.stringify(schoolSettings)); } catch(e){}
+    try { localStorage.setItem('ekps_admissions', JSON.stringify(admissions)); } catch(e){}
+    try { localStorage.setItem('ekps_transport_routes', JSON.stringify(transportRoutes)); } catch(e){}
+    try { localStorage.setItem('ekps_transport_entries', JSON.stringify(transportEntries)); } catch(e){}
+    try { localStorage.setItem('ekps_inventory_items', JSON.stringify(inventoryItems)); } catch(e){}
+    try { localStorage.setItem('ekps_inventory_txns', JSON.stringify(inventoryTxns)); } catch(e){}
+  }
+  function saveAdmissions(){
+    try { localStorage.setItem('ekps_admissions', JSON.stringify(admissions)); }
+    catch(e){ console.error('save admissions failed', e); }
+    pushToSheet('admissions', admissions);
+    maybeAutoBackup();
+  }
+  function saveTransportRoutes(){
+    try { localStorage.setItem('ekps_transport_routes', JSON.stringify(transportRoutes)); }
+    catch(e){ console.error('save transport routes failed', e); }
+    pushToSheet('transportRoutes', transportRoutes);
+    maybeAutoBackup();
+  }
+  function saveTransportEntries(){
+    try { localStorage.setItem('ekps_transport_entries', JSON.stringify(transportEntries)); }
+    catch(e){ console.error('save transport entries failed', e); }
+    pushToSheet('transportEntries', transportEntries);
+    maybeAutoBackup();
+  }
+  function saveInventoryItems(){
+    try { localStorage.setItem('ekps_inventory_items', JSON.stringify(inventoryItems)); }
+    catch(e){ console.error('save inventory items failed', e); }
+    pushToSheet('inventoryItems', inventoryItems);
+    maybeAutoBackup();
+  }
+  function saveInventoryTxns(){
+    try { localStorage.setItem('ekps_inventory_txns', JSON.stringify(inventoryTxns)); }
+    catch(e){ console.error('save inventory txns failed', e); }
+    pushToSheet('inventoryTxns', inventoryTxns);
+    maybeAutoBackup();
   }
   function saveSchoolSettings(){
     try { localStorage.setItem('ekps_school_settings', JSON.stringify(schoolSettings)); }
     catch(e){ console.error('save school settings failed', e); }
+    pushToSheet('schoolSettings', schoolSettings);
   }
   function saveExams(){
     try { localStorage.setItem('ekps_exams', JSON.stringify(exams)); }
     catch(e){ console.error('save exams failed', e); }
+    pushToSheet('exams', exams);
   }
   
   function saveStudents(){
     try { localStorage.setItem('ekps_students', JSON.stringify(students)); }
     catch(e){ console.error('save students failed', e); }
+    pushToSheet('students', students);
     maybeAutoBackup();
   }
   function saveEntries(){
     try { localStorage.setItem('ekps_entries', JSON.stringify(entries)); }
     catch(e){ console.error('save entries failed', e); }
+    pushToSheet('entries', entries);
     maybeAutoBackup();
   }
   function saveAuth(){
@@ -521,6 +757,11 @@
       ts: Date.now(),
       students: JSON.parse(JSON.stringify(students)),
       entries: JSON.parse(JSON.stringify(entries)),
+      admissions: JSON.parse(JSON.stringify(admissions)),
+      transportRoutes: JSON.parse(JSON.stringify(transportRoutes)),
+      transportEntries: JSON.parse(JSON.stringify(transportEntries)),
+      inventoryItems: JSON.parse(JSON.stringify(inventoryItems)),
+      inventoryTxns: JSON.parse(JSON.stringify(inventoryTxns)),
     });
     if (autoBackups.length > AUTO_BACKUP_KEEP) autoBackups = autoBackups.slice(-AUTO_BACKUP_KEEP);
     saveAutoBackups();
@@ -654,23 +895,29 @@
   // ---------- nav ----------
   const NAV = [
     {id:'dashboard', label:'Dashboard', icon:'dashboard', roles:['admin', 'user']},
+    {id:'admission', label:'Admission', icon:'admission', roles:['admin', 'user']},
     {id:'collect', label:'Fee Collection', icon:'collect', roles:['admin', 'user']},
     {id:'students', label:'Students', icon:'students', roles:['admin']},
     {id:'ledger', label:'Fee Ledger', icon:'ledger', roles:['admin', 'user']},
     {id:'receipts', label:'Receipts', icon:'receipts', roles:['admin', 'user']},
+    {id:'transport', label:'Transport', icon:'transport', roles:['admin', 'user']},
+    {id:'inventory', label:'Inventory', icon:'inventory', roles:['admin', 'user']},
     {id:'promotion', label:'Session Promotion', icon:'promotion', roles:['admin']},
     {id:'exams', label:'Exam & Admit Card', icon:'examcard', roles:['admin', 'user']},
     {id:'backup', label:'Backup & Restore', icon:'backup', roles:['admin']},
   ];
   const TITLES = {
     dashboard: ['Dashboard','Realtime fee collection overview'],
+    admission: ['Student Registration & Admission','Naye student ka registration aur admission form'],
     collect: ['Fee Collection','Record a new fee payment entry'],
     students: ['Students','Manage student fee master data'],
     ledger: ['Fee Ledger','Class-wise dues & payment status'],
     receipts: ['Receipts','Look up and print a payment receipt'],
+    transport: ['Transport Management','Routes, vehicle assignment aur transport fee collection'],
+    inventory: ['Inventory Management','Uniform, books & stationery stock tracking'],
     promotion: ['Session Promotion','Naye saal ke liye bacchon ko agli class me promote karein'],
     exams: ['Exam Manager & Admit Card','School settings, exams aur admit card printing'],
-    backup: ['Backup & Restore','Automatic snapshots + manual download/restore'],
+    backup: ['Backup & Sync','Google Sheet Sync + snapshots and manual backups'],
   };
 
   function renderNav(){
@@ -877,9 +1124,10 @@
   }
 
   // ---------- STUDENTS ----------
+// ---------- STUDENTS ----------
   function studentModal(){
     const editing = editingStudentId != null;
-    const s = editing ? students.find(x=>x.id===editingStudentId) : {id:nextStudentId(), cls:CLASS_ORDER[0], name:'', mobNo:'', photo:'', monthlyFee:0, examFee:0, oldDue:0, uniformBill:0, bookBill:0, otherBill:0, bills:[]};
+    const s = editing ? students.find(x=>x.id===editingStudentId) : {id:nextStudentId(), cls:CLASS_ORDER[0], name:'', fatherName:'', address:'', mobNo:'', photo:'', monthlyFee:0, examFee:0, oldDue:0, uniformBill:0, bookBill:0, otherBill:0, bills:[]};
     let pendingPhoto = s.photo || '';
     modalRoot.innerHTML = `
       <div class="modal-backdrop" id="ekps-modal-bg">
@@ -895,10 +1143,15 @@
               <div class="field" style="grid-column: span 1;"><label>Student Name</label><input type="text" id="f-name" value="${esc(s.name)}"/></div>
             </div>
             <div class="form-grid">
+              <div class="field" style="grid-column: span 1;"><label>Father's Name</label><input type="text" id="f-father" value="${esc(s.fatherName||'')}"/></div>
               <div class="field" style="grid-column: span 1;">
                 <label>Mobile No.</label>
                 <input type="tel" id="f-mob" value="${esc(s.mobNo||'')}" maxlength="15" placeholder="e.g. 9876543210"/>
               </div>
+            </div>
+            <div class="field">
+              <label>Address</label>
+              <input type="text" id="f-address" value="${esc(s.address||'')}" placeholder="Enter full address..."/>
             </div>
             <div class="field">
               <label>Student Photo (Admit Card ke liye)</label>
@@ -939,12 +1192,16 @@
     document.getElementById('ekps-modal-save').addEventListener('click', ()=>{
       const name = document.getElementById('f-name').value.trim();
       if (!name) { toast('Student Name daalein'); return; }
+      const fatherName = document.getElementById('f-father').value.trim();
+      const address = document.getElementById('f-address').value.trim();
       const mobNo = document.getElementById('f-mob').value.trim();
       if (mobNo && !/^[0-9+\-\s]{7,15}$/.test(mobNo)) { toast('Sahi Mobile No. daalein'); return; }
       const rec = {
         id: editing ? s.id : parseInt(document.getElementById('f-id').value) || nextStudentId(),
         cls: document.getElementById('f-cls').value,
         name,
+        fatherName,
+        address,
         mobNo,
         photo: pendingPhoto || '',
         monthlyFee: parseFloat(document.getElementById('f-mf').value)||0,
@@ -1113,7 +1370,737 @@
     }));
   }
 
+  // ---------- ADMISSION (STUDENT REGISTRATION & ADMISSION FORM) ----------
+  function admissionModal(){
+    const editing = editingAdmissionId != null;
+    const a = editing ? admissions.find(x=>x.id===editingAdmissionId) : {
+      id: nextAdmissionId(), admissionNo: nextAdmissionNo(), name:'', dob:'', gender:'Male', category:'General',
+      fatherName:'', motherName:'', guardianMobile:'', altMobile:'', address:'', aadhaar:'',
+      previousSchool:'', classAppliedFor: CLASS_ORDER[0], bloodGroup:'', photo:'', admissionDate: todayISO(), status:'Registered'
+    };
+    let pendingPhoto = a.photo || '';
+    modalRoot.innerHTML = `
+      <div class="modal-backdrop" id="ekps-adm-bg">
+        <div class="modal" style="width:640px;">
+          <div class="modal-head"><h3>${editing?'Edit Registration':'Student Registration & Admission Form'}</h3>
+            <div class="icon-btn" id="ekps-adm-close">✕</div></div>
+          <div class="modal-body">
+            <div class="form-grid">
+              <div class="field"><label>Admission / Reg. No.</label><input type="text" id="a-no" value="${esc(a.admissionNo)}" disabled/></div>
+              <div class="field"><label>Class Applied For</label>
+                <select id="a-cls">${CLASS_ORDER.map(c=>`<option value="${c}" ${c===a.classAppliedFor?'selected':''}>${c}</option>`).join('')}</select>
+              </div>
+              <div class="field"><label>Admission Date</label><input type="date" id="a-date" value="${a.admissionDate||todayISO()}"/></div>
+            </div>
+            <div class="form-grid">
+              <div class="field" style="grid-column: span 2;"><label>Student Name</label><input type="text" id="a-name" value="${esc(a.name)}"/></div>
+              <div class="field"><label>Date of Birth</label><input type="date" id="a-dob" value="${a.dob||''}"/></div>
+            </div>
+            <div class="form-grid cols-4">
+              <div class="field"><label>Gender</label>
+                <select id="a-gender">${['Male','Female','Other'].map(g=>`<option value="${g}" ${g===a.gender?'selected':''}>${g}</option>`).join('')}</select>
+              </div>
+              <div class="field"><label>Category</label>
+                <select id="a-cat">${['General','OBC','SC','ST','EWS','Other'].map(g=>`<option value="${g}" ${g===a.category?'selected':''}>${g}</option>`).join('')}</select>
+              </div>
+              <div class="field"><label>Blood Group</label><input type="text" id="a-blood" value="${esc(a.bloodGroup||'')}" placeholder="e.g. B+"/></div>
+              <div class="field"><label>Aadhaar No.</label><input type="text" id="a-aadhaar" value="${esc(a.aadhaar||'')}" maxlength="12"/></div>
+            </div>
+            <div class="form-grid">
+              <div class="field"><label>Father's Name</label><input type="text" id="a-father" value="${esc(a.fatherName||'')}"/></div>
+              <div class="field"><label>Mother's Name</label><input type="text" id="a-mother" value="${esc(a.motherName||'')}"/></div>
+            </div>
+            <div class="form-grid">
+              <div class="field"><label>Guardian Mobile No.</label><input type="tel" id="a-mob" value="${esc(a.guardianMobile||'')}" maxlength="15"/></div>
+              <div class="field"><label>Alternate Mobile No.</label><input type="tel" id="a-altmob" value="${esc(a.altMobile||'')}" maxlength="15"/></div>
+            </div>
+            <div class="field"><label>Address</label><input type="text" id="a-address" value="${esc(a.address||'')}"/></div>
+            <div class="field"><label>Previous School (if any)</label><input type="text" id="a-prevschool" value="${esc(a.previousSchool||'')}"/></div>
+            <div class="field">
+              <label>Student Photo</label>
+              <div class="photo-upload">
+                <div class="photo-preview" id="a-photo-preview">${a.photo ? `<img src="${a.photo}"/>` : 'No Photo'}</div>
+                <input type="file" id="a-photo" accept="image/*" style="flex:1;"/>
+              </div>
+            </div>
+          </div>
+          <div class="modal-foot">
+            <span class="btn btn-ghost" id="ekps-adm-cancel">Cancel</span>
+            <span class="btn btn-primary" id="ekps-adm-save">${editing?'Save Changes':'Register Student'}</span>
+          </div>
+        </div>
+      </div>`;
+
+    const close = ()=>{ modalRoot.innerHTML=''; editingAdmissionId=null; };
+    document.getElementById('ekps-adm-bg').addEventListener('click', e=>{ if(e.target.id==='ekps-adm-bg') close(); });
+    document.getElementById('ekps-adm-close').addEventListener('click', close);
+    document.getElementById('ekps-adm-cancel').addEventListener('click', close);
+    document.getElementById('a-photo').addEventListener('change', (e)=>{
+      const file = e.target.files && e.target.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = (ev)=>{
+        pendingPhoto = ev.target.result;
+        document.getElementById('a-photo-preview').innerHTML = `<img src="${pendingPhoto}"/>`;
+      };
+      reader.readAsDataURL(file);
+    });
+    document.getElementById('ekps-adm-save').addEventListener('click', ()=>{
+      const name = document.getElementById('a-name').value.trim();
+      if (!name) { toast('Student Name daalein'); return; }
+      const guardianMobile = document.getElementById('a-mob').value.trim();
+      if (guardianMobile && !/^[0-9+\-\s]{7,15}$/.test(guardianMobile)) { toast('Sahi Mobile No. daalein'); return; }
+      const rec = {
+        id: a.id, admissionNo: a.admissionNo,
+        classAppliedFor: document.getElementById('a-cls').value,
+        admissionDate: document.getElementById('a-date').value || todayISO(),
+        name, dob: document.getElementById('a-dob').value,
+        gender: document.getElementById('a-gender').value,
+        category: document.getElementById('a-cat').value,
+        bloodGroup: document.getElementById('a-blood').value.trim(),
+        aadhaar: document.getElementById('a-aadhaar').value.trim(),
+        fatherName: document.getElementById('a-father').value.trim(),
+        motherName: document.getElementById('a-mother').value.trim(),
+        guardianMobile, altMobile: document.getElementById('a-altmob').value.trim(),
+        address: document.getElementById('a-address').value.trim(),
+        previousSchool: document.getElementById('a-prevschool').value.trim(),
+        photo: pendingPhoto || '',
+        status: a.status || 'Registered',
+        linkedStudentId: a.linkedStudentId || null,
+      };
+      if (editing) {
+        admissions = admissions.map(x=>x.id===rec.id?rec:x);
+      } else {
+        admissions.push(rec);
+      }
+      saveAdmissions();
+      toast(editing?'Registration updated':'Student registered successfully');
+      close();
+      renderAdmission();
+    });
+  }
+
+  function confirmAdmissionModal(admissionId){
+    const a = admissions.find(x=>x.id===admissionId);
+    if (!a) return;
+    modalRoot.innerHTML = `
+      <div class="modal-backdrop" id="ekps-cfm-bg">
+        <div class="modal">
+          <div class="modal-head"><h3>Confirm Admission &mdash; ${esc(a.name)}</h3>
+            <div class="icon-btn" id="ekps-cfm-close">✕</div></div>
+          <div class="modal-body">
+            <p style="font-size:13px; color:var(--slate); line-height:1.6; margin-top:0;">
+              Admission confirm karne par ye student <b>Students</b> aur <b>Fee Ledger</b> module me fee-record ke sath add ho jayega.
+            </p>
+            <div class="form-grid">
+              <div class="field"><label>Student ID (New)</label><input type="number" id="c-id" value="${nextStudentId()}"/></div>
+              <div class="field"><label>Class</label>
+                <select id="c-cls">${CLASS_ORDER.map(c=>`<option value="${c}" ${c===a.classAppliedFor?'selected':''}>${c}</option>`).join('')}</select>
+              </div>
+            </div>
+            <div class="form-grid cols-4">
+              <div class="field"><label>Monthly Fee</label><input type="number" id="c-mf" value="0"/></div>
+              <div class="field"><label>Exam Fee</label><input type="number" id="c-ef" value="0"/></div>
+              <div class="field"><label>Old Due</label><input type="number" id="c-od" value="0"/></div>
+              <div class="field"><label>Uniform Bill</label><input type="number" id="c-ub" value="0"/></div>
+            </div>
+          </div>
+          <div class="modal-foot">
+            <span class="btn btn-ghost" id="ekps-cfm-cancel">Cancel</span>
+            <span class="btn btn-accent" id="ekps-cfm-save">Confirm Admission</span>
+          </div>
+        </div>
+      </div>`;
+    const close = ()=>{ modalRoot.innerHTML=''; };
+    document.getElementById('ekps-cfm-bg').addEventListener('click', e=>{ if(e.target.id==='ekps-cfm-bg') close(); });
+    document.getElementById('ekps-cfm-close').addEventListener('click', close);
+    document.getElementById('ekps-cfm-cancel').addEventListener('click', close);
+    document.getElementById('ekps-cfm-save').addEventListener('click', ()=>{
+      const id = parseInt(document.getElementById('c-id').value) || nextStudentId();
+      if (students.some(x=>x.id===id)) { toast('Ye Student ID pehle se maujood hai'); return; }
+      const rec = {
+        id, cls: document.getElementById('c-cls').value, name: a.name,
+        fatherName: a.fatherName||'', address: a.address||'', mobNo: a.guardianMobile||'',
+        photo: a.photo||'',
+        monthlyFee: parseFloat(document.getElementById('c-mf').value)||0,
+        examFee: parseFloat(document.getElementById('c-ef').value)||0,
+        oldDue: parseFloat(document.getElementById('c-od').value)||0,
+        uniformBill: parseFloat(document.getElementById('c-ub').value)||0,
+        bookBill: 0, otherBill: 0, bills: [],
+        admissionNo: a.admissionNo,
+      };
+      students.push(rec);
+      saveStudents();
+      a.status = 'Admitted';
+      a.linkedStudentId = id;
+      saveAdmissions();
+      toast('Admission confirmed — student add ho gaya');
+      close();
+      renderAdmission();
+    });
+  }
+
+  function renderAdmission(){
+    const q = admissionQ.trim().toLowerCase();
+    const list = admissions.filter(a=>{
+      if (admissionFilter!=='all' && a.status!==admissionFilter) return false;
+      if (!q) return true;
+      return a.name.toLowerCase().includes(q) || String(a.admissionNo).toLowerCase().includes(q) || a.classAppliedFor.toLowerCase().includes(q);
+    }).sort((a,b)=> b.id-a.id);
+
+    contentEl.innerHTML = `
+      <div class="kpi-grid" style="grid-template-columns:repeat(3,1fr);">
+        <div class="kpi-card" style="--accent:var(--ink)"><div class="kpi-label">Total Registrations</div><div class="kpi-value">${admissions.length}</div></div>
+        <div class="kpi-card" style="--accent:var(--green)"><div class="kpi-label">Admitted</div><div class="kpi-value">${admissions.filter(a=>a.status==='Admitted').length}</div></div>
+        <div class="kpi-card" style="--accent:var(--amber)"><div class="kpi-label">Pending (Registered)</div><div class="kpi-value">${admissions.filter(a=>a.status==='Registered').length}</div></div>
+      </div>
+      <div class="toolbar">
+        <div class="search-wrap">${ICONS.search}<input type="text" id="ekps-adm-search" placeholder="Naam, admission no ya class se search karein" value="${esc(admissionQ)}"/></div>
+        <select id="ekps-adm-filter">
+          ${['all','Registered','Admitted'].map(s=>`<option value="${s}" ${s===admissionFilter?'selected':''}>${s==='all'?'All Status':s}</option>`).join('')}
+        </select>
+        <span style="flex:1"></span>
+        <span class="btn btn-accent" id="ekps-adm-new">${ICONS.admission.replace('navicon','')} + New Registration / Admission</span>
+      </div>
+      <div class="panel">
+        <div class="panel-body" style="padding:0; overflow:auto;">
+          <table class="data">
+            <thead><tr><th>Adm. No.</th><th>Name</th><th>Class Applied</th><th>Father's Name</th><th>Mobile</th><th>Reg. Date</th><th>Status</th><th></th></tr></thead>
+            <tbody>
+              ${list.length ? list.map(a=>`
+                <tr>
+                  <td><span class="id-chip">${esc(a.admissionNo)}</span></td>
+                  <td style="font-weight:600;">${esc(a.name)}</td>
+                  <td><span class="cls-chip">${esc(a.classAppliedFor)}</span></td>
+                  <td>${esc(a.fatherName||'—')}</td>
+                  <td class="mono">${esc(a.guardianMobile||'—')}</td>
+                  <td>${fmtDate(a.admissionDate)}</td>
+                  <td><span class="status-badge status-${a.status}">${a.status}</span></td>
+                  <td><div class="row-actions">
+                    ${a.status!=='Admitted' ? `<div class="icon-btn" data-confirm-adm="${a.id}" title="Confirm Admission">${ICONS.stamp}</div>` : ''}
+                    <div class="icon-btn" data-edit-adm="${a.id}" title="Edit">${ICONS.edit}</div>
+                    <div class="icon-btn" data-del-adm="${a.id}" title="Delete">${ICONS.trash}</div>
+                  </div></td>
+                </tr>`).join('') : `<tr><td colspan="8"><div class="empty-state">Koi registration nahi mila</div></td></tr>`}
+            </tbody>
+          </table>
+        </div>
+      </div>`;
+
+    document.getElementById('ekps-adm-search').addEventListener('input', e=>{ admissionQ = e.target.value; renderAdmission(); });
+    document.getElementById('ekps-adm-filter').addEventListener('change', e=>{ admissionFilter = e.target.value; renderAdmission(); });
+    document.getElementById('ekps-adm-new').addEventListener('click', ()=>{ editingAdmissionId=null; admissionModal(); });
+    contentEl.querySelectorAll('[data-edit-adm]').forEach(el=> el.addEventListener('click', ()=>{ editingAdmissionId = parseInt(el.dataset.editAdm); admissionModal(); }));
+    contentEl.querySelectorAll('[data-confirm-adm]').forEach(el=> el.addEventListener('click', ()=>{ confirmAdmissionModal(parseInt(el.dataset.confirmAdm)); }));
+    contentEl.querySelectorAll('[data-del-adm]').forEach(el=> el.addEventListener('click', ()=>{
+      if(!confirm('Ye registration delete karein?')) return;
+      admissions = admissions.filter(a=>a.id!==parseInt(el.dataset.delAdm));
+      saveAdmissions();
+      toast('Registration deleted');
+      renderAdmission();
+    }));
+  }
+
   function chunkArr(arr, n){ const out=[]; for(let i=0;i<arr.length;i+=n) out.push(arr.slice(i,i+n)); return out; }
+
+  // ---------- TRANSPORT MANAGEMENT ----------
+  function routeModal(){
+    const editing = editingRouteId != null;
+    const r = editing ? transportRoutes.find(x=>x.id===editingRouteId) : {id:nextRouteId(), name:'', vehicleNo:'', driverName:'', driverMobile:'', capacity:0, fee:0};
+    modalRoot.innerHTML = `
+      <div class="modal-backdrop" id="ekps-rt-bg">
+        <div class="modal">
+          <div class="modal-head"><h3>${editing?'Edit Route':'Add Transport Route'}</h3><div class="icon-btn" id="ekps-rt-close">✕</div></div>
+          <div class="modal-body">
+            <div class="field"><label>Route Name</label><input type="text" id="r-name" value="${esc(r.name)}" placeholder="e.g. Route 1 - City Center"/></div>
+            <div class="form-grid">
+              <div class="field"><label>Vehicle No.</label><input type="text" id="r-vehicle" value="${esc(r.vehicleNo)}"/></div>
+              <div class="field"><label>Capacity (Seats)</label><input type="number" id="r-cap" value="${r.capacity}"/></div>
+            </div>
+            <div class="form-grid">
+              <div class="field"><label>Driver Name</label><input type="text" id="r-driver" value="${esc(r.driverName)}"/></div>
+              <div class="field"><label>Driver Mobile</label><input type="tel" id="r-drivermob" value="${esc(r.driverMobile)}" maxlength="15"/></div>
+            </div>
+            <div class="field"><label>Monthly Transport Fee (₹)</label><input type="number" id="r-fee" value="${r.fee}"/></div>
+          </div>
+          <div class="modal-foot">
+            <span class="btn btn-ghost" id="ekps-rt-cancel">Cancel</span>
+            <span class="btn btn-primary" id="ekps-rt-save">${editing?'Save Changes':'Add Route'}</span>
+          </div>
+        </div>
+      </div>`;
+    const close = ()=>{ modalRoot.innerHTML=''; editingRouteId=null; };
+    document.getElementById('ekps-rt-bg').addEventListener('click', e=>{ if(e.target.id==='ekps-rt-bg') close(); });
+    document.getElementById('ekps-rt-close').addEventListener('click', close);
+    document.getElementById('ekps-rt-cancel').addEventListener('click', close);
+    document.getElementById('ekps-rt-save').addEventListener('click', ()=>{
+      const name = document.getElementById('r-name').value.trim();
+      if (!name) { toast('Route ka naam daalein'); return; }
+      const rec = {
+        id: r.id, name,
+        vehicleNo: document.getElementById('r-vehicle').value.trim(),
+        driverName: document.getElementById('r-driver').value.trim(),
+        driverMobile: document.getElementById('r-drivermob').value.trim(),
+        capacity: parseFloat(document.getElementById('r-cap').value)||0,
+        fee: parseFloat(document.getElementById('r-fee').value)||0,
+      };
+      if (editing) transportRoutes = transportRoutes.map(x=>x.id===rec.id?rec:x);
+      else transportRoutes.push(rec);
+      saveTransportRoutes();
+      toast(editing?'Route updated':'Route added');
+      close();
+      renderTransport();
+    });
+  }
+
+  function renderTransport(){
+    contentEl.innerHTML = `
+      <div class="subtabs">
+        <div class="subtab ${transportSubView==='routes'?'active':''}" data-tr-tab="routes">Routes & Vehicles</div>
+        <div class="subtab ${transportSubView==='assign'?'active':''}" data-tr-tab="assign">Assign Students</div>
+        <div class="subtab ${transportSubView==='collect'?'active':''}" data-tr-tab="collect">Transport Fee Collection</div>
+      </div>
+      <div id="ekps-tr-body"></div>`;
+    contentEl.querySelectorAll('[data-tr-tab]').forEach(el=>{
+      el.addEventListener('click', ()=>{ transportSubView = el.dataset.trTab; renderTransport(); });
+    });
+    if (transportSubView==='routes') renderTransportRoutes();
+    else if (transportSubView==='assign') renderTransportAssign();
+    else renderTransportCollect();
+  }
+
+  function renderTransportRoutes(){
+    const body = document.getElementById('ekps-tr-body');
+    const sorted = transportRoutes.slice().sort((a,b)=> a.name.localeCompare(b.name));
+    body.innerHTML = `
+      <div class="toolbar"><span style="flex:1"></span><span class="btn btn-accent" id="ekps-rt-new">+ Add Route</span></div>
+      <div class="panel">
+        <div class="panel-body" style="padding:0; overflow:auto;">
+          <table class="data">
+            <thead><tr><th>Route</th><th>Vehicle No.</th><th>Driver</th><th>Driver Mobile</th><th>Capacity</th><th>Assigned</th><th>Monthly Fee</th><th></th></tr></thead>
+            <tbody>
+              ${sorted.length ? sorted.map(r=>{
+                const assignedCount = students.filter(s=>s.transportRouteId===r.id).length;
+                return `<tr>
+                  <td style="font-weight:600;">${esc(r.name)}</td>
+                  <td class="mono">${esc(r.vehicleNo)||'—'}</td>
+                  <td>${esc(r.driverName)||'—'}</td>
+                  <td class="mono">${esc(r.driverMobile)||'—'}</td>
+                  <td class="mono">${r.capacity||0}</td>
+                  <td class="mono">${assignedCount}</td>
+                  <td class="mono">${fmt(r.fee)}</td>
+                  <td><div class="row-actions">
+                    <div class="icon-btn" data-rt-edit="${r.id}" title="Edit">${ICONS.edit}</div>
+                    <div class="icon-btn" data-rt-del="${r.id}" title="Delete">${ICONS.trash}</div>
+                  </div></td>
+                </tr>`;
+              }).join('') : `<tr><td colspan="8"><div class="empty-state">Koi route nahi bana. "+ Add Route" se shuru karein.</div></td></tr>`}
+            </tbody>
+          </table>
+        </div>
+      </div>`;
+    document.getElementById('ekps-rt-new').addEventListener('click', ()=>{ editingRouteId=null; routeModal(); });
+    body.querySelectorAll('[data-rt-edit]').forEach(el=> el.addEventListener('click', ()=>{ editingRouteId=parseInt(el.dataset.rtEdit); routeModal(); }));
+    body.querySelectorAll('[data-rt-del]').forEach(el=> el.addEventListener('click', ()=>{
+      if(!confirm('Ye route delete karein? Assigned students se route hat jayega.')) return;
+      const id = parseInt(el.dataset.rtDel);
+      transportRoutes = transportRoutes.filter(r=>r.id!==id);
+      students.forEach(s=>{ if (s.transportRouteId===id) s.transportRouteId = null; });
+      saveTransportRoutes(); saveStudents();
+      toast('Route deleted');
+      renderTransportRoutes();
+    }));
+  }
+
+  function renderTransportAssign(){
+    const body = document.getElementById('ekps-tr-body');
+    if (!transportRoutes.length) {
+      body.innerHTML = `<div class="empty-state">Pehle "Routes & Vehicles" tab se ek route banayein.</div>`;
+      return;
+    }
+    const classes = ['all', ...CLASS_ORDER.filter(c=>students.some(s=>s.cls===c))];
+    const list = students.filter(s=> transportAssignClsFilter==='all' || s.cls===transportAssignClsFilter)
+      .sort((a,b)=> CLASS_ORDER.indexOf(a.cls)-CLASS_ORDER.indexOf(b.cls) || a.id-b.id);
+    body.innerHTML = `
+      <div class="toolbar">
+        <select id="tr-cls-filter">${classes.map(c=>`<option value="${c}" ${c===transportAssignClsFilter?'selected':''}>${c==='all'?'All Classes':c}</option>`).join('')}</select>
+      </div>
+      <div class="panel">
+        <div class="panel-body" style="padding:0; overflow:auto;">
+          <table class="data">
+            <thead><tr><th>ID</th><th>Class</th><th>Name</th><th>Assigned Route</th></tr></thead>
+            <tbody>
+              ${list.length ? list.map(s=>`
+                <tr>
+                  <td><span class="id-chip">${s.id}</span></td>
+                  <td><span class="cls-chip">${esc(s.cls)}</span></td>
+                  <td style="font-weight:600;">${esc(s.name)}</td>
+                  <td>
+                    <select data-assign-route="${s.id}">
+                      <option value="">— No Transport —</option>
+                      ${transportRoutes.map(r=>`<option value="${r.id}" ${s.transportRouteId===r.id?'selected':''}>${esc(r.name)} (${fmt(r.fee)}/mo)</option>`).join('')}
+                    </select>
+                  </td>
+                </tr>`).join('') : `<tr><td colspan="4"><div class="empty-state">Is class me koi student nahi hai</div></td></tr>`}
+            </tbody>
+          </table>
+        </div>
+      </div>`;
+    document.getElementById('tr-cls-filter').addEventListener('change', e=>{ transportAssignClsFilter = e.target.value; renderTransportAssign(); });
+    body.querySelectorAll('[data-assign-route]').forEach(el=>{
+      el.addEventListener('change', ()=>{
+        const id = parseInt(el.dataset.assignRoute);
+        const s = students.find(x=>x.id===id);
+        if (!s) return;
+        s.transportRouteId = el.value ? parseInt(el.value) : null;
+        saveStudents();
+        toast('Transport route update ho gaya — ' + s.name);
+      });
+    });
+  }
+
+  function renderTransportCollect(){
+    const body = document.getElementById('ekps-tr-body');
+    const assignedStudents = students.filter(s=>s.transportRouteId);
+    const recent = transportEntries.slice().sort((a,b)=> b.id-a.id).slice(0,8);
+    body.innerHTML = `
+      <div class="two-col">
+        <div class="panel">
+          <div class="panel-head"><h3>New Transport Fee Entry</h3><span class="id-chip">${nextTransportReceiptNo()}</span></div>
+          <div class="panel-body">
+            <div class="field">
+              <label>Student (Transport Assigned)</label>
+              <input type="text" id="tr-student-input" list="tr-student-list" placeholder="ID ya naam type karein&hellip;" autocomplete="off"/>
+              <datalist id="tr-student-list">
+                ${assignedStudents.map(s=>`<option value="${s.id} — ${esc(s.name)} (${esc(s.cls)})">`).join('')}
+              </datalist>
+            </div>
+            <div class="pick-preview" id="tr-pick-preview"></div>
+            <div class="form-grid">
+              <div class="field">
+                <label>Month</label>
+                <select id="tr-month-input">
+                  <option value="">Select month</option>
+                  ${MONTHS.map(m=>`<option value="${m}">${m}</option>`).join('')}
+                </select>
+              </div>
+              <div class="field">
+                <label>Paid Amount (₹)</label>
+                <input type="number" id="tr-amount-input" min="1" placeholder="e.g. 500"/>
+              </div>
+              <div class="field">
+                <label>Payment Date</label>
+                <input type="date" id="tr-date-input" value="${todayISO()}"/>
+              </div>
+            </div>
+            <span class="btn btn-accent" id="tr-save-entry">${ICONS.collect.replace('navicon','')} Save Transport Entry</span>
+            ${!assignedStudents.length ? `<div class="hint" style="margin-top:8px;">Koi bhi student transport route assigned nahi hai — pehle "Assign Students" tab use karein.</div>` : ''}
+          </div>
+        </div>
+        <div class="panel">
+          <div class="panel-head"><h3>Recent Transport Entries</h3></div>
+          <div class="panel-body">
+            ${recent.length ? recent.map(e=>{
+              const s = students.find(x=>x.id===e.studentId);
+              return `<div class="recent-row">
+                <div><div class="recent-name">${esc(s?s.name:'—')} <span class="id-chip">${e.receiptNo}</span></div>
+                <div class="recent-meta">${esc(e.month)} &middot; ${fmtDate(e.date)}</div></div>
+                <div style="display:flex;align-items:center;gap:10px;">
+                  <div class="recent-amt">${fmt(e.amount)}</div>
+                  <div class="icon-btn" data-del-tr-entry="${e.id}" title="Delete">${ICONS.trash}</div>
+                </div>
+              </div>`;
+            }).join('') : `<div class="empty-state">Koi entry nahi</div>`}
+          </div>
+        </div>
+      </div>
+      <div class="panel" style="margin-top:16px;">
+        <div class="panel-head"><h3>Transport Fee Status (Assigned Students)</h3></div>
+        <div class="panel-body" style="padding:0; overflow:auto;">
+          <table class="data">
+            <thead><tr><th>ID</th><th>Name</th><th>Route</th><th>Total Due (Yr)</th><th>Paid</th><th>Rest Due</th></tr></thead>
+            <tbody>
+              ${assignedStudents.length ? assignedStudents.map(s=>{
+                const due = transportTotalDue(s), paid = transportTotalPaid(s.id), rest = due-paid;
+                return `<tr>
+                  <td><span class="id-chip">${s.id}</span></td>
+                  <td style="font-weight:600;">${esc(s.name)}</td>
+                  <td>${esc(routeOf(s)?routeOf(s).name:'—')}</td>
+                  <td class="mono">${fmt(due)}</td>
+                  <td class="mono">${fmt(paid)}</td>
+                  <td class="mono">${fmt(rest)}</td>
+                </tr>`;
+              }).join('') : `<tr><td colspan="6"><div class="empty-state">Koi student transport assigned nahi hai</div></td></tr>`}
+            </tbody>
+          </table>
+        </div>
+      </div>`;
+
+    let pickedId = null;
+    const input = document.getElementById('tr-student-input');
+    const preview = document.getElementById('tr-pick-preview');
+    input.addEventListener('input', ()=>{
+      const m = input.value.match(/^(\d+)\s*—/);
+      if (m) {
+        const s = students.find(x=>x.id===parseInt(m[1]) && x.transportRouteId);
+        if (s) {
+          pickedId = s.id;
+          const due = transportTotalDue(s), paid = transportTotalPaid(s.id), rest = due-paid;
+          preview.className = 'pick-preview show';
+          preview.innerHTML = `<b>${esc(s.name)}</b> &middot; Route: ${esc(routeOf(s)?routeOf(s).name:'—')} &middot; Rest Due: <b>${fmt(rest)}</b>`;
+          return;
+        }
+      }
+      pickedId = null;
+      preview.className = 'pick-preview';
+    });
+
+    document.getElementById('tr-save-entry').addEventListener('click', ()=>{
+      const month = document.getElementById('tr-month-input').value;
+      const amount = parseFloat(document.getElementById('tr-amount-input').value);
+      const date = document.getElementById('tr-date-input').value;
+      if (!pickedId) { toast('Pehle ek valid transport-assigned Student select karein'); input.focus(); return; }
+      if (!month) { toast('Month select karein'); return; }
+      if (!amount || amount<=0) { toast('Sahi Paid Amount daalein'); return; }
+      if (!date) { toast('Payment Date daalein'); return; }
+      const entry = { id: Date.now(), receiptNo: nextTransportReceiptNo(), studentId: pickedId, month, amount, date };
+      transportEntries.push(entry);
+      saveTransportEntries();
+      toast('Transport entry saved');
+      renderTransportCollect();
+    });
+
+    body.querySelectorAll('[data-del-tr-entry]').forEach(el=>{
+      el.addEventListener('click', ()=>{
+        if(!confirm('Ye transport entry delete karein?')) return;
+        transportEntries = transportEntries.filter(e=>e.id !== parseInt(el.dataset.delTrEntry));
+        saveTransportEntries();
+        toast('Entry deleted');
+        renderTransportCollect();
+      });
+    });
+  }
+
+  // ---------- INVENTORY MANAGEMENT ----------
+  function itemModal(){
+    const editing = editingItemId != null;
+    const it = editing ? inventoryItems.find(x=>x.id===editingItemId) : {id:nextItemId(), name:'', category:'Uniform', unit:'Pcs', unitPrice:0, reorderLevel:5};
+    modalRoot.innerHTML = `
+      <div class="modal-backdrop" id="ekps-it-bg">
+        <div class="modal">
+          <div class="modal-head"><h3>${editing?'Edit Item':'Add Inventory Item'}</h3><div class="icon-btn" id="ekps-it-close">✕</div></div>
+          <div class="modal-body">
+            <div class="field"><label>Item Name</label><input type="text" id="it-name" value="${esc(it.name)}" placeholder="e.g. Uniform Shirt - Size M"/></div>
+            <div class="form-grid cols-4">
+              <div class="field" style="grid-column: span 2;"><label>Category</label>
+                <select id="it-cat">${['Uniform','Books / Copy','Stationery','Sports','Furniture','Other'].map(c=>`<option value="${c}" ${c===it.category?'selected':''}>${c}</option>`).join('')}</select>
+              </div>
+              <div class="field"><label>Unit</label><input type="text" id="it-unit" value="${esc(it.unit)}" placeholder="Pcs/Box"/></div>
+              <div class="field"><label>Reorder Level</label><input type="number" id="it-reorder" value="${it.reorderLevel}"/></div>
+            </div>
+            <div class="field"><label>Unit Price (₹)</label><input type="number" id="it-price" value="${it.unitPrice}"/></div>
+          </div>
+          <div class="modal-foot">
+            <span class="btn btn-ghost" id="ekps-it-cancel">Cancel</span>
+            <span class="btn btn-primary" id="ekps-it-save">${editing?'Save Changes':'Add Item'}</span>
+          </div>
+        </div>
+      </div>`;
+    const close = ()=>{ modalRoot.innerHTML=''; editingItemId=null; };
+    document.getElementById('ekps-it-bg').addEventListener('click', e=>{ if(e.target.id==='ekps-it-bg') close(); });
+    document.getElementById('ekps-it-close').addEventListener('click', close);
+    document.getElementById('ekps-it-cancel').addEventListener('click', close);
+    document.getElementById('ekps-it-save').addEventListener('click', ()=>{
+      const name = document.getElementById('it-name').value.trim();
+      if (!name) { toast('Item ka naam daalein'); return; }
+      const rec = {
+        id: it.id, name,
+        category: document.getElementById('it-cat').value,
+        unit: document.getElementById('it-unit').value.trim() || 'Pcs',
+        unitPrice: parseFloat(document.getElementById('it-price').value)||0,
+        reorderLevel: parseFloat(document.getElementById('it-reorder').value)||0,
+      };
+      if (editing) inventoryItems = inventoryItems.map(x=>x.id===rec.id?rec:x);
+      else inventoryItems.push(rec);
+      saveInventoryItems();
+      toast(editing?'Item updated':'Item added');
+      close();
+      renderInventory();
+    });
+  }
+
+  function stockModal(){
+    modalRoot.innerHTML = `
+      <div class="modal-backdrop" id="ekps-sk-bg">
+        <div class="modal">
+          <div class="modal-head"><h3>Stock In / Out Entry</h3><div class="icon-btn" id="ekps-sk-close">✕</div></div>
+          <div class="modal-body">
+            <div class="field"><label>Item</label>
+              <select id="sk-item">
+                ${inventoryItems.map(i=>`<option value="${i.id}">${esc(i.name)} (Current: ${itemStock(i.id)} ${esc(i.unit)})</option>`).join('')}
+              </select>
+            </div>
+            <div class="form-grid">
+              <div class="field"><label>Transaction Type</label>
+                <select id="sk-type">
+                  <option value="in">Stock In (Purchase / Receive)</option>
+                  <option value="out">Stock Out (Issue / Sale)</option>
+                </select>
+              </div>
+              <div class="field"><label>Quantity</label><input type="number" id="sk-qty" min="1" placeholder="e.g. 10"/></div>
+            </div>
+            <div class="form-grid">
+              <div class="field"><label>Date</label><input type="date" id="sk-date" value="${todayISO()}"/></div>
+              <div class="field"><label>Issued To / Note (optional)</label><input type="text" id="sk-note" placeholder="e.g. Class 3 student name"/></div>
+            </div>
+          </div>
+          <div class="modal-foot">
+            <span class="btn btn-ghost" id="ekps-sk-cancel">Cancel</span>
+            <span class="btn btn-primary" id="ekps-sk-save">Save Entry</span>
+          </div>
+        </div>
+      </div>`;
+    const close = ()=>{ modalRoot.innerHTML=''; };
+    document.getElementById('ekps-sk-bg').addEventListener('click', e=>{ if(e.target.id==='ekps-sk-bg') close(); });
+    document.getElementById('ekps-sk-close').addEventListener('click', close);
+    document.getElementById('ekps-sk-cancel').addEventListener('click', close);
+    if (stockPickedItemId) document.getElementById('sk-item').value = stockPickedItemId;
+    document.getElementById('ekps-sk-save').addEventListener('click', ()=>{
+      const itemId = parseInt(document.getElementById('sk-item').value);
+      const type = document.getElementById('sk-type').value;
+      const qty = parseFloat(document.getElementById('sk-qty').value);
+      const date = document.getElementById('sk-date').value;
+      const note = document.getElementById('sk-note').value.trim();
+      if (!itemId) { toast('Item select karein'); return; }
+      if (!qty || qty<=0) { toast('Sahi Quantity daalein'); return; }
+      if (!date) { toast('Date daalein'); return; }
+      if (type==='out' && itemStock(itemId) < qty) { toast('Itna stock available nahi hai'); return; }
+      inventoryTxns.push({ id: Date.now(), itemId, type, qty, date, note });
+      saveInventoryTxns();
+      toast('Stock entry saved');
+      close();
+      renderInventory();
+    });
+  }
+
+  function renderInventory(){
+    contentEl.innerHTML = `
+      <div class="subtabs">
+        <div class="subtab ${inventorySubView==='items'?'active':''}" data-inv-tab="items">Items & Stock</div>
+        <div class="subtab ${inventorySubView==='stock'?'active':''}" data-inv-tab="stock">Stock In/Out Log</div>
+      </div>
+      <div id="ekps-inv-body"></div>`;
+    contentEl.querySelectorAll('[data-inv-tab]').forEach(el=>{
+      el.addEventListener('click', ()=>{ inventorySubView = el.dataset.invTab; renderInventory(); });
+    });
+    if (inventorySubView==='items') renderInventoryItems();
+    else renderInventoryLog();
+  }
+
+  function renderInventoryItems(){
+    const body = document.getElementById('ekps-inv-body');
+    const q = inventoryQ.trim().toLowerCase();
+    const list = inventoryItems.filter(i=> !q || i.name.toLowerCase().includes(q) || i.category.toLowerCase().includes(q))
+      .sort((a,b)=> a.name.localeCompare(b.name));
+    const totalValue = inventoryItems.reduce((a,i)=>a + itemStock(i.id)*i.unitPrice, 0);
+    body.innerHTML = `
+      <div class="kpi-grid" style="grid-template-columns:repeat(3,1fr);">
+        <div class="kpi-card" style="--accent:var(--ink)"><div class="kpi-label">Total Items</div><div class="kpi-value">${inventoryItems.length}</div></div>
+        <div class="kpi-card" style="--accent:var(--rust)"><div class="kpi-label">Low / Out of Stock</div><div class="kpi-value">${inventoryItems.filter(i=>itemStatus(i)!=='InStock').length}</div></div>
+        <div class="kpi-card" style="--accent:var(--green)"><div class="kpi-label">Total Stock Value</div><div class="kpi-value">${fmt(totalValue)}</div></div>
+      </div>
+      <div class="toolbar">
+        <div class="search-wrap">${ICONS.search}<input type="text" id="inv-search" placeholder="Item ya category search karein" value="${esc(inventoryQ)}"/></div>
+        <span style="flex:1"></span>
+        <span class="btn btn-ghost" id="inv-stock-btn">↕ Stock In / Out</span>
+        <span class="btn btn-accent" id="inv-new-item">+ Add Item</span>
+      </div>
+      <div class="panel">
+        <div class="panel-body" style="padding:0; overflow:auto;">
+          <table class="data">
+            <thead><tr><th>Item</th><th>Category</th><th>Unit</th><th>Unit Price</th><th>Current Stock</th><th>Stock Value</th><th>Status</th><th></th></tr></thead>
+            <tbody>
+              ${list.length ? list.map(i=>{
+                const stock = itemStock(i.id), st = itemStatus(i);
+                return `<tr>
+                  <td style="font-weight:600;">${esc(i.name)}</td>
+                  <td><span class="cls-chip">${esc(i.category)}</span></td>
+                  <td>${esc(i.unit)}</td>
+                  <td class="mono">${fmt(i.unitPrice)}</td>
+                  <td class="mono">${stock} ${esc(i.unit)}</td>
+                  <td class="mono">${fmt(stock*i.unitPrice)}</td>
+                  <td><span class="status-badge status-${st}">${st==='InStock'?'In Stock':st}</span></td>
+                  <td><div class="row-actions">
+                    <div class="icon-btn" data-inv-edit="${i.id}" title="Edit">${ICONS.edit}</div>
+                    <div class="icon-btn" data-inv-del="${i.id}" title="Delete">${ICONS.trash}</div>
+                  </div></td>
+                </tr>`;
+              }).join('') : `<tr><td colspan="8"><div class="empty-state">Koi item nahi mila. "+ Add Item" se shuru karein.</div></td></tr>`}
+            </tbody>
+          </table>
+        </div>
+      </div>`;
+    document.getElementById('inv-search').addEventListener('input', e=>{ inventoryQ = e.target.value; renderInventoryItems(); });
+    document.getElementById('inv-new-item').addEventListener('click', ()=>{ editingItemId=null; itemModal(); });
+    document.getElementById('inv-stock-btn').addEventListener('click', ()=>{
+      if (!inventoryItems.length) { toast('Pehle koi item add karein'); return; }
+      stockPickedItemId = null;
+      stockModal();
+    });
+    body.querySelectorAll('[data-inv-edit]').forEach(el=> el.addEventListener('click', ()=>{ editingItemId=parseInt(el.dataset.invEdit); itemModal(); }));
+    body.querySelectorAll('[data-inv-del]').forEach(el=> el.addEventListener('click', ()=>{
+      if(!confirm('Ye item delete karein? Iska stock history bhi hat jayega.')) return;
+      const id = parseInt(el.dataset.invDel);
+      inventoryItems = inventoryItems.filter(i=>i.id!==id);
+      inventoryTxns = inventoryTxns.filter(t=>t.itemId!==id);
+      saveInventoryItems(); saveInventoryTxns();
+      toast('Item deleted');
+      renderInventoryItems();
+    }));
+  }
+
+  function renderInventoryLog(){
+    const body = document.getElementById('ekps-inv-body');
+    const sorted = inventoryTxns.slice().sort((a,b)=> b.id-a.id);
+    body.innerHTML = `
+      <div class="toolbar"><span style="flex:1"></span>
+        <span class="btn btn-accent" id="inv-log-stock-btn">↕ New Stock Entry</span>
+      </div>
+      <div class="panel">
+        <div class="panel-body" style="padding:0; overflow:auto;">
+          <table class="data">
+            <thead><tr><th>Date</th><th>Item</th><th>Type</th><th>Qty</th><th>Note</th><th></th></tr></thead>
+            <tbody>
+              ${sorted.length ? sorted.map(t=>{
+                const item = inventoryItems.find(i=>i.id===t.itemId);
+                return `<tr>
+                  <td>${fmtDate(t.date)}</td>
+                  <td style="font-weight:600;">${esc(item?item.name:'Deleted Item')}</td>
+                  <td><span class="status-badge status-${t.type==='in'?'InStock':'Due'}">${t.type==='in'?'Stock In':'Stock Out'}</span></td>
+                  <td class="mono">${t.qty}</td>
+                  <td>${esc(t.note||'—')}</td>
+                  <td><div class="icon-btn" data-log-del="${t.id}" title="Delete">${ICONS.trash}</div></td>
+                </tr>`;
+              }).join('') : `<tr><td colspan="6"><div class="empty-state">Koi stock transaction nahi hui</div></td></tr>`}
+            </tbody>
+          </table>
+        </div>
+      </div>`;
+    document.getElementById('inv-log-stock-btn').addEventListener('click', ()=>{
+      if (!inventoryItems.length) { toast('Pehle koi item add karein'); return; }
+      stockPickedItemId = null;
+      stockModal();
+    });
+    body.querySelectorAll('[data-log-del]').forEach(el=>{
+      el.addEventListener('click', ()=>{
+        if(!confirm('Ye transaction delete karein?')) return;
+        inventoryTxns = inventoryTxns.filter(t=>t.id!==parseInt(el.dataset.logDel));
+        saveInventoryTxns();
+        toast('Transaction deleted');
+        renderInventoryLog();
+      });
+    });
+  }
 
   function downloadDemandBillsPDF(){
     const list = students.filter(s => (totalDue(s) - totalPaid(s.id)) > 0)
@@ -1169,6 +2156,140 @@
     setTimeout(()=> win.print(), 300);
   }
 
+  // ---------- Current Month-wise Demand Bill Generator ----------
+  function downloadCurrentMonthDemandPDF(){
+    const month = currentMonthName();
+    const list = students.filter(s => currentMonthDueOf(s) > 0)
+      .sort((a,b)=> CLASS_ORDER.indexOf(a.cls)-CLASS_ORDER.indexOf(b.cls) || a.id-b.id);
+    if (!list.length) { toast(`Is mahine (${month}) ka koi due nahi hai`); return; }
+
+    const classes = CLASS_ORDER.filter(c => list.some(s=>s.cls===c));
+    let sheetsHtml = '';
+    classes.forEach(cls=>{
+      const clsStudents = list.filter(s=>s.cls===cls);
+      const pages = chunkArr(clsStudents, 8);
+      pages.forEach((page, pi)=>{
+        const slips = page.map(s=>{
+          const due = currentMonthDueOf(s);
+          const rest = totalDue(s) - totalPaid(s.id);
+          return `<div class="slip">
+            <div class="slip-head">${esc(schoolSettings.name)}</div>
+            <div class="slip-sub">Current Month Fee Demand &middot; ${esc(month)} &middot; ${fmtDate(todayISO())}</div>
+            <div class="slip-row"><span>Student ID</span><span>${s.id}</span></div>
+            <div class="slip-row"><span>Name</span><span>${esc(s.name)}</span></div>
+            <div class="slip-row"><span>Class</span><span>${esc(s.cls)}</span></div>
+            <div class="slip-row"><span>Month</span><span>${esc(month)}</span></div>
+            <div class="slip-row"><span>Monthly Fee</span><span>${fmt(s.monthlyFee)}</span></div>
+            <div class="slip-row rest"><span>${esc(month)} Payable</span><span>${fmt(due)}</span></div>
+            <div class="slip-row" style="border-top:1px dashed #ccc; margin-top:4px; padding-top:4px;"><span>Total Outstanding (All Dues)</span><span>${fmt(rest)}</span></div>
+            <div class="slip-foot">Kripya current month ki fee samay par jama karein &middot; Accounts Office</div>
+          </div>`;
+        }).join('');
+        sheetsHtml += `<div class="sheet">
+          <div class="sheet-title">Class: ${esc(cls)} &mdash; ${esc(month)} Demand &mdash; Page ${pi+1} of ${pages.length}</div>
+          <div class="grid">${slips}</div>
+        </div>`;
+      });
+    });
+
+    const win = window.open('', '_blank');
+    if (!win) { toast('Popup block ho gaya — popup allow karein'); return; }
+    win.document.write(`<!DOCTYPE html><html><head><title>Current Month Demand Bills — ${esc(month)}</title><style>
+      @page { size: A4; margin: 10mm; }
+      * { box-sizing:border-box; }
+      body { margin:0; font-family: Arial, Helvetica, sans-serif; color:#1B2A4A; }
+      .sheet { page-break-after: always; }
+      .sheet:last-child { page-break-after: auto; }
+      .sheet-title { font-size:13px; font-weight:700; margin-bottom:8px; text-align:center; }
+      .grid { display:grid; grid-template-columns: 1fr 1fr; grid-auto-rows: 1fr; gap:5mm; height: 267mm; }
+      .slip { border:1.5px dashed #99a; border-radius:4px; padding:9px 11px; font-size:11px; display:flex; flex-direction:column; }
+      .slip-head { font-weight:800; font-size:12.5px; }
+      .slip-sub { font-size:9px; color:#555; margin-bottom:5px; border-bottom:1px solid #ccc; padding-bottom:5px; }
+      .slip-row { display:flex; justify-content:space-between; padding:2px 0; font-size:11px; }
+      .slip-row.rest { font-weight:800; border-top:1px dashed #99a; margin-top:5px; padding-top:5px; font-size:12.5px; color:#C1502E; }
+      .slip-foot { margin-top:auto; font-size:8.5px; color:#666; padding-top:6px; border-top:1px dashed #ccc; }
+    </style></head><body>${sheetsHtml}</body></html>`);
+    win.document.close();
+    win.focus();
+    setTimeout(()=> win.print(), 300);
+  }
+
+  // ---------- Multi-Level (Aging) Due Statement Generator ----------
+  function downloadDueStatementPDF(){
+    const list = students.filter(s => (totalDue(s) - totalPaid(s.id)) > 0)
+      .sort((a,b)=> CLASS_ORDER.indexOf(a.cls)-CLASS_ORDER.indexOf(b.cls) || a.id-b.id);
+    if (!list.length) { toast('Koi bhi student due nahi hai'); return; }
+
+    const classes = CLASS_ORDER.filter(c => list.some(s=>s.cls===c));
+    let grand = { current:0, b1_2:0, b3_5:0, b6plus:0, otherCharges:0, total:0 };
+    let bodyHtml = '';
+    classes.forEach(cls=>{
+      const clsStudents = list.filter(s=>s.cls===cls);
+      let clsTotal = { current:0, b1_2:0, b3_5:0, b6plus:0, otherCharges:0, total:0 };
+      const rows = clsStudents.map(s=>{
+        const b = studentDueBuckets(s);
+        Object.keys(clsTotal).forEach(k=> clsTotal[k]+=b[k]);
+        return `<tr>
+          <td>${s.id}</td>
+          <td>${esc(s.name)}</td>
+          <td class="r">${b.current?fmt(b.current):'—'}</td>
+          <td class="r">${b.b1_2?fmt(b.b1_2):'—'}</td>
+          <td class="r">${b.b3_5?fmt(b.b3_5):'—'}</td>
+          <td class="r">${b.b6plus?fmt(b.b6plus):'—'}</td>
+          <td class="r">${b.otherCharges?fmt(b.otherCharges):'—'}</td>
+          <td class="r tot">${fmt(b.total)}</td>
+        </tr>`;
+      }).join('');
+      Object.keys(grand).forEach(k=> grand[k]+=clsTotal[k]);
+      bodyHtml += `
+        <div class="cls-title">Class: ${esc(cls)} (${clsStudents.length} students)</div>
+        <table>
+          <thead><tr><th>ID</th><th>Name</th><th>Current Month</th><th>1&ndash;2 Months</th><th>3&ndash;5 Months</th><th>6+ Months</th><th>Other Charges</th><th>Total Due</th></tr></thead>
+          <tbody>${rows}
+            <tr class="cls-sum">
+              <td colspan="2">Class Sub-Total</td>
+              <td class="r">${fmt(clsTotal.current)}</td>
+              <td class="r">${fmt(clsTotal.b1_2)}</td>
+              <td class="r">${fmt(clsTotal.b3_5)}</td>
+              <td class="r">${fmt(clsTotal.b6plus)}</td>
+              <td class="r">${fmt(clsTotal.otherCharges)}</td>
+              <td class="r tot">${fmt(clsTotal.total)}</td>
+            </tr>
+          </tbody>
+        </table>`;
+    });
+
+    const win = window.open('', '_blank');
+    if (!win) { toast('Popup block ho gaya — popup allow karein'); return; }
+    win.document.write(`<!DOCTYPE html><html><head><title>Multi-Level Due Statement</title><style>
+      @page { size: A4; margin: 10mm; }
+      * { box-sizing:border-box; }
+      body { margin:0; font-family: Arial, Helvetica, sans-serif; color:#1B2A4A; font-size:11px; }
+      .top-title { font-size:16px; font-weight:800; text-align:center; margin-bottom:2px; }
+      .top-sub { font-size:11px; text-align:center; color:#555; margin-bottom:14px; }
+      .cls-title { font-size:12.5px; font-weight:700; margin:14px 0 6px 0; background:#EFEBDD; padding:5px 8px; border-radius:4px; }
+      table { width:100%; border-collapse:collapse; margin-bottom:6px; }
+      th, td { border:1px solid #ccc; padding:4px 6px; font-size:10.5px; }
+      th { background:#1B2A4A; color:#fff; text-align:left; }
+      td.r { text-align:right; font-family:monospace; }
+      td.tot { font-weight:800; color:#C1502E; }
+      tr.cls-sum { background:#FBF1DC; font-weight:700; }
+      .grand { margin-top:16px; border-top:2px solid #1B2A4A; padding-top:8px; font-size:12px; font-weight:800; text-align:right; }
+    </style></head><body>
+      <div class="top-title">${esc(schoolSettings.name)}</div>
+      <div class="top-sub">Multi-Level Due Statement (Aging) &middot; Generated ${fmtDate(todayISO())} &middot; As of ${esc(currentMonthName())}</div>
+      ${bodyHtml}
+      <div class="grand">
+        Grand Total Due: Current Month ${fmt(grand.current)} &nbsp;|&nbsp; 1&ndash;2 Months ${fmt(grand.b1_2)} &nbsp;|&nbsp;
+        3&ndash;5 Months ${fmt(grand.b3_5)} &nbsp;|&nbsp; 6+ Months ${fmt(grand.b6plus)} &nbsp;|&nbsp;
+        Other Charges ${fmt(grand.otherCharges)} &nbsp;|&nbsp; Total: ${fmt(grand.total)}
+      </div>
+    </body></html>`);
+    win.document.close();
+    win.focus();
+    setTimeout(()=> win.print(), 300);
+  }
+
   function exportExcel(){
     if (typeof XLSX === 'undefined') { toast('Excel library load nahi hui — internet check karein'); return; }
     const list = students.slice().sort((a,b)=> CLASS_ORDER.indexOf(a.cls)-CLASS_ORDER.indexOf(b.cls) || a.id-b.id);
@@ -1216,6 +2337,8 @@
         </select>
         <span style="flex:1"></span>
         <span class="btn btn-ghost" id="ekps-demand-pdf">🧾 Demand Bills PDF (Class-wise, A4)</span>
+        <span class="btn btn-ghost" id="ekps-current-month-pdf">📅 Current Month (${currentMonthName()}) Demand Bills</span>
+        <span class="btn btn-ghost" id="ekps-due-statement-pdf">📊 Multi-Level Due Statement</span>
         <span class="btn btn-accent" id="ekps-export-excel">⬇ Export Excel (Month-wise)</span>
       </div>
       <div class="panel">
@@ -1253,6 +2376,8 @@
     document.getElementById('ekps-ledger-status').addEventListener('change', e=>{ ledgerFilters.status = e.target.value; renderLedger(); });
     document.getElementById('ekps-export-excel').addEventListener('click', exportExcel);
     document.getElementById('ekps-demand-pdf').addEventListener('click', downloadDemandBillsPDF);
+    document.getElementById('ekps-current-month-pdf').addEventListener('click', downloadCurrentMonthDemandPDF);
+    document.getElementById('ekps-due-statement-pdf').addEventListener('click', downloadDueStatementPDF);
     contentEl.querySelectorAll('[data-toggle]').forEach(el=> el.addEventListener('click', ()=>{
       const id = parseInt(el.dataset.toggle);
       ledgerExpanded[id] = !ledgerExpanded[id];
@@ -1336,13 +2461,28 @@
     if (pbtn) pbtn.addEventListener('click', ()=> window.print());
   }
 
-  // ---------- BACKUP & RESTORE ----------
+  // ---------- BACKUP & SYNC ----------
   function renderBackup(){
     const sorted = autoBackups.slice().sort((a,b)=> b.ts - a.ts);
     const lastTs = sorted.length ? sorted[0].ts : null;
     const fmtWhen = (ts)=> new Date(ts).toLocaleString('en-IN', {day:'2-digit', month:'short', year:'numeric', hour:'2-digit', minute:'2-digit'});
 
     contentEl.innerHTML = `
+      <div class="panel" style="margin-bottom:16px;">
+        <div class="panel-head"><h3>Google Sheet Connection Status</h3>${syncIndicatorHtml()}</div>
+        <div class="panel-body">
+          <p style="font-size:13px; color:var(--slate); margin:0 0 14px 0; line-height:1.6;">
+            Aapka application high security ke liye is specific Google Sheet link par lock kar diya gaya hai. Students data aur entries is link par automatic sync hote rahenge.
+          </p>
+          <div class="field">
+            <label>Web App URL (Locked)</label>
+            <input type="text" id="ekps-gas-url" value="${esc(GAS_URL)}" disabled style="background: var(--paper); color: var(--slate);"/>
+          </div>
+          <div style="display:flex; gap:10px; flex-wrap:wrap;">
+            <span class="btn btn-accent" id="ekps-gas-sync-now">⟳ Force Data Sync Now</span>
+          </div>
+        </div>
+      </div>
       <div class="kpi-card" style="margin-bottom:18px; --accent:var(--green);">
         <div class="kpi-label">Auto-Backup Status</div>
         <div class="kpi-value" style="font-size:17px;">${lastTs ? fmtWhen(lastTs) : 'Abhi tak koi auto-backup nahi hua'}</div>
@@ -1362,11 +2502,11 @@
           </div>
         </div>
         <div class="panel">
-          <div class="panel-head"><h3>Download Backup</h3></div>
+          <div class="panel-head"><h3>Download Backup File</h3></div>
           <div class="panel-body">
             <p style="font-size:13px; color:var(--slate); margin:0 0 14px 0; line-height:1.6;">
               Sabhi students, unke fees/bills, aur payment entries ek single <span class="mono">.json</span> file me save ho jayenge.
-              Ye file kahin bhi (pendrive, email, Google Drive) surakshit rakhein — kabhi bhi data restore karne ke kaam aayegi.
+              Ye file surakshit rakhein — kabhi bhi data manually restore karne ke kaam aayegi.
             </p>
             <div class="kpi-card" style="margin-bottom:16px;">
               <div class="kpi-label">Current Data</div>
@@ -1381,7 +2521,7 @@
         <div class="panel-head"><h3>Restore From Backup File</h3></div>
         <div class="panel-body">
           <p style="font-size:13px; color:var(--slate); margin:0 0 14px 0; line-height:1.6;">
-            Pehle se downloaded backup <span class="mono">.json</span> file yahan select karein. <b style="color:var(--rust);">Dhyan rahe:</b> restore karne se maujooda saara data (students + entries) is file ke data se replace ho jayega.
+            Pehle se downloaded backup <span class="mono">.json</span> file yahan select karein. <b style="color:var(--rust);">Dhyan rahe:</b> restore karne se maujooda saara data replace ho jayega.
           </p>
           <div class="field">
             <label>Select Backup File</label>
@@ -1390,6 +2530,11 @@
           <span class="btn btn-danger" id="ekps-restore-btn" style="border-color:var(--rust); background:var(--rust-bg);">⬆ Restore Data</span>
         </div>
       </div>`;
+
+    document.getElementById('ekps-gas-sync-now').addEventListener('click', () => {
+      loadData();
+      toast('Google sheet ke sath sync refresh kiya ja raha hai...');
+    });
 
     document.getElementById('ekps-backup-now').addEventListener('click', () => {
       snapshotNow();
@@ -1402,12 +2547,22 @@
         const ts = parseFloat(el.dataset.restoreAuto);
         const snap = autoBackups.find(b=>b.ts===ts);
         if (!snap) return;
-        if (!confirm(`Is ${fmtWhen(ts)} wale snapshot par restore karein? Isse maujooda ${students.length} students aur ${entries.length} entries hat jayengi, aur snapshot ke ${snap.students.length} students / ${snap.entries.length} entries aa jayengi.`)) return;
+        if (!confirm(`Is ${fmtWhen(ts)} wale snapshot par restore karein? Isse maujooda data hat jayega.`)) return;
         students = JSON.parse(JSON.stringify(snap.students));
         entries = JSON.parse(JSON.stringify(snap.entries));
+        admissions = JSON.parse(JSON.stringify(snap.admissions || []));
+        transportRoutes = JSON.parse(JSON.stringify(snap.transportRoutes || []));
+        transportEntries = JSON.parse(JSON.stringify(snap.transportEntries || []));
+        inventoryItems = JSON.parse(JSON.stringify(snap.inventoryItems || []));
+        inventoryTxns = JSON.parse(JSON.stringify(snap.inventoryTxns || []));
         students.forEach(s=>{ if (!Array.isArray(s.bills)) s.bills = []; });
         saveStudents();
         saveEntries();
+        saveAdmissions();
+        saveTransportRoutes();
+        saveTransportEntries();
+        saveInventoryItems();
+        saveInventoryTxns();
         toast('Auto-backup se restore ho gaya');
         renderBackup();
       });
@@ -1418,7 +2573,12 @@
         app: 'Education Key Public School — Fee Manager',
         exportedAt: new Date().toISOString(),
         students,
-        entries
+        entries,
+        admissions,
+        transportRoutes,
+        transportEntries,
+        inventoryItems,
+        inventoryTxns
       };
       const blob = new Blob([JSON.stringify(payload, null, 2)], {type:'application/json'});
       const url = URL.createObjectURL(blob);
@@ -1444,12 +2604,22 @@
             toast('Ye file valid backup nahi hai');
             return;
           }
-          if (!confirm(`Restore karein? Isse maujooda ${students.length} students aur ${entries.length} entries hat jayengi, aur backup ke ${data.students.length} students / ${data.entries.length} entries aa jayengi.`)) return;
+          if (!confirm(`Restore karein? Isse maujooda data hat jayega.`)) return;
           data.students.forEach(s=>{ if (!Array.isArray(s.bills)) s.bills = []; if (typeof s.mobNo !== 'string') s.mobNo = s.mobNo ? String(s.mobNo) : ''; });
           students = data.students;
           entries = data.entries;
+          admissions = Array.isArray(data.admissions) ? data.admissions : [];
+          transportRoutes = Array.isArray(data.transportRoutes) ? data.transportRoutes : [];
+          transportEntries = Array.isArray(data.transportEntries) ? data.transportEntries : [];
+          inventoryItems = Array.isArray(data.inventoryItems) ? data.inventoryItems : [];
+          inventoryTxns = Array.isArray(data.inventoryTxns) ? data.inventoryTxns : [];
           saveStudents();
           saveEntries();
+          saveAdmissions();
+          saveTransportRoutes();
+          saveTransportEntries();
+          saveInventoryItems();
+          saveInventoryTxns();
           toast('Data restore ho gaya');
           renderBackup();
         } catch(err){
@@ -1856,10 +3026,13 @@
     subEl.textContent = TITLES[route][1];
     
     if (route==='dashboard') renderDashboard();
+    else if (route==='admission') renderAdmission();
     else if (route==='collect') renderCollect();
     else if (route==='students') renderStudents();
     else if (route==='ledger') renderLedger();
     else if (route==='receipts') renderReceipts();
+    else if (route==='transport') renderTransport();
+    else if (route==='inventory') renderInventory();
     else if (route==='promotion') renderPromotion();
     else if (route==='exams') renderExams();
     else if (route==='backup') renderBackup();
