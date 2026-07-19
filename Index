@@ -321,6 +321,42 @@
   #ekps-root .promo-selectall { display:flex; align-items:center; gap:10px; padding:9px 10px; background:#FBFAF6; border-bottom:1px solid var(--border-strong); font-size:12px; font-weight:700; text-transform:uppercase; letter-spacing:.03em; color:var(--slate); }
   #ekps-root .promo-selectall input { width:16px; height:16px; accent-color: var(--saffron-dark); cursor:pointer; }
 
+  /* ---------- Inventory: Vendor / Purchase / POS / Reports ---------- */
+  #ekps-root .modal-lg { width: 920px; }
+  #ekps-root .modal-xl { width: 1080px; }
+  #ekps-root .stat-strip { display:flex; gap:14px; flex-wrap:wrap; margin-bottom:16px; }
+  #ekps-root .stat-strip .kpi-card { flex:1; min-width:150px; }
+  #ekps-root .pos-wrap { display:grid; grid-template-columns: 1.5fr 1fr; gap: 16px; align-items:start; }
+  #ekps-root .pos-item-grid { display:grid; grid-template-columns: repeat(3,1fr); gap:10px; max-height: 480px; overflow:auto; padding:2px; }
+  #ekps-root .pos-item-card { border:1px solid var(--border-strong); border-radius:10px; padding:10px 12px; cursor:pointer; background:#fff; transition: border-color .12s, transform .06s; }
+  #ekps-root .pos-item-card:hover { border-color: var(--saffron); }
+  #ekps-root .pos-item-card:active { transform: translateY(1px); }
+  #ekps-root .pos-item-card .pi-name { font-weight:700; font-size:12.5px; line-height:1.3; }
+  #ekps-root .pos-item-card .pi-meta { font-size:11px; color:var(--slate); margin-top:4px; display:flex; justify-content:space-between; }
+  #ekps-root .pos-item-card.out { opacity:.45; cursor:not-allowed; }
+  #ekps-root .cart-row { display:flex; align-items:center; gap:8px; padding:8px 0; border-bottom:1px dashed var(--border); font-size:12.5px; }
+  #ekps-root .cart-row:last-child { border-bottom:none; }
+  #ekps-root .cart-row .cr-nm { flex:1; font-weight:600; }
+  #ekps-root .cart-row .cr-qty { width:56px; padding:5px 6px; border:1px solid var(--border-strong); border-radius:6px; text-align:center; font-family:'IBM Plex Mono'; }
+  #ekps-root .cart-row .cr-price { width:64px; text-align:right; font-family:'IBM Plex Mono'; color:var(--slate); }
+  #ekps-root .cart-row .cr-line { width:70px; text-align:right; font-family:'IBM Plex Mono'; font-weight:700; }
+  #ekps-root .cart-totals { border-top:2px solid var(--ink); margin-top:10px; padding-top:10px; }
+  #ekps-root .cart-totals .ct-row { display:flex; justify-content:space-between; font-size:13px; padding:3px 0; }
+  #ekps-root .cart-totals .ct-grand { font-family:'Sora'; font-weight:800; font-size:18px; color: var(--green); }
+  #ekps-root .po-line { display:grid; grid-template-columns: 2fr 1fr 1fr 1fr auto; gap:8px; align-items:center; margin-bottom:8px; }
+  #ekps-root .vendor-card { border:1px solid var(--border); border-radius:10px; padding:12px 14px; margin-bottom:10px; background:#fff; }
+  #ekps-root .vendor-card .vc-name { font-weight:700; font-size:13.5px; }
+  #ekps-root .vendor-card .vc-meta { font-size:11.5px; color:var(--slate); margin-top:3px; line-height:1.5; }
+  #ekps-root .export-grid { display:grid; grid-template-columns: repeat(2,1fr); gap:14px; }
+  #ekps-root .export-card { border:1px solid var(--border); border-radius:12px; padding:16px 18px; background:#fff; box-shadow: var(--shadow); }
+  #ekps-root .export-card h4 { margin:0 0 4px 0; font-family:'Sora'; font-size:14px; }
+  #ekps-root .export-card p { margin:0 0 12px 0; font-size:12px; color:var(--slate); }
+  @media (max-width: 980px) {
+    #ekps-root .pos-wrap { grid-template-columns: 1fr; }
+    #ekps-root .pos-item-grid { grid-template-columns: repeat(2,1fr); }
+    #ekps-root .export-grid { grid-template-columns: 1fr; }
+  }
+
   /* ---------- Exam Manager tabs ---------- */
   #ekps-root .subtabs { display:flex; gap:6px; margin-bottom:16px; flex-wrap:wrap; }
   #ekps-root .subtab { padding:8px 14px; border-radius:8px; font-size:12.5px; font-weight:600; cursor:pointer; background:#fff; border:1px solid var(--border-strong); color:var(--slate); }
@@ -333,6 +369,7 @@
   #ekps-root .sign-preview { width:120px; height:56px; border-radius:6px; background:#fff; border:1px dashed var(--border-strong); overflow:hidden; display:flex; align-items:center; justify-content:center; font-size:10px; color:var(--slate); flex-shrink:0; }
   #ekps-root .sign-preview img { width:100%; height:100%; object-fit:contain; }
 </style>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 
 <div id="ekps-root">
   <aside class="sidebar">
@@ -366,7 +403,6 @@
   <div id="ekps-modal-root"></div>
 </div>
 
-<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 <script>
 (function(){
   const MONTHS = ['April','May','June','July','August','September','October','November','December','January','February','March'];
@@ -451,9 +487,28 @@
   let inventoryItems = [];
   let inventoryTxns = [];
   let editingItemId = null;
-  let inventorySubView = 'items'; // items | stock
+  let inventorySubView = 'dashboard'; // dashboard | items | vendors | billing | log | reports
   let inventoryQ = '';
   let stockPickedItemId = null;
+
+  // --- Vendor & Purchase Management state ---
+  let vendors = [];
+  let purchaseOrders = [];
+  let editingVendorId = null;
+  let vendorQ = '';
+  let poDraftItems = [];
+  let poDraftVendorId = null;
+
+  // --- Billing / POS state ---
+  let salesInvoices = [];
+  let posCart = [];
+  let posQ = '';
+  let posCustomerType = 'walkin'; // walkin | student
+  let posCustomerName = '';
+  let posCustomerPhone = '';
+  let posStudentPick = null;
+  let posDiscount = 0;
+  let posPaymentMode = 'Cash';
 
   const root = document.getElementById('ekps-root');
   const contentEl = document.getElementById('ekps-content');
@@ -550,6 +605,21 @@
     if (stock <= (item.reorderLevel||0)) return 'Low';
     return 'InStock';
   }
+
+  // ---------- Vendor & Purchase helpers ----------
+  function nextVendorId(){ return vendors.length ? Math.max(...vendors.map(v=>v.id))+1 : 1; }
+  function nextPOId(){ return purchaseOrders.length ? Math.max(...purchaseOrders.map(p=>p.id))+1 : 1; }
+  function nextPONo(){ return 'PO-' + String(purchaseOrders.length+1).padStart(4,'0'); }
+  function poTotal(po){ return (po.items||[]).reduce((a,i)=>a+((parseFloat(i.qty)||0)*(parseFloat(i.price)||0)),0); }
+  function vendorPOs(vendorId){ return purchaseOrders.filter(p=>p.vendorId===vendorId); }
+
+  // ---------- Billing / POS helpers ----------
+  function nextInvoiceId(){ return salesInvoices.length ? Math.max(...salesInvoices.map(v=>v.id))+1 : 1; }
+  function nextInvoiceNo(){ return 'INV-' + String(salesInvoices.length+1).padStart(5,'0'); }
+  function invoiceSubtotal(inv){ return (inv.items||[]).reduce((a,i)=>a+((parseFloat(i.qty)||0)*(parseFloat(i.price)||0)),0); }
+  function invoiceTotal(inv){ return Math.max(0, invoiceSubtotal(inv) - (parseFloat(inv.discount)||0)); }
+  function cartSubtotal(){ return posCart.reduce((a,i)=>a+(i.qty*i.price),0); }
+  function cartTotal(){ return Math.max(0, cartSubtotal() - (parseFloat(posDiscount)||0)); }
 
   // ---------- Google Sheet sync (Apps Script Web App bridge) ----------
   function setSyncStatus(status, msg){
@@ -652,6 +722,21 @@
       inventoryTxns = r ? JSON.parse(r) : [];
     } catch(e){ inventoryTxns = []; }
 
+    try {
+      const r = localStorage.getItem('ekps_vendors');
+      vendors = r ? JSON.parse(r) : [];
+    } catch(e){ vendors = []; }
+
+    try {
+      const r = localStorage.getItem('ekps_purchase_orders');
+      purchaseOrders = r ? JSON.parse(r) : [];
+    } catch(e){ purchaseOrders = []; }
+
+    try {
+      const r = localStorage.getItem('ekps_sales_invoices');
+      salesInvoices = r ? JSON.parse(r) : [];
+    } catch(e){ salesInvoices = []; }
+
     ready = true;
 
     if (gasConfigured()){
@@ -668,6 +753,9 @@
         try { if (d.transportEntries) transportEntries = JSON.parse(d.transportEntries); } catch(e){}
         try { if (d.inventoryItems) inventoryItems = JSON.parse(d.inventoryItems); } catch(e){}
         try { if (d.inventoryTxns) inventoryTxns = JSON.parse(d.inventoryTxns); } catch(e){}
+        try { if (d.vendors) vendors = JSON.parse(d.vendors); } catch(e){}
+        try { if (d.purchaseOrders) purchaseOrders = JSON.parse(d.purchaseOrders); } catch(e){}
+        try { if (d.salesInvoices) salesInvoices = JSON.parse(d.salesInvoices); } catch(e){}
         cacheLocally();
         setSyncStatus('synced');
         render();
@@ -687,6 +775,9 @@
     try { localStorage.setItem('ekps_transport_entries', JSON.stringify(transportEntries)); } catch(e){}
     try { localStorage.setItem('ekps_inventory_items', JSON.stringify(inventoryItems)); } catch(e){}
     try { localStorage.setItem('ekps_inventory_txns', JSON.stringify(inventoryTxns)); } catch(e){}
+    try { localStorage.setItem('ekps_vendors', JSON.stringify(vendors)); } catch(e){}
+    try { localStorage.setItem('ekps_purchase_orders', JSON.stringify(purchaseOrders)); } catch(e){}
+    try { localStorage.setItem('ekps_sales_invoices', JSON.stringify(salesInvoices)); } catch(e){}
   }
   function saveAdmissions(){
     try { localStorage.setItem('ekps_admissions', JSON.stringify(admissions)); }
@@ -716,6 +807,24 @@
     try { localStorage.setItem('ekps_inventory_txns', JSON.stringify(inventoryTxns)); }
     catch(e){ console.error('save inventory txns failed', e); }
     pushToSheet('inventoryTxns', inventoryTxns);
+    maybeAutoBackup();
+  }
+  function saveVendors(){
+    try { localStorage.setItem('ekps_vendors', JSON.stringify(vendors)); }
+    catch(e){ console.error('save vendors failed', e); }
+    pushToSheet('vendors', vendors);
+    maybeAutoBackup();
+  }
+  function savePurchaseOrders(){
+    try { localStorage.setItem('ekps_purchase_orders', JSON.stringify(purchaseOrders)); }
+    catch(e){ console.error('save purchase orders failed', e); }
+    pushToSheet('purchaseOrders', purchaseOrders);
+    maybeAutoBackup();
+  }
+  function saveSalesInvoices(){
+    try { localStorage.setItem('ekps_sales_invoices', JSON.stringify(salesInvoices)); }
+    catch(e){ console.error('save sales invoices failed', e); }
+    pushToSheet('salesInvoices', salesInvoices);
     maybeAutoBackup();
   }
   function saveSchoolSettings(){
@@ -762,6 +871,9 @@
       transportEntries: JSON.parse(JSON.stringify(transportEntries)),
       inventoryItems: JSON.parse(JSON.stringify(inventoryItems)),
       inventoryTxns: JSON.parse(JSON.stringify(inventoryTxns)),
+      vendors: JSON.parse(JSON.stringify(vendors)),
+      purchaseOrders: JSON.parse(JSON.stringify(purchaseOrders)),
+      salesInvoices: JSON.parse(JSON.stringify(salesInvoices)),
     });
     if (autoBackups.length > AUTO_BACKUP_KEEP) autoBackups = autoBackups.slice(-AUTO_BACKUP_KEEP);
     saveAutoBackups();
@@ -914,7 +1026,7 @@
     ledger: ['Fee Ledger','Class-wise dues & payment status'],
     receipts: ['Receipts','Look up and print a payment receipt'],
     transport: ['Transport Management','Routes, vehicle assignment aur transport fee collection'],
-    inventory: ['Inventory Management','Uniform, books & stationery stock tracking'],
+    inventory: ['Inventory & Billing','Dashboard, stock, vendors, purchases, POS billing aur reports — sab ek jagah'],
     promotion: ['Session Promotion','Naye saal ke liye bacchon ko agli class me promote karein'],
     exams: ['Exam Manager & Admit Card','School settings, exams aur admit card printing'],
     backup: ['Backup & Sync','Google Sheet Sync + snapshots and manual backups'],
@@ -1986,15 +2098,127 @@
   function renderInventory(){
     contentEl.innerHTML = `
       <div class="subtabs">
-        <div class="subtab ${inventorySubView==='items'?'active':''}" data-inv-tab="items">Items & Stock</div>
-        <div class="subtab ${inventorySubView==='stock'?'active':''}" data-inv-tab="stock">Stock In/Out Log</div>
+        <div class="subtab ${inventorySubView==='dashboard'?'active':''}" data-inv-tab="dashboard">📊 Dashboard & Analytics</div>
+        <div class="subtab ${inventorySubView==='items'?'active':''}" data-inv-tab="items">📦 Stock & Inventory</div>
+        <div class="subtab ${inventorySubView==='vendors'?'active':''}" data-inv-tab="vendors">🤝 Vendor & Purchases</div>
+        <div class="subtab ${inventorySubView==='billing'?'active':''}" data-inv-tab="billing">🧾 Billing / POS</div>
+        <div class="subtab ${inventorySubView==='log'?'active':''}" data-inv-tab="log">↕ Stock Log</div>
+        <div class="subtab ${inventorySubView==='reports'?'active':''}" data-inv-tab="reports">⬇ Reports & Export</div>
       </div>
       <div id="ekps-inv-body"></div>`;
     contentEl.querySelectorAll('[data-inv-tab]').forEach(el=>{
       el.addEventListener('click', ()=>{ inventorySubView = el.dataset.invTab; renderInventory(); });
     });
-    if (inventorySubView==='items') renderInventoryItems();
-    else renderInventoryLog();
+    if (inventorySubView==='dashboard') renderInventoryDashboard();
+    else if (inventorySubView==='items') renderInventoryItems();
+    else if (inventorySubView==='vendors') renderInventoryVendors();
+    else if (inventorySubView==='billing') renderInventoryBilling();
+    else if (inventorySubView==='log') renderInventoryLog();
+    else if (inventorySubView==='reports') renderInventoryReports();
+  }
+
+  // ---------- Inventory: Dashboard & Analytics ----------
+  function renderInventoryDashboard(){
+    const body = document.getElementById('ekps-inv-body');
+    const totalValue = inventoryItems.reduce((a,i)=>a + itemStock(i.id)*i.unitPrice, 0);
+    const lowStock = inventoryItems.filter(i=>itemStatus(i)!=='InStock');
+    const today = todayISO();
+    const todaySales = salesInvoices.filter(v=>v.date===today);
+    const todaySalesAmt = todaySales.reduce((a,v)=>a+invoiceTotal(v),0);
+    const thisMonth = today.slice(0,7);
+    const monthPurchaseAmt = purchaseOrders.filter(p=>(p.date||'').slice(0,7)===thisMonth).reduce((a,p)=>a+poTotal(p),0);
+    const monthSalesAmt = salesInvoices.filter(v=>(v.date||'').slice(0,7)===thisMonth).reduce((a,v)=>a+invoiceTotal(v),0);
+
+    // category-wise stock value
+    const cats = {};
+    inventoryItems.forEach(i=>{ const v = itemStock(i.id)*i.unitPrice; cats[i.category] = (cats[i.category]||0) + v; });
+    const maxCat = Math.max(1, ...Object.values(cats));
+
+    // top selling items (by qty, from sale-sourced stock-out txns)
+    const soldQty = {};
+    inventoryTxns.filter(t=>t.type==='out' && t.source==='sale').forEach(t=>{ soldQty[t.itemId] = (soldQty[t.itemId]||0) + t.qty; });
+    const topSelling = Object.entries(soldQty).sort((a,b)=>b[1]-a[1]).slice(0,5)
+      .map(([id,qty])=>({ item: inventoryItems.find(i=>i.id===parseInt(id)), qty }))
+      .filter(x=>x.item);
+    const maxSold = Math.max(1, ...topSelling.map(x=>x.qty));
+
+    const recentSales = salesInvoices.slice().sort((a,b)=>b.id-a.id).slice(0,6);
+    const recentPurchases = purchaseOrders.slice().sort((a,b)=>b.id-a.id).slice(0,6);
+
+    body.innerHTML = `
+      <div class="kpi-grid">
+        <div class="kpi-card" style="--accent:var(--green)"><div class="kpi-label">Total Stock Value</div><div class="kpi-value">${fmt(totalValue)}</div><div class="kpi-note">${inventoryItems.length} items tracked</div></div>
+        <div class="kpi-card" style="--accent:var(--rust)"><div class="kpi-label">Low / Out of Stock</div><div class="kpi-value">${lowStock.length}</div><div class="kpi-note">Reorder-level se neeche</div></div>
+        <div class="kpi-card" style="--accent:var(--saffron)"><div class="kpi-label">Today's Sales</div><div class="kpi-value">${fmt(todaySalesAmt)}</div><div class="kpi-note">${todaySales.length} bill(s) aaj</div></div>
+        <div class="kpi-card" style="--accent:var(--ink)"><div class="kpi-label">This Month Purchases</div><div class="kpi-value">${fmt(monthPurchaseAmt)}</div><div class="kpi-note">${vendors.length} active vendors</div></div>
+      </div>
+      <div class="stat-strip">
+        <div class="kpi-card" style="--accent:var(--green)"><div class="kpi-label">This Month Sales</div><div class="kpi-value">${fmt(monthSalesAmt)}</div></div>
+        <div class="kpi-card" style="--accent:var(--saffron)"><div class="kpi-label">Total Purchase Orders</div><div class="kpi-value">${purchaseOrders.length}</div></div>
+        <div class="kpi-card" style="--accent:var(--ink)"><div class="kpi-label">Total Invoices Billed</div><div class="kpi-value">${salesInvoices.length}</div></div>
+      </div>
+      <div class="two-col">
+        <div class="panel">
+          <div class="panel-head"><h3>Category-wise Stock Value</h3></div>
+          <div class="panel-body">
+            ${Object.keys(cats).length ? Object.entries(cats).sort((a,b)=>b[1]-a[1]).map(([c,v])=>`
+              <div class="classbar-row">
+                <div class="classbar-label">${esc(c)}</div>
+                <div class="classbar-track"><div class="classbar-fill" style="width:${(v/maxCat*100).toFixed(1)}%"></div></div>
+                <div class="classbar-val">${fmt(v)}</div>
+              </div>`).join('') : `<div class="empty-state">Koi item nahi hai</div>`}
+          </div>
+        </div>
+        <div class="panel">
+          <div class="panel-head"><h3>Top Selling Items</h3></div>
+          <div class="panel-body">
+            ${topSelling.length ? topSelling.map(x=>`
+              <div class="classbar-row">
+                <div class="classbar-label" style="width:auto; flex:1;">${esc(x.item.name)}</div>
+                <div class="classbar-track" style="flex:.8;"><div class="classbar-fill" style="width:${(x.qty/maxSold*100).toFixed(1)}%"></div></div>
+                <div class="classbar-val">${x.qty} ${esc(x.item.unit)}</div>
+              </div>`).join('') : `<div class="empty-state">Abhi tak koi sale nahi hui</div>`}
+          </div>
+        </div>
+      </div>
+      <div class="two-col" style="margin-top:16px;">
+        <div class="panel">
+          <div class="panel-head"><h3>Recent Sales / Bills</h3><span class="btn btn-sm btn-ghost" id="dash-goto-billing">Billing khole</span></div>
+          <div class="panel-body">
+            ${recentSales.length ? recentSales.map(v=>`
+              <div class="recent-row">
+                <div><div class="recent-name">${esc(v.invNo)} — ${esc(v.customerName||'Walk-in')}</div><div class="recent-meta">${fmtDate(v.date)}</div></div>
+                <div class="recent-amt">${fmt(invoiceTotal(v))}</div>
+              </div>`).join('') : `<div class="empty-state">Koi bill nahi bana</div>`}
+          </div>
+        </div>
+        <div class="panel">
+          <div class="panel-head"><h3>Recent Purchases</h3><span class="btn btn-sm btn-ghost" id="dash-goto-vendors">Vendors khole</span></div>
+          <div class="panel-body">
+            ${recentPurchases.length ? recentPurchases.map(p=>{
+              const v = vendors.find(x=>x.id===p.vendorId);
+              return `<div class="recent-row">
+                <div><div class="recent-name">${esc(p.poNo)} — ${esc(v?v.name:'—')}</div><div class="recent-meta">${fmtDate(p.date)}</div></div>
+                <div class="recent-amt">${fmt(poTotal(p))}</div>
+              </div>`;
+            }).join('') : `<div class="empty-state">Koi purchase order nahi hai</div>`}
+          </div>
+        </div>
+      </div>
+      ${lowStock.length ? `
+      <div class="panel" style="margin-top:16px;">
+        <div class="panel-head"><h3>⚠ Low / Out of Stock Alerts</h3></div>
+        <div class="panel-body" style="padding:0;">
+          <table class="data"><thead><tr><th>Item</th><th>Category</th><th>Current Stock</th><th>Reorder Level</th><th>Status</th></tr></thead>
+          <tbody>${lowStock.map(i=>`<tr>
+            <td style="font-weight:600;">${esc(i.name)}</td><td>${esc(i.category)}</td>
+            <td class="mono">${itemStock(i.id)} ${esc(i.unit)}</td><td class="mono">${i.reorderLevel}</td>
+            <td><span class="status-badge status-${itemStatus(i)}">${itemStatus(i)==='Out'?'Out of Stock':'Low Stock'}</span></td>
+          </tr>`).join('')}</tbody></table>
+        </div>
+      </div>` : ''}`;
+    const gb = document.getElementById('dash-goto-billing'); if (gb) gb.addEventListener('click', ()=>{ inventorySubView='billing'; renderInventory(); });
+    const gv = document.getElementById('dash-goto-vendors'); if (gv) gv.addEventListener('click', ()=>{ inventorySubView='vendors'; renderInventory(); });
   }
 
   function renderInventoryItems(){
@@ -2102,6 +2326,615 @@
     });
   }
 
+  // ================= VENDOR & PURCHASE MANAGEMENT =================
+  function vendorModal(){
+    const editing = editingVendorId != null;
+    const v = editing ? vendors.find(x=>x.id===editingVendorId) : {id:nextVendorId(), name:'', contact:'', phone:'', address:'', gstin:''};
+    modalRoot.innerHTML = `
+      <div class="modal-backdrop" id="ekps-vd-bg">
+        <div class="modal">
+          <div class="modal-head"><h3>${editing?'Edit Vendor':'Add Vendor'}</h3><div class="icon-btn" id="ekps-vd-close">✕</div></div>
+          <div class="modal-body">
+            <div class="field"><label>Vendor / Supplier Name</label><input type="text" id="vd-name" value="${esc(v.name)}" placeholder="e.g. Sharma Uniform House"/></div>
+            <div class="form-grid">
+              <div class="field"><label>Contact Person</label><input type="text" id="vd-contact" value="${esc(v.contact)}"/></div>
+              <div class="field"><label>Phone</label><input type="text" id="vd-phone" value="${esc(v.phone)}"/></div>
+              <div class="field"><label>GSTIN (optional)</label><input type="text" id="vd-gstin" value="${esc(v.gstin)}"/></div>
+            </div>
+            <div class="field"><label>Address</label><input type="text" id="vd-address" value="${esc(v.address)}"/></div>
+          </div>
+          <div class="modal-foot">
+            <span class="btn btn-ghost" id="ekps-vd-cancel">Cancel</span>
+            <span class="btn btn-primary" id="ekps-vd-save">${editing?'Save Changes':'Add Vendor'}</span>
+          </div>
+        </div>
+      </div>`;
+    const close = ()=>{ modalRoot.innerHTML=''; editingVendorId=null; };
+    document.getElementById('ekps-vd-bg').addEventListener('click', e=>{ if(e.target.id==='ekps-vd-bg') close(); });
+    document.getElementById('ekps-vd-close').addEventListener('click', close);
+    document.getElementById('ekps-vd-cancel').addEventListener('click', close);
+    document.getElementById('ekps-vd-save').addEventListener('click', ()=>{
+      const name = document.getElementById('vd-name').value.trim();
+      if (!name) { toast('Vendor ka naam daalein'); return; }
+      const rec = {
+        id: v.id, name,
+        contact: document.getElementById('vd-contact').value.trim(),
+        phone: document.getElementById('vd-phone').value.trim(),
+        gstin: document.getElementById('vd-gstin').value.trim(),
+        address: document.getElementById('vd-address').value.trim(),
+      };
+      if (editing) vendors = vendors.map(x=>x.id===rec.id?rec:x);
+      else vendors.push(rec);
+      saveVendors();
+      toast(editing?'Vendor updated':'Vendor added');
+      close();
+      renderInventoryVendors();
+    });
+  }
+
+  function poModal(){
+    poDraftItems = [{ itemId: inventoryItems[0]?inventoryItems[0].id:null, qty:1, price: inventoryItems[0]?inventoryItems[0].unitPrice:0 }];
+    poDraftVendorId = vendors[0] ? vendors[0].id : null;
+    renderPOModalBody();
+  }
+  function renderPOModalBody(){
+    if (!inventoryItems.length) { toast('Pehle Stock & Inventory me item add karein'); return; }
+    if (!vendors.length) { toast('Pehle ek Vendor add karein'); return; }
+    const total = poDraftItems.reduce((a,r)=>a+((parseFloat(r.qty)||0)*(parseFloat(r.price)||0)),0);
+    modalRoot.innerHTML = `
+      <div class="modal-backdrop" id="ekps-po-bg">
+        <div class="modal modal-lg">
+          <div class="modal-head"><h3>New Purchase Order</h3><div class="icon-btn" id="ekps-po-close">✕</div></div>
+          <div class="modal-body">
+            <div class="form-grid">
+              <div class="field" style="grid-column:span 2;"><label>Vendor</label>
+                <select id="po-vendor">${vendors.map(v=>`<option value="${v.id}" ${v.id===poDraftVendorId?'selected':''}>${esc(v.name)}</option>`).join('')}</select>
+              </div>
+              <div class="field"><label>Purchase Date</label><input type="date" id="po-date" value="${todayISO()}"/></div>
+            </div>
+            <div class="field"><label>Items — Received / stock ho jayega automatically save karte hi</label></div>
+            <div id="po-lines">
+              ${poDraftItems.map((r,idx)=>`
+                <div class="po-line" data-po-row="${idx}">
+                  <select data-po-item="${idx}">${inventoryItems.map(i=>`<option value="${i.id}" ${i.id===r.itemId?'selected':''}>${esc(i.name)}</option>`).join('')}</select>
+                  <input type="number" min="1" placeholder="Qty" data-po-qty="${idx}" value="${r.qty}"/>
+                  <input type="number" min="0" placeholder="Price" data-po-price="${idx}" value="${r.price}"/>
+                  <div class="mono" style="text-align:right; font-weight:700;">${fmt((parseFloat(r.qty)||0)*(parseFloat(r.price)||0))}</div>
+                  <div class="icon-btn" data-po-remove="${idx}">${ICONS.trash}</div>
+                </div>`).join('')}
+            </div>
+            <span class="btn btn-ghost btn-sm" id="po-add-line">+ Add Item Row</span>
+            <div class="cart-totals">
+              <div class="ct-row ct-grand"><span>Purchase Total</span><span>${fmt(total)}</span></div>
+            </div>
+          </div>
+          <div class="modal-foot">
+            <span class="btn btn-ghost" id="ekps-po-cancel">Cancel</span>
+            <span class="btn btn-primary" id="ekps-po-save">Save & Auto-Receive Stock</span>
+          </div>
+        </div>
+      </div>`;
+    const close = ()=>{ modalRoot.innerHTML=''; };
+    document.getElementById('ekps-po-bg').addEventListener('click', e=>{ if(e.target.id==='ekps-po-bg') close(); });
+    document.getElementById('ekps-po-close').addEventListener('click', close);
+    document.getElementById('ekps-po-cancel').addEventListener('click', close);
+    document.getElementById('po-vendor').addEventListener('change', e=>{ poDraftVendorId = parseInt(e.target.value); });
+    document.getElementById('po-add-line').addEventListener('click', ()=>{
+      poDraftItems.push({ itemId: inventoryItems[0]?inventoryItems[0].id:null, qty:1, price: inventoryItems[0]?inventoryItems[0].unitPrice:0 });
+      renderPOModalBody();
+    });
+    modalRoot.querySelectorAll('[data-po-item]').forEach(el=>el.addEventListener('change', e=>{
+      const idx = parseInt(el.dataset.poItem); const item = inventoryItems.find(i=>i.id===parseInt(e.target.value));
+      poDraftItems[idx].itemId = item.id; poDraftItems[idx].price = item.unitPrice; renderPOModalBody();
+    }));
+    modalRoot.querySelectorAll('[data-po-qty]').forEach(el=>el.addEventListener('input', e=>{
+      poDraftItems[parseInt(el.dataset.poQty)].qty = e.target.value;
+      document.querySelectorAll('.ct-grand span:last-child')[0].textContent = fmt(poDraftItems.reduce((a,r)=>a+((parseFloat(r.qty)||0)*(parseFloat(r.price)||0)),0));
+    }));
+    modalRoot.querySelectorAll('[data-po-price]').forEach(el=>el.addEventListener('input', e=>{
+      poDraftItems[parseInt(el.dataset.poPrice)].price = e.target.value;
+      document.querySelectorAll('.ct-grand span:last-child')[0].textContent = fmt(poDraftItems.reduce((a,r)=>a+((parseFloat(r.qty)||0)*(parseFloat(r.price)||0)),0));
+    }));
+    modalRoot.querySelectorAll('[data-po-remove]').forEach(el=>el.addEventListener('click', ()=>{
+      const idx = parseInt(el.dataset.poRemove);
+      if (poDraftItems.length<=1) { toast('Kam se kam 1 item chahiye'); return; }
+      poDraftItems.splice(idx,1);
+      renderPOModalBody();
+    }));
+    document.getElementById('ekps-po-save').addEventListener('click', ()=>{
+      const date = document.getElementById('po-date').value;
+      if (!poDraftVendorId) { toast('Vendor select karein'); return; }
+      if (!date) { toast('Date daalein'); return; }
+      const cleanItems = poDraftItems.filter(r=>r.itemId && (parseFloat(r.qty)||0)>0);
+      if (!cleanItems.length) { toast('Kam se kam ek valid item row daalein'); return; }
+      const po = { id: nextPOId(), poNo: nextPONo(), vendorId: poDraftVendorId, date,
+        items: cleanItems.map(r=>({ itemId: r.itemId, qty: parseFloat(r.qty)||0, price: parseFloat(r.price)||0 })) };
+      purchaseOrders.push(po);
+      savePurchaseOrders();
+      // AUTOMATION: auto stock-in for every line item, no separate manual step needed
+      const vendor = vendors.find(v=>v.id===poDraftVendorId);
+      po.items.forEach(it=>{
+        inventoryTxns.push({ id: Date.now()+Math.floor(Math.random()*1000), itemId: it.itemId, type:'in', qty: it.qty, date,
+          note: `Purchase ${po.poNo} — ${vendor?vendor.name:'Vendor'}`, source:'purchase', refId: po.id });
+      });
+      saveInventoryTxns();
+      toast('Purchase order saved — stock automatically updated');
+      close();
+      renderInventoryVendors();
+    });
+  }
+
+  function renderInventoryVendors(){
+    const body = document.getElementById('ekps-inv-body');
+    const q = vendorQ.trim().toLowerCase();
+    const vlist = vendors.filter(v=> !q || v.name.toLowerCase().includes(q)).sort((a,b)=>a.name.localeCompare(b.name));
+    const poList = purchaseOrders.slice().sort((a,b)=>b.id-a.id);
+    body.innerHTML = `
+      <div class="two-col">
+        <div class="panel">
+          <div class="panel-head"><h3>Vendors / Suppliers</h3><span class="btn btn-sm btn-accent" id="vd-new">+ Add Vendor</span></div>
+          <div class="panel-body">
+            <div class="search-wrap" style="margin-bottom:12px;">${ICONS.search}<input type="text" id="vd-search" placeholder="Vendor search karein" value="${esc(vendorQ)}"/></div>
+            ${vlist.length ? vlist.map(v=>{
+              const pos = vendorPOs(v.id);
+              const spent = pos.reduce((a,p)=>a+poTotal(p),0);
+              return `<div class="vendor-card">
+                <div style="display:flex; justify-content:space-between; align-items:flex-start;">
+                  <div>
+                    <div class="vc-name">${esc(v.name)}</div>
+                    <div class="vc-meta">${v.contact?esc(v.contact)+' &middot; ':''}${esc(v.phone||'—')}${v.gstin?' &middot; GSTIN: '+esc(v.gstin):''}</div>
+                    <div class="vc-meta">${v.address?esc(v.address):''}</div>
+                    <div class="vc-meta">${pos.length} purchase order(s) &middot; Total: ${fmt(spent)}</div>
+                  </div>
+                  <div class="row-actions">
+                    <div class="icon-btn" data-vd-edit="${v.id}" title="Edit">${ICONS.edit}</div>
+                    <div class="icon-btn" data-vd-del="${v.id}" title="Delete">${ICONS.trash}</div>
+                  </div>
+                </div>
+              </div>`;
+            }).join('') : `<div class="empty-state">Koi vendor nahi hai. "+ Add Vendor" se shuru karein.</div>`}
+          </div>
+        </div>
+        <div class="panel">
+          <div class="panel-head"><h3>Purchase Orders</h3><span class="btn btn-sm btn-accent" id="po-new">+ New Purchase</span></div>
+          <div class="panel-body" style="padding:0; overflow:auto; max-height:560px;">
+            <table class="data">
+              <thead><tr><th>PO No.</th><th>Vendor</th><th>Date</th><th>Items</th><th>Total</th></tr></thead>
+              <tbody>
+                ${poList.length ? poList.map(p=>{
+                  const v = vendors.find(x=>x.id===p.vendorId);
+                  return `<tr>
+                    <td class="mono">${esc(p.poNo)}</td>
+                    <td style="font-weight:600;">${esc(v?v.name:'—')}</td>
+                    <td>${fmtDate(p.date)}</td>
+                    <td>${(p.items||[]).length}</td>
+                    <td class="mono">${fmt(poTotal(p))}</td>
+                  </tr>`;
+                }).join('') : `<tr><td colspan="5"><div class="empty-state">Koi purchase order nahi hai</div></td></tr>`}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>`;
+    document.getElementById('vd-search').addEventListener('input', e=>{ vendorQ = e.target.value; renderInventoryVendors(); });
+    document.getElementById('vd-new').addEventListener('click', ()=>{ editingVendorId=null; vendorModal(); });
+    document.getElementById('po-new').addEventListener('click', ()=>{ poModal(); });
+    body.querySelectorAll('[data-vd-edit]').forEach(el=>el.addEventListener('click', ()=>{ editingVendorId=parseInt(el.dataset.vdEdit); vendorModal(); }));
+    body.querySelectorAll('[data-vd-del]').forEach(el=>el.addEventListener('click', ()=>{
+      if(!confirm('Ye vendor delete karein?')) return;
+      vendors = vendors.filter(v=>v.id!==parseInt(el.dataset.vdDel));
+      saveVendors();
+      toast('Vendor deleted');
+      renderInventoryVendors();
+    }));
+  }
+
+  // ================= BILLING / POS (SMART BILLING) =================
+  function renderInventoryBilling(){
+    const body = document.getElementById('ekps-inv-body');
+    const q = posQ.trim().toLowerCase();
+    const items = inventoryItems.filter(i=> !q || i.name.toLowerCase().includes(q) || i.category.toLowerCase().includes(q))
+      .sort((a,b)=>a.name.localeCompare(b.name));
+    const recentInvoices = salesInvoices.slice().sort((a,b)=>b.id-a.id).slice(0,8);
+
+    body.innerHTML = `
+      <div class="pos-wrap">
+        <div class="panel">
+          <div class="panel-head"><h3>Select Items</h3></div>
+          <div class="panel-body">
+            <div class="search-wrap" style="margin-bottom:12px;">${ICONS.search}<input type="text" id="pos-search" placeholder="Item search karein" value="${esc(posQ)}"/></div>
+            <div class="pos-item-grid">
+              ${items.length ? items.map(i=>{
+                const stock = itemStock(i.id);
+                return `<div class="pos-item-card ${stock<=0?'out':''}" data-pos-add="${i.id}">
+                  <div class="pi-name">${esc(i.name)}</div>
+                  <div class="pi-meta"><span>${fmt(i.unitPrice)}</span><span>${stock<=0?'Out of stock':stock+' '+esc(i.unit)}</span></div>
+                </div>`;
+              }).join('') : `<div class="empty-state">Koi item nahi mila</div>`}
+            </div>
+          </div>
+        </div>
+        <div class="panel">
+          <div class="panel-head"><h3>Bill / Cart</h3><span class="btn btn-sm btn-ghost" id="pos-clear">Clear</span></div>
+          <div class="panel-body">
+            <div class="form-grid" style="grid-template-columns:1fr 1fr;">
+              <div class="field"><label>Customer Type</label>
+                <select id="pos-cust-type">
+                  <option value="walkin" ${posCustomerType==='walkin'?'selected':''}>Walk-in Customer</option>
+                  <option value="student" ${posCustomerType==='student'?'selected':''}>School Student</option>
+                </select>
+              </div>
+              <div class="field"><label>Payment Mode</label>
+                <select id="pos-pay-mode">
+                  ${['Cash','UPI','Card','Bank Transfer'].map(m=>`<option ${m===posPaymentMode?'selected':''}>${m}</option>`).join('')}
+                </select>
+              </div>
+            </div>
+            <div id="pos-cust-fields">
+              ${posCustomerType==='student' ? `
+                <div class="field"><label>Student (ID ya naam type karein)</label>
+                  <input type="text" id="pos-student-input" placeholder="e.g. 12 — Rahul Kumar" value="${posStudentPick?(posStudentPick+' — '+(students.find(s=>s.id===posStudentPick)?students.find(s=>s.id===posStudentPick).name:'')):''}"/>
+                </div>` : `
+                <div class="form-grid" style="grid-template-columns:1fr 1fr;">
+                  <div class="field"><label>Customer Name</label><input type="text" id="pos-cust-name" value="${esc(posCustomerName)}" placeholder="Optional"/></div>
+                  <div class="field"><label>Phone</label><input type="text" id="pos-cust-phone" value="${esc(posCustomerPhone)}" placeholder="Optional"/></div>
+                </div>`}
+            </div>
+            <div id="pos-cart-rows">
+              ${posCart.length ? posCart.map((c,idx)=>`
+                <div class="cart-row">
+                  <span class="cr-nm">${esc(c.name)}</span>
+                  <input type="number" min="1" class="cr-qty" data-cart-qty="${idx}" value="${c.qty}"/>
+                  <span class="cr-price">${fmt(c.price)}</span>
+                  <span class="cr-line">${fmt(c.qty*c.price)}</span>
+                  <div class="icon-btn" data-cart-remove="${idx}">${ICONS.trash}</div>
+                </div>`).join('') : `<div class="empty-state">Cart khali hai — left side se item click karein</div>`}
+            </div>
+            <div class="field" style="margin-top:10px;"><label>Discount (₹)</label><input type="number" min="0" id="pos-discount" value="${posDiscount}"/></div>
+            <div class="cart-totals">
+              <div class="ct-row"><span>Subtotal</span><span>${fmt(cartSubtotal())}</span></div>
+              <div class="ct-row"><span>Discount</span><span>−${fmt(posDiscount||0)}</span></div>
+              <div class="ct-row ct-grand"><span>Grand Total</span><span>${fmt(cartTotal())}</span></div>
+            </div>
+            <span class="btn btn-accent" id="pos-generate" style="width:100%; justify-content:center; margin-top:12px;">🧾 Generate Bill & Print</span>
+          </div>
+        </div>
+      </div>
+      <div class="panel" style="margin-top:16px;">
+        <div class="panel-head"><h3>Recent Invoices</h3></div>
+        <div class="panel-body" style="padding:0; overflow:auto;">
+          <table class="data">
+            <thead><tr><th>Invoice No.</th><th>Date</th><th>Customer</th><th>Amount</th><th>Payment</th><th></th></tr></thead>
+            <tbody>
+              ${recentInvoices.length ? recentInvoices.map(v=>`<tr>
+                <td class="mono">${esc(v.invNo)}</td><td>${fmtDate(v.date)}</td>
+                <td style="font-weight:600;">${esc(v.customerName||'Walk-in')}</td>
+                <td class="mono">${fmt(invoiceTotal(v))}</td>
+                <td>${esc(v.paymentMode)}</td>
+                <td><span class="btn btn-sm btn-ghost" data-reprint="${v.id}">${ICONS.print} Print</span></td>
+              </tr>`).join('') : `<tr><td colspan="6"><div class="empty-state">Koi bill nahi bana</div></td></tr>`}
+            </tbody>
+          </table>
+        </div>
+      </div>`;
+
+    document.getElementById('pos-search').addEventListener('input', e=>{ posQ = e.target.value; renderInventoryBilling(); });
+    document.getElementById('pos-clear').addEventListener('click', ()=>{ posCart=[]; posDiscount=0; renderInventoryBilling(); });
+    document.getElementById('pos-cust-type').addEventListener('change', e=>{ posCustomerType = e.target.value; posStudentPick=null; renderInventoryBilling(); });
+    document.getElementById('pos-pay-mode').addEventListener('change', e=>{ posPaymentMode = e.target.value; });
+    document.getElementById('pos-discount').addEventListener('input', e=>{ posDiscount = parseFloat(e.target.value)||0; renderInventoryBilling(); });
+
+    if (posCustomerType==='student') {
+      const input = document.getElementById('pos-student-input');
+      input.addEventListener('input', ()=>{
+        const m = input.value.match(/^(\d+)\s*—/);
+        if (m) { const s = students.find(x=>x.id===parseInt(m[1])); posStudentPick = s ? s.id : null; }
+        else posStudentPick = null;
+      });
+    } else {
+      document.getElementById('pos-cust-name').addEventListener('input', e=>{ posCustomerName = e.target.value; });
+      document.getElementById('pos-cust-phone').addEventListener('input', e=>{ posCustomerPhone = e.target.value; });
+    }
+
+    body.querySelectorAll('[data-pos-add]').forEach(el=>el.addEventListener('click', ()=>{
+      const id = parseInt(el.dataset.posAdd);
+      const item = inventoryItems.find(i=>i.id===id);
+      if (!item) return;
+      if (itemStock(id) <= 0) { toast('Ye item stock me nahi hai'); return; }
+      const existing = posCart.find(c=>c.itemId===id);
+      if (existing) existing.qty += 1;
+      else posCart.push({ itemId:id, name:item.name, price:item.unitPrice, qty:1, unit:item.unit });
+      renderInventoryBilling();
+    }));
+    body.querySelectorAll('[data-cart-qty]').forEach(el=>el.addEventListener('input', e=>{
+      const idx = parseInt(el.dataset.cartQty);
+      posCart[idx].qty = Math.max(1, parseFloat(e.target.value)||1);
+      renderInventoryBilling();
+    }));
+    body.querySelectorAll('[data-cart-remove]').forEach(el=>el.addEventListener('click', ()=>{
+      posCart.splice(parseInt(el.dataset.cartRemove),1);
+      renderInventoryBilling();
+    }));
+    body.querySelectorAll('[data-reprint]').forEach(el=>el.addEventListener('click', ()=>{
+      printInvoiceChoiceModal(parseInt(el.dataset.reprint));
+    }));
+
+    document.getElementById('pos-generate').addEventListener('click', ()=>{
+      if (!posCart.length) { toast('Cart me item add karein'); return; }
+      for (const c of posCart) {
+        if (c.qty > itemStock(c.itemId)) { toast(`${c.name} ka stock kam hai`); return; }
+      }
+      let customerName = '', studentId = null;
+      if (posCustomerType==='student') {
+        if (!posStudentPick) { toast('Valid student select karein'); return; }
+        const s = students.find(x=>x.id===posStudentPick);
+        customerName = s ? s.name : '';
+        studentId = posStudentPick;
+      } else {
+        customerName = posCustomerName.trim() || 'Walk-in Customer';
+      }
+      const inv = {
+        id: nextInvoiceId(), invNo: nextInvoiceNo(), date: todayISO(),
+        customerType: posCustomerType, customerName, customerPhone: posCustomerPhone.trim(), studentId,
+        items: posCart.map(c=>({ itemId:c.itemId, name:c.name, unit:c.unit, qty:c.qty, price:c.price })),
+        discount: parseFloat(posDiscount)||0, paymentMode: posPaymentMode,
+      };
+      salesInvoices.push(inv);
+      saveSalesInvoices();
+      // AUTOMATION: auto stock-out for every sold item, no separate manual step needed
+      inv.items.forEach(it=>{
+        inventoryTxns.push({ id: Date.now()+Math.floor(Math.random()*1000), itemId: it.itemId, type:'out', qty: it.qty, date: inv.date,
+          note: `Sale ${inv.invNo} — ${customerName}`, source:'sale', refId: inv.id });
+      });
+      saveInventoryTxns();
+      toast('Bill generated — stock auto-updated');
+      posCart = []; posDiscount = 0; posCustomerName=''; posCustomerPhone=''; posStudentPick=null;
+      printInvoiceChoiceModal(inv.id);
+      renderInventoryBilling();
+    });
+  }
+
+  function printInvoiceChoiceModal(invId){
+    modalRoot.innerHTML = `
+      <div class="modal-backdrop" id="ekps-pi-bg">
+        <div class="modal">
+          <div class="modal-head"><h3>Print Invoice</h3><div class="icon-btn" id="ekps-pi-close">✕</div></div>
+          <div class="modal-body">
+            <p style="font-size:13px; color:var(--slate); margin-top:0;">Bill generate ho gaya hai. Print format select karein:</p>
+            <div style="display:flex; gap:12px; margin-top:14px;">
+              <span class="btn btn-primary" id="pi-thermal" style="flex:1; justify-content:center;">🧾 Thermal Receipt</span>
+              <span class="btn btn-accent" id="pi-a4" style="flex:1; justify-content:center;">📄 A4 PDF Invoice</span>
+            </div>
+          </div>
+          <div class="modal-foot"><span class="btn btn-ghost" id="ekps-pi-cancel">Skip / Close</span></div>
+        </div>
+      </div>`;
+    const close = ()=>{ modalRoot.innerHTML=''; };
+    document.getElementById('ekps-pi-bg').addEventListener('click', e=>{ if(e.target.id==='ekps-pi-bg') close(); });
+    document.getElementById('ekps-pi-close').addEventListener('click', close);
+    document.getElementById('ekps-pi-cancel').addEventListener('click', close);
+    document.getElementById('pi-thermal').addEventListener('click', ()=>{ printInvoiceThermal(invId); close(); });
+    document.getElementById('pi-a4').addEventListener('click', ()=>{ printInvoiceA4(invId); close(); });
+  }
+
+  function printInvoiceThermal(invId){
+    const inv = salesInvoices.find(v=>v.id===invId);
+    if (!inv) { toast('Invoice nahi mila'); return; }
+    const rows = inv.items.map(it=>`
+      <div class="ti-row"><span>${esc(it.name)}</span></div>
+      <div class="ti-row ti-sub"><span>${it.qty} x ${fmt(it.price)}</span><span>${fmt(it.qty*it.price)}</span></div>`).join('');
+    const win = window.open('', '_blank');
+    if (!win) { toast('Popup block ho gaya — popup allow karein'); return; }
+    win.document.write(`<!DOCTYPE html><html><head><title>Receipt — ${esc(inv.invNo)}</title><style>
+      @page { size: 80mm auto; margin: 3mm; }
+      * { box-sizing:border-box; }
+      body { margin:0; font-family: 'Courier New', monospace; color:#000; font-size:12px; width:74mm; }
+      .center { text-align:center; }
+      h1 { font-size:14px; margin:2px 0; }
+      .sub { font-size:10.5px; margin:1px 0; }
+      .divider { border-top:1px dashed #000; margin:6px 0; }
+      .ti-row { display:flex; justify-content:space-between; padding:1px 0; font-size:11.5px; }
+      .ti-sub { color:#333; padding-left:4px; }
+      .totals { margin-top:6px; border-top:1px solid #000; padding-top:4px; }
+      .totals .grand { font-weight:700; font-size:14px; }
+      .foot { text-align:center; margin-top:10px; font-size:10.5px; }
+    </style></head><body>
+      <div class="center">
+        <h1>${esc(schoolSettings.name)}</h1>
+        ${schoolSettings.address?`<div class="sub">${esc(schoolSettings.address)}</div>`:''}
+        ${schoolSettings.phone?`<div class="sub">Ph: ${esc(schoolSettings.phone)}</div>`:''}
+      </div>
+      <div class="divider"></div>
+      <div class="ti-row"><span>Invoice</span><span>${esc(inv.invNo)}</span></div>
+      <div class="ti-row"><span>Date</span><span>${fmtDate(inv.date)}</span></div>
+      <div class="ti-row"><span>Customer</span><span>${esc(inv.customerName||'Walk-in')}</span></div>
+      <div class="divider"></div>
+      ${rows}
+      <div class="totals">
+        <div class="ti-row"><span>Subtotal</span><span>${fmt(invoiceSubtotal(inv))}</span></div>
+        <div class="ti-row"><span>Discount</span><span>-${fmt(inv.discount||0)}</span></div>
+        <div class="ti-row grand"><span>TOTAL</span><span>${fmt(invoiceTotal(inv))}</span></div>
+        <div class="ti-row"><span>Payment</span><span>${esc(inv.paymentMode)}</span></div>
+      </div>
+      <div class="foot">Dhanyawaad! Aana rehna 🙏</div>
+    </body></html>`);
+    win.document.close();
+    win.focus();
+    setTimeout(()=> win.print(), 300);
+  }
+
+  function printInvoiceA4(invId){
+    const inv = salesInvoices.find(v=>v.id===invId);
+    if (!inv) { toast('Invoice nahi mila'); return; }
+    const rows = inv.items.map((it,idx)=>`<tr>
+      <td>${idx+1}</td><td>${esc(it.name)}</td><td class="r">${it.qty} ${esc(it.unit||'')}</td>
+      <td class="r">${fmt(it.price)}</td><td class="r">${fmt(it.qty*it.price)}</td></tr>`).join('');
+    const win = window.open('', '_blank');
+    if (!win) { toast('Popup block ho gaya — popup allow karein'); return; }
+    win.document.write(`<!DOCTYPE html><html><head><title>Invoice — ${esc(inv.invNo)}</title><style>
+      @page { size: A4; margin: 14mm; }
+      * { box-sizing:border-box; }
+      body { margin:0; font-family: Arial, Helvetica, sans-serif; color:#1B2A4A; font-size:12.5px; }
+      .head { display:flex; justify-content:space-between; align-items:flex-start; border-bottom:2px solid #1B2A4A; padding-bottom:10px; margin-bottom:14px; }
+      h1 { font-size:19px; margin:0 0 3px 0; }
+      .sub { font-size:11px; color:#555; }
+      .inv-title { text-align:right; }
+      .inv-title .t { font-size:16px; font-weight:800; color:#C1502E; }
+      .info { display:grid; grid-template-columns:1fr 1fr; gap:2px 20px; margin-bottom:16px; }
+      .info div span:first-child { color:#555; display:inline-block; width:100px; }
+      table { width:100%; border-collapse:collapse; margin-bottom:16px; }
+      th, td { border:1px solid #ccc; padding:6px 8px; font-size:12px; }
+      th { background:#f0eee5; text-align:left; }
+      td.r, th.r { text-align:right; }
+      .summary { display:flex; justify-content:flex-end; }
+      .summary table { width:280px; }
+      .summary .grand td { font-weight:800; font-size:14px; border-top:2px solid #1B2A4A; }
+      .foot { margin-top:40px; display:flex; justify-content:space-between; font-size:11px; color:#555; }
+      .sign { text-align:center; width:160px; border-top:1px solid #999; padding-top:5px; }
+    </style></head><body>
+      <div class="head">
+        <div><h1>${esc(schoolSettings.name)}</h1>
+          ${schoolSettings.address?`<div class="sub">${esc(schoolSettings.address)}</div>`:''}
+          ${schoolSettings.phone?`<div class="sub">Ph: ${esc(schoolSettings.phone)}</div>`:''}
+        </div>
+        <div class="inv-title"><div class="t">TAX INVOICE</div><div class="sub">${esc(inv.invNo)}</div><div class="sub">${fmtDate(inv.date)}</div></div>
+      </div>
+      <div class="info">
+        <div><span>Billed To</span>${esc(inv.customerName||'Walk-in Customer')}</div>
+        <div><span>Phone</span>${esc(inv.customerPhone||'—')}</div>
+        <div><span>Payment Mode</span>${esc(inv.paymentMode)}</div>
+        <div><span>Customer Type</span>${inv.customerType==='student'?'School Student':'Walk-in'}</div>
+      </div>
+      <table>
+        <thead><tr><th>#</th><th>Item</th><th class="r">Qty</th><th class="r">Rate</th><th class="r">Amount</th></tr></thead>
+        <tbody>${rows}</tbody>
+      </table>
+      <div class="summary">
+        <table>
+          <tr><td>Subtotal</td><td class="r">${fmt(invoiceSubtotal(inv))}</td></tr>
+          <tr><td>Discount</td><td class="r">−${fmt(inv.discount||0)}</td></tr>
+          <tr class="grand"><td>Grand Total</td><td class="r">${fmt(invoiceTotal(inv))}</td></tr>
+        </table>
+      </div>
+      <div class="foot">
+        <div>Thank you for your purchase!</div>
+        <div class="sign">Authorised Signatory</div>
+      </div>
+    </body></html>`);
+    win.document.close();
+    win.focus();
+    setTimeout(()=> win.print(), 300);
+  }
+
+  // ================= REPORTING & EXPORT =================
+  function exportRows(filename, rows, headers){
+    if (typeof XLSX !== 'undefined') {
+      const ws = XLSX.utils.json_to_sheet(rows, {header: headers});
+      const wb = XLSX.utils.book_new();
+      XLSX.utils.book_append_sheet(wb, ws, 'Report');
+      XLSX.writeFile(wb, filename.replace(/\.csv$/,'') + '.xlsx');
+    } else {
+      const csvRows = [headers.join(',')].concat(rows.map(r=> headers.map(h=>{
+        let v = r[h]==null?'':String(r[h]); if (v.includes(',')||v.includes('"')) v = '"'+v.replace(/"/g,'""')+'"'; return v;
+      }).join(',')));
+      const blob = new Blob([csvRows.join('\n')], {type:'text/csv;charset=utf-8;'});
+      const a = document.createElement('a');
+      a.href = URL.createObjectURL(blob);
+      a.download = filename.replace(/\.xlsx$/,'') + '.csv';
+      document.body.appendChild(a); a.click(); a.remove();
+    }
+    toast('Report export ho gaya');
+  }
+
+  function exportStockReport(){
+    if (!inventoryItems.length) { toast('Koi item nahi hai'); return; }
+    const rows = inventoryItems.map(i=>({
+      'Item Name': i.name, 'Category': i.category, 'Unit': i.unit, 'Unit Price': i.unitPrice,
+      'Current Stock': itemStock(i.id), 'Stock Value': itemStock(i.id)*i.unitPrice,
+      'Reorder Level': i.reorderLevel, 'Status': itemStatus(i)==='InStock'?'In Stock':itemStatus(i)
+    }));
+    exportRows('Stock_Report', rows, Object.keys(rows[0]));
+  }
+  function exportPurchaseReport(){
+    if (!purchaseOrders.length) { toast('Koi purchase order nahi hai'); return; }
+    const rows = [];
+    purchaseOrders.forEach(p=>{
+      const v = vendors.find(x=>x.id===p.vendorId);
+      (p.items||[]).forEach(it=>{
+        const item = inventoryItems.find(i=>i.id===it.itemId);
+        rows.push({ 'PO No.': p.poNo, 'Date': fmtDate(p.date), 'Vendor': v?v.name:'—',
+          'Item': item?item.name:'—', 'Qty': it.qty, 'Price': it.price, 'Line Total': it.qty*it.price });
+      });
+    });
+    exportRows('Purchase_Report', rows, Object.keys(rows[0]));
+  }
+  function exportSalesReport(){
+    if (!salesInvoices.length) { toast('Koi sale nahi hui'); return; }
+    const rows = [];
+    salesInvoices.forEach(inv=>{
+      (inv.items||[]).forEach(it=>{
+        rows.push({ 'Invoice No.': inv.invNo, 'Date': fmtDate(inv.date), 'Customer': inv.customerName||'Walk-in',
+          'Item': it.name, 'Qty': it.qty, 'Price': it.price, 'Line Total': it.qty*it.price,
+          'Payment Mode': inv.paymentMode });
+      });
+    });
+    exportRows('Sales_Report', rows, Object.keys(rows[0]));
+  }
+  function exportVendorReport(){
+    if (!vendors.length) { toast('Koi vendor nahi hai'); return; }
+    const rows = vendors.map(v=>({
+      'Vendor Name': v.name, 'Contact Person': v.contact, 'Phone': v.phone, 'GSTIN': v.gstin, 'Address': v.address,
+      'Total Purchase Orders': vendorPOs(v.id).length, 'Total Spend': vendorPOs(v.id).reduce((a,p)=>a+poTotal(p),0)
+    }));
+    exportRows('Vendor_Report', rows, Object.keys(rows[0]));
+  }
+  function exportStockLogReport(){
+    if (!inventoryTxns.length) { toast('Koi stock transaction nahi hai'); return; }
+    const rows = inventoryTxns.slice().sort((a,b)=>a.id-b.id).map(t=>{
+      const item = inventoryItems.find(i=>i.id===t.itemId);
+      return { 'Date': fmtDate(t.date), 'Item': item?item.name:'Deleted Item', 'Type': t.type==='in'?'Stock In':'Stock Out',
+        'Qty': t.qty, 'Source': t.source||'manual', 'Note': t.note||'' };
+    });
+    exportRows('Stock_Log_Report', rows, Object.keys(rows[0]));
+  }
+
+  function renderInventoryReports(){
+    const body = document.getElementById('ekps-inv-body');
+    body.innerHTML = `
+      <div class="export-grid">
+        <div class="export-card">
+          <h4>📦 Stock Report</h4>
+          <p>Har item ka current stock, stock value aur reorder status — Excel file me.</p>
+          <span class="btn btn-primary" id="exp-stock">⬇ Export Excel</span>
+        </div>
+        <div class="export-card">
+          <h4>🤝 Purchase Report</h4>
+          <p>Sabhi purchase orders, vendor-wise, item-wise breakdown — Excel file me.</p>
+          <span class="btn btn-primary" id="exp-purchase">⬇ Export Excel</span>
+        </div>
+        <div class="export-card">
+          <h4>🧾 Sales / Billing Report</h4>
+          <p>Sabhi POS bills, item-wise sales aur payment mode ke saath — Excel file me.</p>
+          <span class="btn btn-primary" id="exp-sales">⬇ Export Excel</span>
+        </div>
+        <div class="export-card">
+          <h4>🏷 Vendor Report</h4>
+          <p>Vendor list, contact details aur unka total purchase spend — Excel file me.</p>
+          <span class="btn btn-primary" id="exp-vendor">⬇ Export Excel</span>
+        </div>
+        <div class="export-card">
+          <h4>↕ Stock In/Out Log</h4>
+          <p>Har stock movement (purchase, sale, manual adjustment) ka poora record — Excel file me.</p>
+          <span class="btn btn-primary" id="exp-log">⬇ Export Excel</span>
+        </div>
+      </div>`;
+    document.getElementById('exp-stock').addEventListener('click', exportStockReport);
+    document.getElementById('exp-purchase').addEventListener('click', exportPurchaseReport);
+    document.getElementById('exp-sales').addEventListener('click', exportSalesReport);
+    document.getElementById('exp-vendor').addEventListener('click', exportVendorReport);
+    document.getElementById('exp-log').addEventListener('click', exportStockLogReport);
+  }
+
   function downloadDemandBillsPDF(){
     const list = students.filter(s => (totalDue(s) - totalPaid(s.id)) > 0)
       .sort((a,b)=> CLASS_ORDER.indexOf(a.cls)-CLASS_ORDER.indexOf(b.cls) || a.id-b.id);
@@ -2171,7 +3004,9 @@
       pages.forEach((page, pi)=>{
         const slips = page.map(s=>{
           const due = currentMonthDueOf(s);
-          const rest = totalDue(s) - totalPaid(s.id);
+          const buckets = studentDueBuckets(s);
+          const runningDue = buckets.current + buckets.b1_2 + buckets.b3_5 + buckets.b6plus; // upto running/current month tuition due
+          const rest = totalDue(s) - totalPaid(s.id); // full academic session total rest due
           return `<div class="slip">
             <div class="slip-head">${esc(schoolSettings.name)}</div>
             <div class="slip-sub">Current Month Fee Demand &middot; ${esc(month)} &middot; ${fmtDate(todayISO())}</div>
@@ -2181,7 +3016,8 @@
             <div class="slip-row"><span>Month</span><span>${esc(month)}</span></div>
             <div class="slip-row"><span>Monthly Fee</span><span>${fmt(s.monthlyFee)}</span></div>
             <div class="slip-row rest"><span>${esc(month)} Payable</span><span>${fmt(due)}</span></div>
-            <div class="slip-row" style="border-top:1px dashed #ccc; margin-top:4px; padding-top:4px;"><span>Total Outstanding (All Dues)</span><span>${fmt(rest)}</span></div>
+            <div class="slip-row" style="border-top:1px dashed #ccc; margin-top:4px; padding-top:4px;"><span>Running Months Due (Upto ${esc(month)})</span><span>${fmt(runningDue)}</span></div>
+            <div class="slip-row rest2"><span>Full Session Total Rest Due</span><span>${fmt(rest)}</span></div>
             <div class="slip-foot">Kripya current month ki fee samay par jama karein &middot; Accounts Office</div>
           </div>`;
         }).join('');
@@ -2207,8 +3043,131 @@
       .slip-sub { font-size:9px; color:#555; margin-bottom:5px; border-bottom:1px solid #ccc; padding-bottom:5px; }
       .slip-row { display:flex; justify-content:space-between; padding:2px 0; font-size:11px; }
       .slip-row.rest { font-weight:800; border-top:1px dashed #99a; margin-top:5px; padding-top:5px; font-size:12.5px; color:#C1502E; }
+      .slip-row.rest2 { font-weight:800; font-size:11.5px; color:#B9862A; padding-top:2px; }
       .slip-foot { margin-top:auto; font-size:8.5px; color:#666; padding-top:6px; border-top:1px dashed #ccc; }
     </style></head><body>${sheetsHtml}</body></html>`);
+    win.document.close();
+    win.focus();
+    setTimeout(()=> win.print(), 300);
+  }
+
+  // ---------- WhatsApp Bill Sending ----------
+  function waPhone(mobNo){
+    let digits = (mobNo||'').replace(/\D/g,'');
+    if (!digits) return '';
+    if (digits.length === 10) digits = '91' + digits; // default India country code
+    return digits;
+  }
+
+  function sendBillWhatsApp(studentId){
+    const s = students.find(x=>x.id===studentId);
+    if (!s) { toast('Student nahi mila'); return; }
+    const phone = waPhone(s.mobNo);
+    if (!phone) { toast('Is student ka mobile number ledger me nahi hai'); return; }
+    const month = currentMonthName();
+    const buckets = studentDueBuckets(s);
+    const runningDue = buckets.current + buckets.b1_2 + buckets.b3_5 + buckets.b6plus;
+    const monthDue = currentMonthDueOf(s);
+    const rest = totalDue(s) - totalPaid(s.id);
+    const lines = [
+      `*${schoolSettings.name}*`,
+      `Fee Demand Notice — ${month}`,
+      '',
+      `Student: ${s.name} (ID: ${s.id})`,
+      `Class: ${s.cls}`,
+      '',
+      `Monthly Fee: ${fmt(s.monthlyFee)}`,
+      `${month} Payable: ${fmt(monthDue)}`,
+      `Running Months Due (Upto ${month}): ${fmt(runningDue)}`,
+      `Full Session Total Rest Due: ${fmt(rest)}`,
+      '',
+      rest > 0 ? 'Kripya jald se jald fee jama karein.' : 'Aapki fee poori tarah se jama ho chuki hai. Dhanyavaad!',
+      '— Accounts Office'
+    ];
+    const text = encodeURIComponent(lines.join('\n'));
+    window.open(`https://wa.me/${phone}?text=${text}`, '_blank');
+  }
+
+  // ---------- Student-wise Full Statement ----------
+  function printStudentStatement(studentId){
+    const s = students.find(x=>x.id===studentId);
+    if (!s) { toast('Student nahi mila'); return; }
+    const due = totalDue(s), paid = totalPaid(s.id), rest = due - paid;
+
+    const monthRows = MONTHS.map(m=>{
+      const p = monthPaid(s.id, m);
+      const d = Math.max(0, (s.monthlyFee||0) - p);
+      return `<tr><td>${esc(m)}</td><td class="r">${fmt(s.monthlyFee)}</td><td class="r">${p?fmt(p):'—'}</td><td class="r">${d?fmt(d):'—'}</td></tr>`;
+    }).join('');
+
+    const chargeRows = [
+      ['Exam Fee', s.examFee],
+      ['Old Due (Carry Forward)', s.oldDue],
+      ['Uniform Bill', s.uniformBill],
+      ['Book Bill', s.bookBill],
+      ['Other Bill', s.otherBill],
+    ].filter(([,v])=>v>0).map(([k,v])=>`<tr><td>${esc(k)}</td><td class="r">${fmt(v)}</td></tr>`).join('');
+    const extraBillRows = (s.bills||[]).map(b=>`<tr><td>${esc(b.type||'Other')}${b.note?(' — '+esc(b.note)):''}</td><td class="r">${fmt(parseFloat(b.amount)||0)}</td></tr>`).join('');
+    const otherChargesTable = (chargeRows || extraBillRows) ? `
+      <div class="section-title">Other Charges</div>
+      <table>
+        <thead><tr><th>Particulars</th><th class="r">Amount</th></tr></thead>
+        <tbody>${chargeRows}${extraBillRows}</tbody>
+      </table>` : '';
+
+    const paymentRows = studentEntries(s.id).slice().sort((a,b)=>a.id-b.id).map(e=>
+      `<tr><td>${esc(e.receiptNo||('#'+e.id))}</td><td>${fmtDate(e.date)}</td><td>${esc(e.month)}</td><td class="r">${fmt(e.amount)}</td></tr>`
+    ).join('') || `<tr><td colspan="4" style="text-align:center;color:#888;">Koi payment record nahi</td></tr>`;
+
+    const win = window.open('', '_blank');
+    if (!win) { toast('Popup block ho gaya — popup allow karein'); return; }
+    win.document.write(`<!DOCTYPE html><html><head><title>Statement — ${esc(s.name)}</title><style>
+      @page { size: A4; margin: 12mm; }
+      * { box-sizing:border-box; }
+      body { margin:0; font-family: Arial, Helvetica, sans-serif; color:#1B2A4A; font-size:12px; }
+      h1 { font-size:16px; margin:0 0 2px 0; }
+      .sub { font-size:11px; color:#555; margin-bottom:10px; }
+      .info { display:grid; grid-template-columns: 1fr 1fr; gap:2px 20px; margin-bottom:14px; border:1px solid #ccc; padding:8px 10px; border-radius:6px; }
+      .info div span:first-child { color:#555; display:inline-block; width:110px; }
+      table { width:100%; border-collapse: collapse; margin-bottom:14px; }
+      th, td { border:1px solid #ccc; padding:4px 7px; font-size:11px; }
+      th { background:#f0eee5; text-align:left; }
+      td.r, th.r { text-align:right; }
+      .section-title { font-weight:700; font-size:12.5px; margin: 14px 0 6px; }
+      .summary { display:flex; justify-content:flex-end; gap:18px; font-size:12.5px; font-weight:700; border-top:2px solid #1B2A4A; padding-top:8px; margin-top:6px; }
+      .summary .rest { color:#C1502E; }
+    </style></head><body>
+      <h1>${esc(schoolSettings.name)}</h1>
+      <div class="sub">Student Fee Statement &middot; Generated ${fmtDate(todayISO())}</div>
+      <div class="info">
+        <div><span>Student ID</span>${s.id}</div>
+        <div><span>Name</span>${esc(s.name)}</div>
+        <div><span>Class</span>${esc(s.cls)}</div>
+        <div><span>Father's Name</span>${esc(s.fatherName||'—')}</div>
+        <div><span>Mobile No.</span>${esc(s.mobNo||'—')}</div>
+        <div><span>Address</span>${esc(s.address||'—')}</div>
+      </div>
+
+      <div class="section-title">Month-wise Tuition Fee</div>
+      <table>
+        <thead><tr><th>Month</th><th class="r">Monthly Fee</th><th class="r">Paid</th><th class="r">Due</th></tr></thead>
+        <tbody>${monthRows}</tbody>
+      </table>
+
+      ${otherChargesTable}
+
+      <div class="section-title">Payment History</div>
+      <table>
+        <thead><tr><th>Receipt No.</th><th>Date</th><th>Month</th><th class="r">Amount</th></tr></thead>
+        <tbody>${paymentRows}</tbody>
+      </table>
+
+      <div class="summary">
+        <div>Total Due: ${fmt(due)}</div>
+        <div>Total Paid: ${fmt(paid)}</div>
+        <div class="rest">Total Rest Due: ${fmt(rest)}</div>
+      </div>
+    </body></html>`);
     win.document.close();
     win.focus();
     setTimeout(()=> win.print(), 300);
@@ -2344,7 +3303,7 @@
       <div class="panel">
         <div class="panel-body" style="padding:0; overflow:auto;">
           <table class="data">
-            <thead><tr><th></th><th>ID</th><th>Class</th><th>Name</th><th>Total Due</th><th>Total Paid</th><th>Rest Due</th><th>Status</th></tr></thead>
+            <thead><tr><th></th><th>ID</th><th>Class</th><th>Name</th><th>Total Due</th><th>Total Paid</th><th>Rest Due</th><th>Status</th><th>Actions</th></tr></thead>
             <tbody>
               ${list.length ? list.map(s=>{
                 const due = totalDue(s), paid = totalPaid(s.id), rest = due-paid, st = statusOf(s);
@@ -2362,10 +3321,14 @@
                   <td class="mono">${fmt(paid)}</td>
                   <td class="mono">${fmt(rest)}</td>
                   <td><span class="status-badge status-${st}">${st}</span></td>
+                  <td style="white-space:nowrap;">
+                    <span class="icon-btn" data-wa-send="${s.id}" title="Bill WhatsApp par bhejein">📲</span>
+                    <span class="icon-btn" data-statement="${s.id}" title="Statement nikalein">🧾</span>
+                  </td>
                 </tr>
-                ${expanded?`<tr class="detail-row"><td colspan="8"><div class="month-grid">${months}</div></td></tr>`:''}
+                ${expanded?`<tr class="detail-row"><td colspan="9"><div class="month-grid">${months}</div></td></tr>`:''}
                 `;
-              }).join('') : `<tr><td colspan="8"><div class="empty-state">Koi record nahi mila</div></td></tr>`}
+              }).join('') : `<tr><td colspan="9"><div class="empty-state">Koi record nahi mila</div></td></tr>`}
             </tbody>
           </table>
         </div>
@@ -2382,6 +3345,14 @@
       const id = parseInt(el.dataset.toggle);
       ledgerExpanded[id] = !ledgerExpanded[id];
       renderLedger();
+    }));
+    contentEl.querySelectorAll('[data-wa-send]').forEach(el=> el.addEventListener('click', (e)=>{
+      e.stopPropagation();
+      sendBillWhatsApp(parseInt(el.dataset.waSend));
+    }));
+    contentEl.querySelectorAll('[data-statement]').forEach(el=> el.addEventListener('click', (e)=>{
+      e.stopPropagation();
+      printStudentStatement(parseInt(el.dataset.statement));
     }));
   }
 
