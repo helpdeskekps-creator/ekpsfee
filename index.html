@@ -184,6 +184,16 @@
   #ekps-root .status-Paid { background: var(--green-bg); color: var(--green); }
   #ekps-root .status-Partial { background: var(--amber-bg); color: var(--amber); }
   #ekps-root .status-Due { background: var(--rust-bg); color: var(--rust); }
+  #ekps-root .status-Admitted { background: var(--green-bg); color: var(--green); }
+  #ekps-root .status-Registered { background: var(--amber-bg); color: var(--amber); }
+  #ekps-root .status-InStock { background: var(--green-bg); color: var(--green); }
+  #ekps-root .status-Low { background: var(--amber-bg); color: var(--amber); }
+  #ekps-root .status-Out { background: var(--rust-bg); color: var(--rust); }
+  #ekps-root .aging-bucket { font-family:'IBM Plex Mono'; font-size:11.5px; padding:2px 7px; border-radius:5px; display:inline-block; }
+  #ekps-root .aging-0 { background:#EFEBDD; color:var(--ink-2); }
+  #ekps-root .aging-1 { background: var(--amber-bg); color: var(--amber); }
+  #ekps-root .aging-2 { background:#FCE3D3; color:#B15420; }
+  #ekps-root .aging-3 { background: var(--rust-bg); color: var(--rust); }
 
   #ekps-root .row-actions { display:flex; gap:6px; }
   #ekps-root .icon-btn {
@@ -311,6 +321,43 @@
   #ekps-root .promo-selectall { display:flex; align-items:center; gap:10px; padding:9px 10px; background:#FBFAF6; border-bottom:1px solid var(--border-strong); font-size:12px; font-weight:700; text-transform:uppercase; letter-spacing:.03em; color:var(--slate); }
   #ekps-root .promo-selectall input { width:16px; height:16px; accent-color: var(--saffron-dark); cursor:pointer; }
 
+  /* ---------- Inventory: Vendor / Purchase / POS / Reports ---------- */
+  #ekps-root .modal-lg { width: 920px; }
+  #ekps-root .modal-xl { width: 1080px; }
+  #ekps-root .stat-strip { display:flex; gap:14px; flex-wrap:wrap; margin-bottom:16px; }
+  #ekps-root .stat-strip .kpi-card { flex:1; min-width:150px; }
+  #ekps-root .pos-wrap { display:grid; grid-template-columns: 1.5fr 1fr; gap: 16px; align-items:start; }
+  #ekps-root .pos-item-grid { display:grid; grid-template-columns: repeat(3,1fr); gap:10px; max-height: 480px; overflow:auto; padding:2px; }
+  #ekps-root .pos-item-card { border:1px solid var(--border-strong); border-radius:10px; padding:10px 12px; cursor:pointer; background:#fff; transition: border-color .12s, transform .06s; }
+  #ekps-root .pos-item-card:hover { border-color: var(--saffron); }
+  #ekps-root .pos-item-card:active { transform: translateY(1px); }
+  #ekps-root .pos-item-card .pi-name { font-weight:700; font-size:12.5px; line-height:1.3; }
+  #ekps-root .pos-item-card .pi-meta { font-size:11px; color:var(--slate); margin-top:4px; display:flex; justify-content:space-between; }
+  #ekps-root .pos-item-card.out { opacity:.45; cursor:not-allowed; }
+  #ekps-root .cart-row { display:flex; align-items:center; gap:8px; padding:8px 0; border-bottom:1px dashed var(--border); font-size:12.5px; }
+  #ekps-root .cart-row:last-child { border-bottom:none; }
+  #ekps-root .cart-row .cr-nm { flex:1; font-weight:600; }
+  #ekps-root .cr-stepper { display:flex; align-items:center; gap:4px; }
+  #ekps-root .cart-row .cr-qty { width:56px; padding:5px 6px; border:1px solid var(--border-strong); border-radius:6px; text-align:center; font-family:'IBM Plex Mono'; }
+  #ekps-root .cart-row .cr-price { width:64px; text-align:right; font-family:'IBM Plex Mono'; color:var(--slate); }
+  #ekps-root .cart-row .cr-line { width:70px; text-align:right; font-family:'IBM Plex Mono'; font-weight:700; }
+  #ekps-root .cart-totals { border-top:2px solid var(--ink); margin-top:10px; padding-top:10px; }
+  #ekps-root .cart-totals .ct-row { display:flex; justify-content:space-between; font-size:13px; padding:3px 0; }
+  #ekps-root .cart-totals .ct-grand { font-family:'Sora'; font-weight:800; font-size:18px; color: var(--green); }
+  #ekps-root .po-line { display:grid; grid-template-columns: 2fr 1fr 1fr 1fr auto; gap:8px; align-items:center; margin-bottom:8px; }
+  #ekps-root .vendor-card { border:1px solid var(--border); border-radius:10px; padding:12px 14px; margin-bottom:10px; background:#fff; }
+  #ekps-root .vendor-card .vc-name { font-weight:700; font-size:13.5px; }
+  #ekps-root .vendor-card .vc-meta { font-size:11.5px; color:var(--slate); margin-top:3px; line-height:1.5; }
+  #ekps-root .export-grid { display:grid; grid-template-columns: repeat(2,1fr); gap:14px; }
+  #ekps-root .export-card { border:1px solid var(--border); border-radius:12px; padding:16px 18px; background:#fff; box-shadow: var(--shadow); }
+  #ekps-root .export-card h4 { margin:0 0 4px 0; font-family:'Sora'; font-size:14px; }
+  #ekps-root .export-card p { margin:0 0 12px 0; font-size:12px; color:var(--slate); }
+  @media (max-width: 980px) {
+    #ekps-root .pos-wrap { grid-template-columns: 1fr; }
+    #ekps-root .pos-item-grid { grid-template-columns: repeat(2,1fr); }
+    #ekps-root .export-grid { grid-template-columns: 1fr; }
+  }
+
   /* ---------- Exam Manager tabs ---------- */
   #ekps-root .subtabs { display:flex; gap:6px; margin-bottom:16px; flex-wrap:wrap; }
   #ekps-root .subtab { padding:8px 14px; border-radius:8px; font-size:12.5px; font-weight:600; cursor:pointer; background:#fff; border:1px solid var(--border-strong); color:var(--slate); }
@@ -323,6 +370,7 @@
   #ekps-root .sign-preview { width:120px; height:56px; border-radius:6px; background:#fff; border:1px dashed var(--border-strong); overflow:hidden; display:flex; align-items:center; justify-content:center; font-size:10px; color:var(--slate); flex-shrink:0; }
   #ekps-root .sign-preview img { width:100%; height:100%; object-fit:contain; }
 </style>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 
 <div id="ekps-root">
   <aside class="sidebar">
@@ -356,7 +404,6 @@
   <div id="ekps-modal-root"></div>
 </div>
 
-<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 <script>
 (function(){
   const MONTHS = ['April','May','June','July','August','September','October','November','December','January','February','March'];
@@ -378,7 +425,13 @@
     backup: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" class="navicon"><path d="M12 3v12"/><path d="M7 10l5 5 5-5"/><path d="M4 17v2a2 2 0 002 2h12a2 2 0 002-2v-2"/></svg>',
     password: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" class="navicon"><circle cx="12" cy="10" r="3"/><path d="M12 2a10 10 0 0110 10c0 5.523-4.477 10-10 10S2 17.523 2 12c0-2.33.796-4.471 2.126-6.174L7 9m7-4l2 2m-5-3.5V6"/></svg>',
     promotion: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" class="navicon"><path d="M12 19V5"/><path d="M5 12l7-7 7 7"/><path d="M5 19h14"/></svg>',
-    examcard: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" class="navicon"><rect x="2.5" y="5" width="19" height="14" rx="2.2"/><circle cx="8" cy="11.2" r="2.1"/><path d="M5.3 16.5c.4-1.7 1.7-2.6 2.7-2.6s2.3.9 2.7 2.6"/><path d="M14 9.5h5M14 12.5h5M14 15.5h3"/></svg>'
+    examcard: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" class="navicon"><rect x="2.5" y="5" width="19" height="14" rx="2.2"/><circle cx="8" cy="11.2" r="2.1"/><path d="M5.3 16.5c.4-1.7 1.7-2.6 2.7-2.6s2.3.9 2.7 2.6"/><path d="M14 9.5h5M14 12.5h5M14 15.5h3"/></svg>',
+    admission: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" class="navicon"><path d="M8 3H5.5A1.5 1.5 0 004 4.5v15A1.5 1.5 0 005.5 21h13a1.5 1.5 0 001.5-1.5V9l-6-6H8z"/><path d="M13.5 3v5a1 1 0 001 1H19.5"/><path d="M9 14.5l2 2 4-4.2"/></svg>',
+    transport: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" class="navicon"><rect x="2.5" y="6.5" width="19" height="10.5" rx="2"/><path d="M2.5 11h19"/><circle cx="7" cy="19.3" r="1.6"/><circle cx="17" cy="19.3" r="1.6"/><path d="M6 6.5V4.5a1 1 0 011-1h10a1 1 0 011 1v2"/></svg>',
+    inventory: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" class="navicon"><path d="M3.5 7.5L12 3l8.5 4.5L12 12z"/><path d="M3.5 7.5V16l8.5 4.5V12"/><path d="M20.5 7.5V16L12 20.5"/><path d="M7 5.3l8.5 4.5"/></svg>',
+    route: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="6" cy="6" r="2.5"/><circle cx="18" cy="18" r="2.5"/><path d="M8.2 7.2C9.5 9 11 10 13 10.5c2.7.7 4.3 2.3 4.8 4.5"/></svg>',
+    box: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3.5 7.5L12 3l8.5 4.5L12 12z"/><path d="M3.5 7.5V16l8.5 4.5V12"/><path d="M20.5 7.5V16L12 20.5"/></svg>',
+    stamp: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 3h6v5H9z"/><path d="M7 15h10l1.5 5H5.5z"/><path d="M9 8c-1.5 1-2 3-1 5h8c1-2 .5-4-1-5"/></svg>'
   };
 
   let students = [];
@@ -417,6 +470,48 @@
     user: 'user123'
   };
 
+  // --- Admission / Registration state ---
+  let admissions = [];
+  let editingAdmissionId = null;
+  let admissionQ = '';
+  let admissionFilter = 'all'; // all | Registered | Admitted
+
+  // --- Transport Management state ---
+  let transportRoutes = [];
+  let transportEntries = [];
+  let editingRouteId = null;
+  let transportSubView = 'routes'; // routes | assign | collect
+  let transportAssignClsFilter = 'all';
+  let transportCollectPickedId = null;
+
+  // --- Inventory Management state ---
+  let inventoryItems = [];
+  let inventoryTxns = [];
+  let editingItemId = null;
+  let inventorySubView = 'dashboard'; // dashboard | items | vendors | log | reports
+  let inventoryQ = '';
+  let stockPickedItemId = null;
+
+  // --- Vendor & Purchase Management state ---
+  let vendors = [];
+  let purchaseOrders = [];
+  let editingVendorId = null;
+  let vendorQ = '';
+  let poDraftItems = [];
+  let poDraftVendorId = null;
+
+  // --- Billing / POS state ---
+  let salesInvoices = [];
+  let posCart = [];
+  let posQ = '';
+  let posCustomerType = 'walkin'; // walkin | student
+  let posCustomerName = '';
+  let posCustomerPhone = '';
+  let posStudentPick = null;
+  let posDiscount = 0;
+  let posPaymentMode = 'Cash';
+  let posCatFilter = 'all';
+
   const root = document.getElementById('ekps-root');
   const contentEl = document.getElementById('ekps-content');
   const navEl = document.getElementById('ekps-nav');
@@ -450,6 +545,83 @@
     if (i===CLASS_ORDER.length-1) return 'Passed Out';
     return CLASS_ORDER[i+1];
   }
+
+  // ---------- Admission helpers ----------
+  function nextAdmissionId(){ return admissions.length ? Math.max(...admissions.map(a=>a.id))+1 : 1; }
+  function nextAdmissionNo(){
+    const yr = new Date().getFullYear();
+    const n = admissions.length + 1;
+    return 'ADM-' + yr + '-' + String(n).padStart(3,'0');
+  }
+
+  // ---------- Current month / multi-level due helpers ----------
+  function currentMonthIndex(){
+    // MONTHS array is academic-year ordered starting April (index 0)
+    const jsMonth = new Date().getMonth(); // 0=Jan
+    return (jsMonth + 9) % 12;
+  }
+  function currentMonthName(){ return MONTHS[currentMonthIndex()]; }
+  function currentMonthDueOf(s){
+    return Math.max(0, (s.monthlyFee||0) - monthPaid(s.id, currentMonthName()));
+  }
+  // Aging buckets for monthly tuition dues (multi-level due statement)
+  function studentDueBuckets(s){
+    const curIdx = currentMonthIndex();
+    const elapsed = MONTHS.slice(0, curIdx+1);
+    const buckets = { current:0, b1_2:0, b3_5:0, b6plus:0 };
+    elapsed.forEach((m, i)=>{
+      const age = curIdx - i;
+      const due = Math.max(0, (s.monthlyFee||0) - monthPaid(s.id, m));
+      if (due <= 0) return;
+      if (age === 0) buckets.current += due;
+      else if (age <= 2) buckets.b1_2 += due;
+      else if (age <= 5) buckets.b3_5 += due;
+      else buckets.b6plus += due;
+    });
+    const otherCharges = (s.examFee||0) + (s.oldDue||0) + (s.uniformBill||0) + (s.bookBill||0) + (s.otherBill||0) + billsTotal(s);
+    const total = buckets.current + buckets.b1_2 + buckets.b3_5 + buckets.b6plus + otherCharges;
+    return Object.assign({ otherCharges, total }, buckets);
+  }
+
+  // ---------- Transport helpers ----------
+  function nextRouteId(){ return transportRoutes.length ? Math.max(...transportRoutes.map(r=>r.id))+1 : 1; }
+  function routeOf(s){ return transportRoutes.find(r=>r.id===s.transportRouteId); }
+  function transportStudentEntries(id){ return transportEntries.filter(e=>e.studentId===id); }
+  function transportTotalPaid(id){ return transportStudentEntries(id).reduce((a,e)=>a+e.amount,0); }
+  function transportMonthPaid(id, month){ return transportStudentEntries(id).filter(e=>e.month===month).reduce((a,e)=>a+e.amount,0); }
+  function transportTotalDue(s){
+    const r = routeOf(s);
+    if (!r) return 0;
+    return (r.fee||0) * 12;
+  }
+  function nextTransportReceiptNo(){ return 'TR-' + String(transportEntries.length+1).padStart(4,'0'); }
+
+  // ---------- Inventory helpers ----------
+  function nextItemId(){ return inventoryItems.length ? Math.max(...inventoryItems.map(i=>i.id))+1 : 1; }
+  function itemStock(itemId){
+    return inventoryTxns.filter(t=>t.itemId===itemId).reduce((a,t)=> a + (t.type==='in' ? t.qty : -t.qty), 0);
+  }
+  function itemStatus(item){
+    const stock = itemStock(item.id);
+    if (stock <= 0) return 'Out';
+    if (stock <= (item.reorderLevel||0)) return 'Low';
+    return 'InStock';
+  }
+
+  // ---------- Vendor & Purchase helpers ----------
+  function nextVendorId(){ return vendors.length ? Math.max(...vendors.map(v=>v.id))+1 : 1; }
+  function nextPOId(){ return purchaseOrders.length ? Math.max(...purchaseOrders.map(p=>p.id))+1 : 1; }
+  function nextPONo(){ return 'PO-' + String(purchaseOrders.length+1).padStart(4,'0'); }
+  function poTotal(po){ return (po.items||[]).reduce((a,i)=>a+((parseFloat(i.qty)||0)*(parseFloat(i.price)||0)),0); }
+  function vendorPOs(vendorId){ return purchaseOrders.filter(p=>p.vendorId===vendorId); }
+
+  // ---------- Billing / POS helpers ----------
+  function nextInvoiceId(){ return salesInvoices.length ? Math.max(...salesInvoices.map(v=>v.id))+1 : 1; }
+  function nextInvoiceNo(){ return 'INV-' + String(salesInvoices.length+1).padStart(5,'0'); }
+  function invoiceSubtotal(inv){ return (inv.items||[]).reduce((a,i)=>a+((parseFloat(i.qty)||0)*(parseFloat(i.price)||0)),0); }
+  function invoiceTotal(inv){ return Math.max(0, invoiceSubtotal(inv) - (parseFloat(inv.discount)||0)); }
+  function cartSubtotal(){ return posCart.reduce((a,i)=>a+(i.qty*i.price),0); }
+  function cartTotal(){ return Math.max(0, cartSubtotal() - (parseFloat(posDiscount)||0)); }
 
   // ---------- Google Sheet sync (Apps Script Web App bridge) ----------
   function setSyncStatus(status, msg){
@@ -527,6 +699,46 @@
       exams = r ? JSON.parse(r) : [];
     } catch(e){ exams = []; }
 
+    try {
+      const r = localStorage.getItem('ekps_admissions');
+      admissions = r ? JSON.parse(r) : [];
+    } catch(e){ admissions = []; }
+
+    try {
+      const r = localStorage.getItem('ekps_transport_routes');
+      transportRoutes = r ? JSON.parse(r) : [];
+    } catch(e){ transportRoutes = []; }
+
+    try {
+      const r = localStorage.getItem('ekps_transport_entries');
+      transportEntries = r ? JSON.parse(r) : [];
+    } catch(e){ transportEntries = []; }
+
+    try {
+      const r = localStorage.getItem('ekps_inventory_items');
+      inventoryItems = r ? JSON.parse(r) : [];
+    } catch(e){ inventoryItems = []; }
+
+    try {
+      const r = localStorage.getItem('ekps_inventory_txns');
+      inventoryTxns = r ? JSON.parse(r) : [];
+    } catch(e){ inventoryTxns = []; }
+
+    try {
+      const r = localStorage.getItem('ekps_vendors');
+      vendors = r ? JSON.parse(r) : [];
+    } catch(e){ vendors = []; }
+
+    try {
+      const r = localStorage.getItem('ekps_purchase_orders');
+      purchaseOrders = r ? JSON.parse(r) : [];
+    } catch(e){ purchaseOrders = []; }
+
+    try {
+      const r = localStorage.getItem('ekps_sales_invoices');
+      salesInvoices = r ? JSON.parse(r) : [];
+    } catch(e){ salesInvoices = []; }
+
     ready = true;
 
     if (gasConfigured()){
@@ -538,6 +750,14 @@
         try { if (d.entries) entries = JSON.parse(d.entries); } catch(e){}
         try { if (d.exams) exams = JSON.parse(d.exams); } catch(e){}
         try { if (d.schoolSettings) schoolSettings = Object.assign({}, schoolSettings, JSON.parse(d.schoolSettings)); } catch(e){}
+        try { if (d.admissions) admissions = JSON.parse(d.admissions); } catch(e){}
+        try { if (d.transportRoutes) transportRoutes = JSON.parse(d.transportRoutes); } catch(e){}
+        try { if (d.transportEntries) transportEntries = JSON.parse(d.transportEntries); } catch(e){}
+        try { if (d.inventoryItems) inventoryItems = JSON.parse(d.inventoryItems); } catch(e){}
+        try { if (d.inventoryTxns) inventoryTxns = JSON.parse(d.inventoryTxns); } catch(e){}
+        try { if (d.vendors) vendors = JSON.parse(d.vendors); } catch(e){}
+        try { if (d.purchaseOrders) purchaseOrders = JSON.parse(d.purchaseOrders); } catch(e){}
+        try { if (d.salesInvoices) salesInvoices = JSON.parse(d.salesInvoices); } catch(e){}
         cacheLocally();
         setSyncStatus('synced');
         render();
@@ -552,6 +772,62 @@
     try { localStorage.setItem('ekps_entries', JSON.stringify(entries)); } catch(e){}
     try { localStorage.setItem('ekps_exams', JSON.stringify(exams)); } catch(e){}
     try { localStorage.setItem('ekps_school_settings', JSON.stringify(schoolSettings)); } catch(e){}
+    try { localStorage.setItem('ekps_admissions', JSON.stringify(admissions)); } catch(e){}
+    try { localStorage.setItem('ekps_transport_routes', JSON.stringify(transportRoutes)); } catch(e){}
+    try { localStorage.setItem('ekps_transport_entries', JSON.stringify(transportEntries)); } catch(e){}
+    try { localStorage.setItem('ekps_inventory_items', JSON.stringify(inventoryItems)); } catch(e){}
+    try { localStorage.setItem('ekps_inventory_txns', JSON.stringify(inventoryTxns)); } catch(e){}
+    try { localStorage.setItem('ekps_vendors', JSON.stringify(vendors)); } catch(e){}
+    try { localStorage.setItem('ekps_purchase_orders', JSON.stringify(purchaseOrders)); } catch(e){}
+    try { localStorage.setItem('ekps_sales_invoices', JSON.stringify(salesInvoices)); } catch(e){}
+  }
+  function saveAdmissions(){
+    try { localStorage.setItem('ekps_admissions', JSON.stringify(admissions)); }
+    catch(e){ console.error('save admissions failed', e); }
+    pushToSheet('admissions', admissions);
+    maybeAutoBackup();
+  }
+  function saveTransportRoutes(){
+    try { localStorage.setItem('ekps_transport_routes', JSON.stringify(transportRoutes)); }
+    catch(e){ console.error('save transport routes failed', e); }
+    pushToSheet('transportRoutes', transportRoutes);
+    maybeAutoBackup();
+  }
+  function saveTransportEntries(){
+    try { localStorage.setItem('ekps_transport_entries', JSON.stringify(transportEntries)); }
+    catch(e){ console.error('save transport entries failed', e); }
+    pushToSheet('transportEntries', transportEntries);
+    maybeAutoBackup();
+  }
+  function saveInventoryItems(){
+    try { localStorage.setItem('ekps_inventory_items', JSON.stringify(inventoryItems)); }
+    catch(e){ console.error('save inventory items failed', e); }
+    pushToSheet('inventoryItems', inventoryItems);
+    maybeAutoBackup();
+  }
+  function saveInventoryTxns(){
+    try { localStorage.setItem('ekps_inventory_txns', JSON.stringify(inventoryTxns)); }
+    catch(e){ console.error('save inventory txns failed', e); }
+    pushToSheet('inventoryTxns', inventoryTxns);
+    maybeAutoBackup();
+  }
+  function saveVendors(){
+    try { localStorage.setItem('ekps_vendors', JSON.stringify(vendors)); }
+    catch(e){ console.error('save vendors failed', e); }
+    pushToSheet('vendors', vendors);
+    maybeAutoBackup();
+  }
+  function savePurchaseOrders(){
+    try { localStorage.setItem('ekps_purchase_orders', JSON.stringify(purchaseOrders)); }
+    catch(e){ console.error('save purchase orders failed', e); }
+    pushToSheet('purchaseOrders', purchaseOrders);
+    maybeAutoBackup();
+  }
+  function saveSalesInvoices(){
+    try { localStorage.setItem('ekps_sales_invoices', JSON.stringify(salesInvoices)); }
+    catch(e){ console.error('save sales invoices failed', e); }
+    pushToSheet('salesInvoices', salesInvoices);
+    maybeAutoBackup();
   }
   function saveSchoolSettings(){
     try { localStorage.setItem('ekps_school_settings', JSON.stringify(schoolSettings)); }
@@ -592,6 +868,14 @@
       ts: Date.now(),
       students: JSON.parse(JSON.stringify(students)),
       entries: JSON.parse(JSON.stringify(entries)),
+      admissions: JSON.parse(JSON.stringify(admissions)),
+      transportRoutes: JSON.parse(JSON.stringify(transportRoutes)),
+      transportEntries: JSON.parse(JSON.stringify(transportEntries)),
+      inventoryItems: JSON.parse(JSON.stringify(inventoryItems)),
+      inventoryTxns: JSON.parse(JSON.stringify(inventoryTxns)),
+      vendors: JSON.parse(JSON.stringify(vendors)),
+      purchaseOrders: JSON.parse(JSON.stringify(purchaseOrders)),
+      salesInvoices: JSON.parse(JSON.stringify(salesInvoices)),
     });
     if (autoBackups.length > AUTO_BACKUP_KEEP) autoBackups = autoBackups.slice(-AUTO_BACKUP_KEEP);
     saveAutoBackups();
@@ -725,20 +1009,28 @@
   // ---------- nav ----------
   const NAV = [
     {id:'dashboard', label:'Dashboard', icon:'dashboard', roles:['admin', 'user']},
+    {id:'admission', label:'Admission', icon:'admission', roles:['admin', 'user']},
     {id:'collect', label:'Fee Collection', icon:'collect', roles:['admin', 'user']},
     {id:'students', label:'Students', icon:'students', roles:['admin']},
     {id:'ledger', label:'Fee Ledger', icon:'ledger', roles:['admin', 'user']},
     {id:'receipts', label:'Receipts', icon:'receipts', roles:['admin', 'user']},
+    {id:'transport', label:'Transport', icon:'transport', roles:['admin', 'user']},
+    {id:'inventory', label:'Inventory', icon:'inventory', roles:['admin', 'user']},
+    {id:'billing', label:'Billing / POS', icon:'bill', roles:['admin', 'user']},
     {id:'promotion', label:'Session Promotion', icon:'promotion', roles:['admin']},
     {id:'exams', label:'Exam & Admit Card', icon:'examcard', roles:['admin', 'user']},
     {id:'backup', label:'Backup & Restore', icon:'backup', roles:['admin']},
   ];
   const TITLES = {
     dashboard: ['Dashboard','Realtime fee collection overview'],
+    admission: ['Student Registration & Admission','Naye student ka registration aur admission form'],
     collect: ['Fee Collection','Record a new fee payment entry'],
     students: ['Students','Manage student fee master data'],
     ledger: ['Fee Ledger','Class-wise dues & payment status'],
     receipts: ['Receipts','Look up and print a payment receipt'],
+    transport: ['Transport Management','Routes, vehicle assignment aur transport fee collection'],
+    inventory: ['Inventory & Billing','Dashboard, stock, vendors, purchases aur reports — sab ek jagah'],
+    billing: ['Smart Billing (POS)','Item select karein, bill turant bane, stock automatically update ho'],
     promotion: ['Session Promotion','Naye saal ke liye bacchon ko agli class me promote karein'],
     exams: ['Exam Manager & Admit Card','School settings, exams aur admit card printing'],
     backup: ['Backup & Sync','Google Sheet Sync + snapshots and manual backups'],
@@ -1194,7 +1486,1520 @@
     }));
   }
 
+  // ---------- ADMISSION (STUDENT REGISTRATION & ADMISSION FORM) ----------
+  function admissionModal(){
+    const editing = editingAdmissionId != null;
+    const a = editing ? admissions.find(x=>x.id===editingAdmissionId) : {
+      id: nextAdmissionId(), admissionNo: nextAdmissionNo(), name:'', dob:'', gender:'Male', category:'General',
+      fatherName:'', motherName:'', guardianMobile:'', altMobile:'', address:'', aadhaar:'',
+      previousSchool:'', classAppliedFor: CLASS_ORDER[0], bloodGroup:'', photo:'', admissionDate: todayISO(), status:'Registered'
+    };
+    let pendingPhoto = a.photo || '';
+    modalRoot.innerHTML = `
+      <div class="modal-backdrop" id="ekps-adm-bg">
+        <div class="modal" style="width:640px;">
+          <div class="modal-head"><h3>${editing?'Edit Registration':'Student Registration & Admission Form'}</h3>
+            <div class="icon-btn" id="ekps-adm-close">✕</div></div>
+          <div class="modal-body">
+            <div class="form-grid">
+              <div class="field"><label>Admission / Reg. No.</label><input type="text" id="a-no" value="${esc(a.admissionNo)}" disabled/></div>
+              <div class="field"><label>Class Applied For</label>
+                <select id="a-cls">${CLASS_ORDER.map(c=>`<option value="${c}" ${c===a.classAppliedFor?'selected':''}>${c}</option>`).join('')}</select>
+              </div>
+              <div class="field"><label>Admission Date</label><input type="date" id="a-date" value="${a.admissionDate||todayISO()}"/></div>
+            </div>
+            <div class="form-grid">
+              <div class="field" style="grid-column: span 2;"><label>Student Name</label><input type="text" id="a-name" value="${esc(a.name)}"/></div>
+              <div class="field"><label>Date of Birth</label><input type="date" id="a-dob" value="${a.dob||''}"/></div>
+            </div>
+            <div class="form-grid cols-4">
+              <div class="field"><label>Gender</label>
+                <select id="a-gender">${['Male','Female','Other'].map(g=>`<option value="${g}" ${g===a.gender?'selected':''}>${g}</option>`).join('')}</select>
+              </div>
+              <div class="field"><label>Category</label>
+                <select id="a-cat">${['General','OBC','SC','ST','EWS','Other'].map(g=>`<option value="${g}" ${g===a.category?'selected':''}>${g}</option>`).join('')}</select>
+              </div>
+              <div class="field"><label>Blood Group</label><input type="text" id="a-blood" value="${esc(a.bloodGroup||'')}" placeholder="e.g. B+"/></div>
+              <div class="field"><label>Aadhaar No.</label><input type="text" id="a-aadhaar" value="${esc(a.aadhaar||'')}" maxlength="12"/></div>
+            </div>
+            <div class="form-grid">
+              <div class="field"><label>Father's Name</label><input type="text" id="a-father" value="${esc(a.fatherName||'')}"/></div>
+              <div class="field"><label>Mother's Name</label><input type="text" id="a-mother" value="${esc(a.motherName||'')}"/></div>
+            </div>
+            <div class="form-grid">
+              <div class="field"><label>Guardian Mobile No.</label><input type="tel" id="a-mob" value="${esc(a.guardianMobile||'')}" maxlength="15"/></div>
+              <div class="field"><label>Alternate Mobile No.</label><input type="tel" id="a-altmob" value="${esc(a.altMobile||'')}" maxlength="15"/></div>
+            </div>
+            <div class="field"><label>Address</label><input type="text" id="a-address" value="${esc(a.address||'')}"/></div>
+            <div class="field"><label>Previous School (if any)</label><input type="text" id="a-prevschool" value="${esc(a.previousSchool||'')}"/></div>
+            <div class="field">
+              <label>Student Photo</label>
+              <div class="photo-upload">
+                <div class="photo-preview" id="a-photo-preview">${a.photo ? `<img src="${a.photo}"/>` : 'No Photo'}</div>
+                <input type="file" id="a-photo" accept="image/*" style="flex:1;"/>
+              </div>
+            </div>
+          </div>
+          <div class="modal-foot">
+            <span class="btn btn-ghost" id="ekps-adm-cancel">Cancel</span>
+            <span class="btn btn-primary" id="ekps-adm-save">${editing?'Save Changes':'Register Student'}</span>
+          </div>
+        </div>
+      </div>`;
+
+    const close = ()=>{ modalRoot.innerHTML=''; editingAdmissionId=null; };
+    document.getElementById('ekps-adm-bg').addEventListener('click', e=>{ if(e.target.id==='ekps-adm-bg') close(); });
+    document.getElementById('ekps-adm-close').addEventListener('click', close);
+    document.getElementById('ekps-adm-cancel').addEventListener('click', close);
+    document.getElementById('a-photo').addEventListener('change', (e)=>{
+      const file = e.target.files && e.target.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = (ev)=>{
+        pendingPhoto = ev.target.result;
+        document.getElementById('a-photo-preview').innerHTML = `<img src="${pendingPhoto}"/>`;
+      };
+      reader.readAsDataURL(file);
+    });
+    document.getElementById('ekps-adm-save').addEventListener('click', ()=>{
+      const name = document.getElementById('a-name').value.trim();
+      if (!name) { toast('Student Name daalein'); return; }
+      const guardianMobile = document.getElementById('a-mob').value.trim();
+      if (guardianMobile && !/^[0-9+\-\s]{7,15}$/.test(guardianMobile)) { toast('Sahi Mobile No. daalein'); return; }
+      const rec = {
+        id: a.id, admissionNo: a.admissionNo,
+        classAppliedFor: document.getElementById('a-cls').value,
+        admissionDate: document.getElementById('a-date').value || todayISO(),
+        name, dob: document.getElementById('a-dob').value,
+        gender: document.getElementById('a-gender').value,
+        category: document.getElementById('a-cat').value,
+        bloodGroup: document.getElementById('a-blood').value.trim(),
+        aadhaar: document.getElementById('a-aadhaar').value.trim(),
+        fatherName: document.getElementById('a-father').value.trim(),
+        motherName: document.getElementById('a-mother').value.trim(),
+        guardianMobile, altMobile: document.getElementById('a-altmob').value.trim(),
+        address: document.getElementById('a-address').value.trim(),
+        previousSchool: document.getElementById('a-prevschool').value.trim(),
+        photo: pendingPhoto || '',
+        status: a.status || 'Registered',
+        linkedStudentId: a.linkedStudentId || null,
+      };
+      if (editing) {
+        admissions = admissions.map(x=>x.id===rec.id?rec:x);
+      } else {
+        admissions.push(rec);
+      }
+      saveAdmissions();
+      toast(editing?'Registration updated':'Student registered successfully');
+      close();
+      renderAdmission();
+    });
+  }
+
+  function confirmAdmissionModal(admissionId){
+    const a = admissions.find(x=>x.id===admissionId);
+    if (!a) return;
+    modalRoot.innerHTML = `
+      <div class="modal-backdrop" id="ekps-cfm-bg">
+        <div class="modal">
+          <div class="modal-head"><h3>Confirm Admission &mdash; ${esc(a.name)}</h3>
+            <div class="icon-btn" id="ekps-cfm-close">✕</div></div>
+          <div class="modal-body">
+            <p style="font-size:13px; color:var(--slate); line-height:1.6; margin-top:0;">
+              Admission confirm karne par ye student <b>Students</b> aur <b>Fee Ledger</b> module me fee-record ke sath add ho jayega.
+            </p>
+            <div class="form-grid">
+              <div class="field"><label>Student ID (New)</label><input type="number" id="c-id" value="${nextStudentId()}"/></div>
+              <div class="field"><label>Class</label>
+                <select id="c-cls">${CLASS_ORDER.map(c=>`<option value="${c}" ${c===a.classAppliedFor?'selected':''}>${c}</option>`).join('')}</select>
+              </div>
+            </div>
+            <div class="form-grid cols-4">
+              <div class="field"><label>Monthly Fee</label><input type="number" id="c-mf" value="0"/></div>
+              <div class="field"><label>Exam Fee</label><input type="number" id="c-ef" value="0"/></div>
+              <div class="field"><label>Old Due</label><input type="number" id="c-od" value="0"/></div>
+              <div class="field"><label>Uniform Bill</label><input type="number" id="c-ub" value="0"/></div>
+            </div>
+          </div>
+          <div class="modal-foot">
+            <span class="btn btn-ghost" id="ekps-cfm-cancel">Cancel</span>
+            <span class="btn btn-accent" id="ekps-cfm-save">Confirm Admission</span>
+          </div>
+        </div>
+      </div>`;
+    const close = ()=>{ modalRoot.innerHTML=''; };
+    document.getElementById('ekps-cfm-bg').addEventListener('click', e=>{ if(e.target.id==='ekps-cfm-bg') close(); });
+    document.getElementById('ekps-cfm-close').addEventListener('click', close);
+    document.getElementById('ekps-cfm-cancel').addEventListener('click', close);
+    document.getElementById('ekps-cfm-save').addEventListener('click', ()=>{
+      const id = parseInt(document.getElementById('c-id').value) || nextStudentId();
+      if (students.some(x=>x.id===id)) { toast('Ye Student ID pehle se maujood hai'); return; }
+      const rec = {
+        id, cls: document.getElementById('c-cls').value, name: a.name,
+        fatherName: a.fatherName||'', address: a.address||'', mobNo: a.guardianMobile||'',
+        photo: a.photo||'',
+        monthlyFee: parseFloat(document.getElementById('c-mf').value)||0,
+        examFee: parseFloat(document.getElementById('c-ef').value)||0,
+        oldDue: parseFloat(document.getElementById('c-od').value)||0,
+        uniformBill: parseFloat(document.getElementById('c-ub').value)||0,
+        bookBill: 0, otherBill: 0, bills: [],
+        admissionNo: a.admissionNo,
+      };
+      students.push(rec);
+      saveStudents();
+      a.status = 'Admitted';
+      a.linkedStudentId = id;
+      saveAdmissions();
+      toast('Admission confirmed — student add ho gaya');
+      close();
+      renderAdmission();
+    });
+  }
+
+  function renderAdmission(){
+    const q = admissionQ.trim().toLowerCase();
+    const list = admissions.filter(a=>{
+      if (admissionFilter!=='all' && a.status!==admissionFilter) return false;
+      if (!q) return true;
+      return a.name.toLowerCase().includes(q) || String(a.admissionNo).toLowerCase().includes(q) || a.classAppliedFor.toLowerCase().includes(q);
+    }).sort((a,b)=> b.id-a.id);
+
+    contentEl.innerHTML = `
+      <div class="kpi-grid" style="grid-template-columns:repeat(3,1fr);">
+        <div class="kpi-card" style="--accent:var(--ink)"><div class="kpi-label">Total Registrations</div><div class="kpi-value">${admissions.length}</div></div>
+        <div class="kpi-card" style="--accent:var(--green)"><div class="kpi-label">Admitted</div><div class="kpi-value">${admissions.filter(a=>a.status==='Admitted').length}</div></div>
+        <div class="kpi-card" style="--accent:var(--amber)"><div class="kpi-label">Pending (Registered)</div><div class="kpi-value">${admissions.filter(a=>a.status==='Registered').length}</div></div>
+      </div>
+      <div class="toolbar">
+        <div class="search-wrap">${ICONS.search}<input type="text" id="ekps-adm-search" placeholder="Naam, admission no ya class se search karein" value="${esc(admissionQ)}"/></div>
+        <select id="ekps-adm-filter">
+          ${['all','Registered','Admitted'].map(s=>`<option value="${s}" ${s===admissionFilter?'selected':''}>${s==='all'?'All Status':s}</option>`).join('')}
+        </select>
+        <span style="flex:1"></span>
+        <span class="btn btn-accent" id="ekps-adm-new">${ICONS.admission.replace('navicon','')} + New Registration / Admission</span>
+      </div>
+      <div class="panel">
+        <div class="panel-body" style="padding:0; overflow:auto;">
+          <table class="data">
+            <thead><tr><th>Adm. No.</th><th>Name</th><th>Class Applied</th><th>Father's Name</th><th>Mobile</th><th>Reg. Date</th><th>Status</th><th></th></tr></thead>
+            <tbody>
+              ${list.length ? list.map(a=>`
+                <tr>
+                  <td><span class="id-chip">${esc(a.admissionNo)}</span></td>
+                  <td style="font-weight:600;">${esc(a.name)}</td>
+                  <td><span class="cls-chip">${esc(a.classAppliedFor)}</span></td>
+                  <td>${esc(a.fatherName||'—')}</td>
+                  <td class="mono">${esc(a.guardianMobile||'—')}</td>
+                  <td>${fmtDate(a.admissionDate)}</td>
+                  <td><span class="status-badge status-${a.status}">${a.status}</span></td>
+                  <td><div class="row-actions">
+                    ${a.status!=='Admitted' ? `<div class="icon-btn" data-confirm-adm="${a.id}" title="Confirm Admission">${ICONS.stamp}</div>` : ''}
+                    <div class="icon-btn" data-edit-adm="${a.id}" title="Edit">${ICONS.edit}</div>
+                    <div class="icon-btn" data-del-adm="${a.id}" title="Delete">${ICONS.trash}</div>
+                  </div></td>
+                </tr>`).join('') : `<tr><td colspan="8"><div class="empty-state">Koi registration nahi mila</div></td></tr>`}
+            </tbody>
+          </table>
+        </div>
+      </div>`;
+
+    document.getElementById('ekps-adm-search').addEventListener('input', e=>{ admissionQ = e.target.value; renderAdmission(); });
+    document.getElementById('ekps-adm-filter').addEventListener('change', e=>{ admissionFilter = e.target.value; renderAdmission(); });
+    document.getElementById('ekps-adm-new').addEventListener('click', ()=>{ editingAdmissionId=null; admissionModal(); });
+    contentEl.querySelectorAll('[data-edit-adm]').forEach(el=> el.addEventListener('click', ()=>{ editingAdmissionId = parseInt(el.dataset.editAdm); admissionModal(); }));
+    contentEl.querySelectorAll('[data-confirm-adm]').forEach(el=> el.addEventListener('click', ()=>{ confirmAdmissionModal(parseInt(el.dataset.confirmAdm)); }));
+    contentEl.querySelectorAll('[data-del-adm]').forEach(el=> el.addEventListener('click', ()=>{
+      if(!confirm('Ye registration delete karein?')) return;
+      admissions = admissions.filter(a=>a.id!==parseInt(el.dataset.delAdm));
+      saveAdmissions();
+      toast('Registration deleted');
+      renderAdmission();
+    }));
+  }
+
   function chunkArr(arr, n){ const out=[]; for(let i=0;i<arr.length;i+=n) out.push(arr.slice(i,i+n)); return out; }
+
+  // ---------- TRANSPORT MANAGEMENT ----------
+  function routeModal(){
+    const editing = editingRouteId != null;
+    const r = editing ? transportRoutes.find(x=>x.id===editingRouteId) : {id:nextRouteId(), name:'', vehicleNo:'', driverName:'', driverMobile:'', capacity:0, fee:0};
+    modalRoot.innerHTML = `
+      <div class="modal-backdrop" id="ekps-rt-bg">
+        <div class="modal">
+          <div class="modal-head"><h3>${editing?'Edit Route':'Add Transport Route'}</h3><div class="icon-btn" id="ekps-rt-close">✕</div></div>
+          <div class="modal-body">
+            <div class="field"><label>Route Name</label><input type="text" id="r-name" value="${esc(r.name)}" placeholder="e.g. Route 1 - City Center"/></div>
+            <div class="form-grid">
+              <div class="field"><label>Vehicle No.</label><input type="text" id="r-vehicle" value="${esc(r.vehicleNo)}"/></div>
+              <div class="field"><label>Capacity (Seats)</label><input type="number" id="r-cap" value="${r.capacity}"/></div>
+            </div>
+            <div class="form-grid">
+              <div class="field"><label>Driver Name</label><input type="text" id="r-driver" value="${esc(r.driverName)}"/></div>
+              <div class="field"><label>Driver Mobile</label><input type="tel" id="r-drivermob" value="${esc(r.driverMobile)}" maxlength="15"/></div>
+            </div>
+            <div class="field"><label>Monthly Transport Fee (₹)</label><input type="number" id="r-fee" value="${r.fee}"/></div>
+          </div>
+          <div class="modal-foot">
+            <span class="btn btn-ghost" id="ekps-rt-cancel">Cancel</span>
+            <span class="btn btn-primary" id="ekps-rt-save">${editing?'Save Changes':'Add Route'}</span>
+          </div>
+        </div>
+      </div>`;
+    const close = ()=>{ modalRoot.innerHTML=''; editingRouteId=null; };
+    document.getElementById('ekps-rt-bg').addEventListener('click', e=>{ if(e.target.id==='ekps-rt-bg') close(); });
+    document.getElementById('ekps-rt-close').addEventListener('click', close);
+    document.getElementById('ekps-rt-cancel').addEventListener('click', close);
+    document.getElementById('ekps-rt-save').addEventListener('click', ()=>{
+      const name = document.getElementById('r-name').value.trim();
+      if (!name) { toast('Route ka naam daalein'); return; }
+      const rec = {
+        id: r.id, name,
+        vehicleNo: document.getElementById('r-vehicle').value.trim(),
+        driverName: document.getElementById('r-driver').value.trim(),
+        driverMobile: document.getElementById('r-drivermob').value.trim(),
+        capacity: parseFloat(document.getElementById('r-cap').value)||0,
+        fee: parseFloat(document.getElementById('r-fee').value)||0,
+      };
+      if (editing) transportRoutes = transportRoutes.map(x=>x.id===rec.id?rec:x);
+      else transportRoutes.push(rec);
+      saveTransportRoutes();
+      toast(editing?'Route updated':'Route added');
+      close();
+      renderTransport();
+    });
+  }
+
+  function renderTransport(){
+    contentEl.innerHTML = `
+      <div class="subtabs">
+        <div class="subtab ${transportSubView==='routes'?'active':''}" data-tr-tab="routes">Routes & Vehicles</div>
+        <div class="subtab ${transportSubView==='assign'?'active':''}" data-tr-tab="assign">Assign Students</div>
+        <div class="subtab ${transportSubView==='collect'?'active':''}" data-tr-tab="collect">Transport Fee Collection</div>
+      </div>
+      <div id="ekps-tr-body"></div>`;
+    contentEl.querySelectorAll('[data-tr-tab]').forEach(el=>{
+      el.addEventListener('click', ()=>{ transportSubView = el.dataset.trTab; renderTransport(); });
+    });
+    if (transportSubView==='routes') renderTransportRoutes();
+    else if (transportSubView==='assign') renderTransportAssign();
+    else renderTransportCollect();
+  }
+
+  function renderTransportRoutes(){
+    const body = document.getElementById('ekps-tr-body');
+    const sorted = transportRoutes.slice().sort((a,b)=> a.name.localeCompare(b.name));
+    body.innerHTML = `
+      <div class="toolbar"><span style="flex:1"></span><span class="btn btn-accent" id="ekps-rt-new">+ Add Route</span></div>
+      <div class="panel">
+        <div class="panel-body" style="padding:0; overflow:auto;">
+          <table class="data">
+            <thead><tr><th>Route</th><th>Vehicle No.</th><th>Driver</th><th>Driver Mobile</th><th>Capacity</th><th>Assigned</th><th>Monthly Fee</th><th></th></tr></thead>
+            <tbody>
+              ${sorted.length ? sorted.map(r=>{
+                const assignedCount = students.filter(s=>s.transportRouteId===r.id).length;
+                return `<tr>
+                  <td style="font-weight:600;">${esc(r.name)}</td>
+                  <td class="mono">${esc(r.vehicleNo)||'—'}</td>
+                  <td>${esc(r.driverName)||'—'}</td>
+                  <td class="mono">${esc(r.driverMobile)||'—'}</td>
+                  <td class="mono">${r.capacity||0}</td>
+                  <td class="mono">${assignedCount}</td>
+                  <td class="mono">${fmt(r.fee)}</td>
+                  <td><div class="row-actions">
+                    <div class="icon-btn" data-rt-edit="${r.id}" title="Edit">${ICONS.edit}</div>
+                    <div class="icon-btn" data-rt-del="${r.id}" title="Delete">${ICONS.trash}</div>
+                  </div></td>
+                </tr>`;
+              }).join('') : `<tr><td colspan="8"><div class="empty-state">Koi route nahi bana. "+ Add Route" se shuru karein.</div></td></tr>`}
+            </tbody>
+          </table>
+        </div>
+      </div>`;
+    document.getElementById('ekps-rt-new').addEventListener('click', ()=>{ editingRouteId=null; routeModal(); });
+    body.querySelectorAll('[data-rt-edit]').forEach(el=> el.addEventListener('click', ()=>{ editingRouteId=parseInt(el.dataset.rtEdit); routeModal(); }));
+    body.querySelectorAll('[data-rt-del]').forEach(el=> el.addEventListener('click', ()=>{
+      if(!confirm('Ye route delete karein? Assigned students se route hat jayega.')) return;
+      const id = parseInt(el.dataset.rtDel);
+      transportRoutes = transportRoutes.filter(r=>r.id!==id);
+      students.forEach(s=>{ if (s.transportRouteId===id) s.transportRouteId = null; });
+      saveTransportRoutes(); saveStudents();
+      toast('Route deleted');
+      renderTransportRoutes();
+    }));
+  }
+
+  function renderTransportAssign(){
+    const body = document.getElementById('ekps-tr-body');
+    if (!transportRoutes.length) {
+      body.innerHTML = `<div class="empty-state">Pehle "Routes & Vehicles" tab se ek route banayein.</div>`;
+      return;
+    }
+    const classes = ['all', ...CLASS_ORDER.filter(c=>students.some(s=>s.cls===c))];
+    const list = students.filter(s=> transportAssignClsFilter==='all' || s.cls===transportAssignClsFilter)
+      .sort((a,b)=> CLASS_ORDER.indexOf(a.cls)-CLASS_ORDER.indexOf(b.cls) || a.id-b.id);
+    body.innerHTML = `
+      <div class="toolbar">
+        <select id="tr-cls-filter">${classes.map(c=>`<option value="${c}" ${c===transportAssignClsFilter?'selected':''}>${c==='all'?'All Classes':c}</option>`).join('')}</select>
+      </div>
+      <div class="panel">
+        <div class="panel-body" style="padding:0; overflow:auto;">
+          <table class="data">
+            <thead><tr><th>ID</th><th>Class</th><th>Name</th><th>Assigned Route</th></tr></thead>
+            <tbody>
+              ${list.length ? list.map(s=>`
+                <tr>
+                  <td><span class="id-chip">${s.id}</span></td>
+                  <td><span class="cls-chip">${esc(s.cls)}</span></td>
+                  <td style="font-weight:600;">${esc(s.name)}</td>
+                  <td>
+                    <select data-assign-route="${s.id}">
+                      <option value="">— No Transport —</option>
+                      ${transportRoutes.map(r=>`<option value="${r.id}" ${s.transportRouteId===r.id?'selected':''}>${esc(r.name)} (${fmt(r.fee)}/mo)</option>`).join('')}
+                    </select>
+                  </td>
+                </tr>`).join('') : `<tr><td colspan="4"><div class="empty-state">Is class me koi student nahi hai</div></td></tr>`}
+            </tbody>
+          </table>
+        </div>
+      </div>`;
+    document.getElementById('tr-cls-filter').addEventListener('change', e=>{ transportAssignClsFilter = e.target.value; renderTransportAssign(); });
+    body.querySelectorAll('[data-assign-route]').forEach(el=>{
+      el.addEventListener('change', ()=>{
+        const id = parseInt(el.dataset.assignRoute);
+        const s = students.find(x=>x.id===id);
+        if (!s) return;
+        s.transportRouteId = el.value ? parseInt(el.value) : null;
+        saveStudents();
+        toast('Transport route update ho gaya — ' + s.name);
+      });
+    });
+  }
+
+  function renderTransportCollect(){
+    const body = document.getElementById('ekps-tr-body');
+    const assignedStudents = students.filter(s=>s.transportRouteId);
+    const recent = transportEntries.slice().sort((a,b)=> b.id-a.id).slice(0,8);
+    body.innerHTML = `
+      <div class="two-col">
+        <div class="panel">
+          <div class="panel-head"><h3>New Transport Fee Entry</h3><span class="id-chip">${nextTransportReceiptNo()}</span></div>
+          <div class="panel-body">
+            <div class="field">
+              <label>Student (Transport Assigned)</label>
+              <input type="text" id="tr-student-input" list="tr-student-list" placeholder="ID ya naam type karein&hellip;" autocomplete="off"/>
+              <datalist id="tr-student-list">
+                ${assignedStudents.map(s=>`<option value="${s.id} — ${esc(s.name)} (${esc(s.cls)})">`).join('')}
+              </datalist>
+            </div>
+            <div class="pick-preview" id="tr-pick-preview"></div>
+            <div class="form-grid">
+              <div class="field">
+                <label>Month</label>
+                <select id="tr-month-input">
+                  <option value="">Select month</option>
+                  ${MONTHS.map(m=>`<option value="${m}">${m}</option>`).join('')}
+                </select>
+              </div>
+              <div class="field">
+                <label>Paid Amount (₹)</label>
+                <input type="number" id="tr-amount-input" min="1" placeholder="e.g. 500"/>
+              </div>
+              <div class="field">
+                <label>Payment Date</label>
+                <input type="date" id="tr-date-input" value="${todayISO()}"/>
+              </div>
+            </div>
+            <span class="btn btn-accent" id="tr-save-entry">${ICONS.collect.replace('navicon','')} Save Transport Entry</span>
+            ${!assignedStudents.length ? `<div class="hint" style="margin-top:8px;">Koi bhi student transport route assigned nahi hai — pehle "Assign Students" tab use karein.</div>` : ''}
+          </div>
+        </div>
+        <div class="panel">
+          <div class="panel-head"><h3>Recent Transport Entries</h3></div>
+          <div class="panel-body">
+            ${recent.length ? recent.map(e=>{
+              const s = students.find(x=>x.id===e.studentId);
+              return `<div class="recent-row">
+                <div><div class="recent-name">${esc(s?s.name:'—')} <span class="id-chip">${e.receiptNo}</span></div>
+                <div class="recent-meta">${esc(e.month)} &middot; ${fmtDate(e.date)}</div></div>
+                <div style="display:flex;align-items:center;gap:10px;">
+                  <div class="recent-amt">${fmt(e.amount)}</div>
+                  <div class="icon-btn" data-del-tr-entry="${e.id}" title="Delete">${ICONS.trash}</div>
+                </div>
+              </div>`;
+            }).join('') : `<div class="empty-state">Koi entry nahi</div>`}
+          </div>
+        </div>
+      </div>
+      <div class="panel" style="margin-top:16px;">
+        <div class="panel-head"><h3>Transport Fee Status (Assigned Students)</h3></div>
+        <div class="panel-body" style="padding:0; overflow:auto;">
+          <table class="data">
+            <thead><tr><th>ID</th><th>Name</th><th>Route</th><th>Total Due (Yr)</th><th>Paid</th><th>Rest Due</th></tr></thead>
+            <tbody>
+              ${assignedStudents.length ? assignedStudents.map(s=>{
+                const due = transportTotalDue(s), paid = transportTotalPaid(s.id), rest = due-paid;
+                return `<tr>
+                  <td><span class="id-chip">${s.id}</span></td>
+                  <td style="font-weight:600;">${esc(s.name)}</td>
+                  <td>${esc(routeOf(s)?routeOf(s).name:'—')}</td>
+                  <td class="mono">${fmt(due)}</td>
+                  <td class="mono">${fmt(paid)}</td>
+                  <td class="mono">${fmt(rest)}</td>
+                </tr>`;
+              }).join('') : `<tr><td colspan="6"><div class="empty-state">Koi student transport assigned nahi hai</div></td></tr>`}
+            </tbody>
+          </table>
+        </div>
+      </div>`;
+
+    let pickedId = null;
+    const input = document.getElementById('tr-student-input');
+    const preview = document.getElementById('tr-pick-preview');
+    input.addEventListener('input', ()=>{
+      const m = input.value.match(/^(\d+)\s*—/);
+      if (m) {
+        const s = students.find(x=>x.id===parseInt(m[1]) && x.transportRouteId);
+        if (s) {
+          pickedId = s.id;
+          const due = transportTotalDue(s), paid = transportTotalPaid(s.id), rest = due-paid;
+          preview.className = 'pick-preview show';
+          preview.innerHTML = `<b>${esc(s.name)}</b> &middot; Route: ${esc(routeOf(s)?routeOf(s).name:'—')} &middot; Rest Due: <b>${fmt(rest)}</b>`;
+          return;
+        }
+      }
+      pickedId = null;
+      preview.className = 'pick-preview';
+    });
+
+    document.getElementById('tr-save-entry').addEventListener('click', ()=>{
+      const month = document.getElementById('tr-month-input').value;
+      const amount = parseFloat(document.getElementById('tr-amount-input').value);
+      const date = document.getElementById('tr-date-input').value;
+      if (!pickedId) { toast('Pehle ek valid transport-assigned Student select karein'); input.focus(); return; }
+      if (!month) { toast('Month select karein'); return; }
+      if (!amount || amount<=0) { toast('Sahi Paid Amount daalein'); return; }
+      if (!date) { toast('Payment Date daalein'); return; }
+      const entry = { id: Date.now(), receiptNo: nextTransportReceiptNo(), studentId: pickedId, month, amount, date };
+      transportEntries.push(entry);
+      saveTransportEntries();
+      toast('Transport entry saved');
+      renderTransportCollect();
+    });
+
+    body.querySelectorAll('[data-del-tr-entry]').forEach(el=>{
+      el.addEventListener('click', ()=>{
+        if(!confirm('Ye transport entry delete karein?')) return;
+        transportEntries = transportEntries.filter(e=>e.id !== parseInt(el.dataset.delTrEntry));
+        saveTransportEntries();
+        toast('Entry deleted');
+        renderTransportCollect();
+      });
+    });
+  }
+
+  // ---------- INVENTORY MANAGEMENT ----------
+  function itemModal(){
+    const editing = editingItemId != null;
+    const it = editing ? inventoryItems.find(x=>x.id===editingItemId) : {id:nextItemId(), name:'', category:'Uniform', unit:'Pcs', unitPrice:0, reorderLevel:5};
+    modalRoot.innerHTML = `
+      <div class="modal-backdrop" id="ekps-it-bg">
+        <div class="modal">
+          <div class="modal-head"><h3>${editing?'Edit Item':'Add Inventory Item'}</h3><div class="icon-btn" id="ekps-it-close">✕</div></div>
+          <div class="modal-body">
+            <div class="field"><label>Item Name</label><input type="text" id="it-name" value="${esc(it.name)}" placeholder="e.g. Uniform Shirt - Size M"/></div>
+            <div class="form-grid cols-4">
+              <div class="field" style="grid-column: span 2;"><label>Category</label>
+                <select id="it-cat">${['Uniform','Books / Copy','Stationery','Sports','Furniture','Other'].map(c=>`<option value="${c}" ${c===it.category?'selected':''}>${c}</option>`).join('')}</select>
+              </div>
+              <div class="field"><label>Unit</label><input type="text" id="it-unit" value="${esc(it.unit)}" placeholder="Pcs/Box"/></div>
+              <div class="field"><label>Reorder Level</label><input type="number" id="it-reorder" value="${it.reorderLevel}"/></div>
+            </div>
+            <div class="field"><label>Unit Price (₹)</label><input type="number" id="it-price" value="${it.unitPrice}"/></div>
+          </div>
+          <div class="modal-foot">
+            <span class="btn btn-ghost" id="ekps-it-cancel">Cancel</span>
+            <span class="btn btn-primary" id="ekps-it-save">${editing?'Save Changes':'Add Item'}</span>
+          </div>
+        </div>
+      </div>`;
+    const close = ()=>{ modalRoot.innerHTML=''; editingItemId=null; };
+    document.getElementById('ekps-it-bg').addEventListener('click', e=>{ if(e.target.id==='ekps-it-bg') close(); });
+    document.getElementById('ekps-it-close').addEventListener('click', close);
+    document.getElementById('ekps-it-cancel').addEventListener('click', close);
+    document.getElementById('ekps-it-save').addEventListener('click', ()=>{
+      const name = document.getElementById('it-name').value.trim();
+      if (!name) { toast('Item ka naam daalein'); return; }
+      const rec = {
+        id: it.id, name,
+        category: document.getElementById('it-cat').value,
+        unit: document.getElementById('it-unit').value.trim() || 'Pcs',
+        unitPrice: parseFloat(document.getElementById('it-price').value)||0,
+        reorderLevel: parseFloat(document.getElementById('it-reorder').value)||0,
+      };
+      if (editing) inventoryItems = inventoryItems.map(x=>x.id===rec.id?rec:x);
+      else inventoryItems.push(rec);
+      saveInventoryItems();
+      toast(editing?'Item updated':'Item added');
+      close();
+      renderInventory();
+    });
+  }
+
+  function stockModal(){
+    modalRoot.innerHTML = `
+      <div class="modal-backdrop" id="ekps-sk-bg">
+        <div class="modal">
+          <div class="modal-head"><h3>Stock In / Out Entry</h3><div class="icon-btn" id="ekps-sk-close">✕</div></div>
+          <div class="modal-body">
+            <div class="field"><label>Item</label>
+              <select id="sk-item">
+                ${inventoryItems.map(i=>`<option value="${i.id}">${esc(i.name)} (Current: ${itemStock(i.id)} ${esc(i.unit)})</option>`).join('')}
+              </select>
+            </div>
+            <div class="form-grid">
+              <div class="field"><label>Transaction Type</label>
+                <select id="sk-type">
+                  <option value="in">Stock In (Purchase / Receive)</option>
+                  <option value="out">Stock Out (Issue / Sale)</option>
+                </select>
+              </div>
+              <div class="field"><label>Quantity</label><input type="number" id="sk-qty" min="1" placeholder="e.g. 10"/></div>
+            </div>
+            <div class="form-grid">
+              <div class="field"><label>Date</label><input type="date" id="sk-date" value="${todayISO()}"/></div>
+              <div class="field"><label>Issued To / Note (optional)</label><input type="text" id="sk-note" placeholder="e.g. Class 3 student name"/></div>
+            </div>
+          </div>
+          <div class="modal-foot">
+            <span class="btn btn-ghost" id="ekps-sk-cancel">Cancel</span>
+            <span class="btn btn-primary" id="ekps-sk-save">Save Entry</span>
+          </div>
+        </div>
+      </div>`;
+    const close = ()=>{ modalRoot.innerHTML=''; };
+    document.getElementById('ekps-sk-bg').addEventListener('click', e=>{ if(e.target.id==='ekps-sk-bg') close(); });
+    document.getElementById('ekps-sk-close').addEventListener('click', close);
+    document.getElementById('ekps-sk-cancel').addEventListener('click', close);
+    if (stockPickedItemId) document.getElementById('sk-item').value = stockPickedItemId;
+    document.getElementById('ekps-sk-save').addEventListener('click', ()=>{
+      const itemId = parseInt(document.getElementById('sk-item').value);
+      const type = document.getElementById('sk-type').value;
+      const qty = parseFloat(document.getElementById('sk-qty').value);
+      const date = document.getElementById('sk-date').value;
+      const note = document.getElementById('sk-note').value.trim();
+      if (!itemId) { toast('Item select karein'); return; }
+      if (!qty || qty<=0) { toast('Sahi Quantity daalein'); return; }
+      if (!date) { toast('Date daalein'); return; }
+      if (type==='out' && itemStock(itemId) < qty) { toast('Itna stock available nahi hai'); return; }
+      inventoryTxns.push({ id: Date.now(), itemId, type, qty, date, note });
+      saveInventoryTxns();
+      toast('Stock entry saved');
+      close();
+      renderInventory();
+    });
+  }
+
+  function renderInventory(){
+    contentEl.innerHTML = `
+      <div class="subtabs">
+        <div class="subtab ${inventorySubView==='dashboard'?'active':''}" data-inv-tab="dashboard">📊 Dashboard & Analytics</div>
+        <div class="subtab ${inventorySubView==='items'?'active':''}" data-inv-tab="items">📦 Stock & Inventory</div>
+        <div class="subtab ${inventorySubView==='vendors'?'active':''}" data-inv-tab="vendors">🤝 Vendor & Purchases</div>
+        <div class="subtab ${inventorySubView==='log'?'active':''}" data-inv-tab="log">↕ Stock Log</div>
+        <div class="subtab ${inventorySubView==='reports'?'active':''}" data-inv-tab="reports">⬇ Reports & Export</div>
+      </div>
+      <div id="ekps-inv-body"></div>`;
+    contentEl.querySelectorAll('[data-inv-tab]').forEach(el=>{
+      el.addEventListener('click', ()=>{ inventorySubView = el.dataset.invTab; renderInventory(); });
+    });
+    if (inventorySubView==='dashboard') renderInventoryDashboard();
+    else if (inventorySubView==='items') renderInventoryItems();
+    else if (inventorySubView==='vendors') renderInventoryVendors();
+    else if (inventorySubView==='log') renderInventoryLog();
+    else if (inventorySubView==='reports') renderInventoryReports();
+  }
+
+  // ---------- Inventory: Dashboard & Analytics ----------
+  function renderInventoryDashboard(){
+    const body = document.getElementById('ekps-inv-body');
+    const totalValue = inventoryItems.reduce((a,i)=>a + itemStock(i.id)*i.unitPrice, 0);
+    const lowStock = inventoryItems.filter(i=>itemStatus(i)!=='InStock');
+    const today = todayISO();
+    const todaySales = salesInvoices.filter(v=>v.date===today);
+    const todaySalesAmt = todaySales.reduce((a,v)=>a+invoiceTotal(v),0);
+    const thisMonth = today.slice(0,7);
+    const monthPurchaseAmt = purchaseOrders.filter(p=>(p.date||'').slice(0,7)===thisMonth).reduce((a,p)=>a+poTotal(p),0);
+    const monthSalesAmt = salesInvoices.filter(v=>(v.date||'').slice(0,7)===thisMonth).reduce((a,v)=>a+invoiceTotal(v),0);
+
+    // category-wise stock value
+    const cats = {};
+    inventoryItems.forEach(i=>{ const v = itemStock(i.id)*i.unitPrice; cats[i.category] = (cats[i.category]||0) + v; });
+    const maxCat = Math.max(1, ...Object.values(cats));
+
+    // top selling items (by qty, from sale-sourced stock-out txns)
+    const soldQty = {};
+    inventoryTxns.filter(t=>t.type==='out' && t.source==='sale').forEach(t=>{ soldQty[t.itemId] = (soldQty[t.itemId]||0) + t.qty; });
+    const topSelling = Object.entries(soldQty).sort((a,b)=>b[1]-a[1]).slice(0,5)
+      .map(([id,qty])=>({ item: inventoryItems.find(i=>i.id===parseInt(id)), qty }))
+      .filter(x=>x.item);
+    const maxSold = Math.max(1, ...topSelling.map(x=>x.qty));
+
+    const recentSales = salesInvoices.slice().sort((a,b)=>b.id-a.id).slice(0,6);
+    const recentPurchases = purchaseOrders.slice().sort((a,b)=>b.id-a.id).slice(0,6);
+
+    body.innerHTML = `
+      <div class="kpi-grid">
+        <div class="kpi-card" style="--accent:var(--green)"><div class="kpi-label">Total Stock Value</div><div class="kpi-value">${fmt(totalValue)}</div><div class="kpi-note">${inventoryItems.length} items tracked</div></div>
+        <div class="kpi-card" style="--accent:var(--rust)"><div class="kpi-label">Low / Out of Stock</div><div class="kpi-value">${lowStock.length}</div><div class="kpi-note">Reorder-level se neeche</div></div>
+        <div class="kpi-card" style="--accent:var(--saffron)"><div class="kpi-label">Today's Sales</div><div class="kpi-value">${fmt(todaySalesAmt)}</div><div class="kpi-note">${todaySales.length} bill(s) aaj</div></div>
+        <div class="kpi-card" style="--accent:var(--ink)"><div class="kpi-label">This Month Purchases</div><div class="kpi-value">${fmt(monthPurchaseAmt)}</div><div class="kpi-note">${vendors.length} active vendors</div></div>
+      </div>
+      <div class="stat-strip">
+        <div class="kpi-card" style="--accent:var(--green)"><div class="kpi-label">This Month Sales</div><div class="kpi-value">${fmt(monthSalesAmt)}</div></div>
+        <div class="kpi-card" style="--accent:var(--saffron)"><div class="kpi-label">Total Purchase Orders</div><div class="kpi-value">${purchaseOrders.length}</div></div>
+        <div class="kpi-card" style="--accent:var(--ink)"><div class="kpi-label">Total Invoices Billed</div><div class="kpi-value">${salesInvoices.length}</div></div>
+      </div>
+      <div class="two-col">
+        <div class="panel">
+          <div class="panel-head"><h3>Category-wise Stock Value</h3></div>
+          <div class="panel-body">
+            ${Object.keys(cats).length ? Object.entries(cats).sort((a,b)=>b[1]-a[1]).map(([c,v])=>`
+              <div class="classbar-row">
+                <div class="classbar-label">${esc(c)}</div>
+                <div class="classbar-track"><div class="classbar-fill" style="width:${(v/maxCat*100).toFixed(1)}%"></div></div>
+                <div class="classbar-val">${fmt(v)}</div>
+              </div>`).join('') : `<div class="empty-state">Koi item nahi hai</div>`}
+          </div>
+        </div>
+        <div class="panel">
+          <div class="panel-head"><h3>Top Selling Items</h3></div>
+          <div class="panel-body">
+            ${topSelling.length ? topSelling.map(x=>`
+              <div class="classbar-row">
+                <div class="classbar-label" style="width:auto; flex:1;">${esc(x.item.name)}</div>
+                <div class="classbar-track" style="flex:.8;"><div class="classbar-fill" style="width:${(x.qty/maxSold*100).toFixed(1)}%"></div></div>
+                <div class="classbar-val">${x.qty} ${esc(x.item.unit)}</div>
+              </div>`).join('') : `<div class="empty-state">Abhi tak koi sale nahi hui</div>`}
+          </div>
+        </div>
+      </div>
+      <div class="two-col" style="margin-top:16px;">
+        <div class="panel">
+          <div class="panel-head"><h3>Recent Sales / Bills</h3><span class="btn btn-sm btn-ghost" id="dash-goto-billing">Billing khole</span></div>
+          <div class="panel-body">
+            ${recentSales.length ? recentSales.map(v=>`
+              <div class="recent-row">
+                <div><div class="recent-name">${esc(v.invNo)} — ${esc(v.customerName||'Walk-in')}</div><div class="recent-meta">${fmtDate(v.date)}</div></div>
+                <div class="recent-amt">${fmt(invoiceTotal(v))}</div>
+              </div>`).join('') : `<div class="empty-state">Koi bill nahi bana</div>`}
+          </div>
+        </div>
+        <div class="panel">
+          <div class="panel-head"><h3>Recent Purchases</h3><span class="btn btn-sm btn-ghost" id="dash-goto-vendors">Vendors khole</span></div>
+          <div class="panel-body">
+            ${recentPurchases.length ? recentPurchases.map(p=>{
+              const v = vendors.find(x=>x.id===p.vendorId);
+              return `<div class="recent-row">
+                <div><div class="recent-name">${esc(p.poNo)} — ${esc(v?v.name:'—')}</div><div class="recent-meta">${fmtDate(p.date)}</div></div>
+                <div class="recent-amt">${fmt(poTotal(p))}</div>
+              </div>`;
+            }).join('') : `<div class="empty-state">Koi purchase order nahi hai</div>`}
+          </div>
+        </div>
+      </div>
+      ${lowStock.length ? `
+      <div class="panel" style="margin-top:16px;">
+        <div class="panel-head"><h3>⚠ Low / Out of Stock Alerts</h3></div>
+        <div class="panel-body" style="padding:0;">
+          <table class="data"><thead><tr><th>Item</th><th>Category</th><th>Current Stock</th><th>Reorder Level</th><th>Status</th></tr></thead>
+          <tbody>${lowStock.map(i=>`<tr>
+            <td style="font-weight:600;">${esc(i.name)}</td><td>${esc(i.category)}</td>
+            <td class="mono">${itemStock(i.id)} ${esc(i.unit)}</td><td class="mono">${i.reorderLevel}</td>
+            <td><span class="status-badge status-${itemStatus(i)}">${itemStatus(i)==='Out'?'Out of Stock':'Low Stock'}</span></td>
+          </tr>`).join('')}</tbody></table>
+        </div>
+      </div>` : ''}`;
+    const gb = document.getElementById('dash-goto-billing'); if (gb) { gb.textContent='Billing khole'; gb.addEventListener('click', ()=>{ route='billing'; render(); }); }
+    const gv = document.getElementById('dash-goto-vendors'); if (gv) gv.addEventListener('click', ()=>{ inventorySubView='vendors'; renderInventory(); });
+  }
+
+  function renderInventoryItems(){
+    const body = document.getElementById('ekps-inv-body');
+    const q = inventoryQ.trim().toLowerCase();
+    const list = inventoryItems.filter(i=> !q || i.name.toLowerCase().includes(q) || i.category.toLowerCase().includes(q))
+      .sort((a,b)=> a.name.localeCompare(b.name));
+    const totalValue = inventoryItems.reduce((a,i)=>a + itemStock(i.id)*i.unitPrice, 0);
+    body.innerHTML = `
+      <div class="kpi-grid" style="grid-template-columns:repeat(3,1fr);">
+        <div class="kpi-card" style="--accent:var(--ink)"><div class="kpi-label">Total Items</div><div class="kpi-value">${inventoryItems.length}</div></div>
+        <div class="kpi-card" style="--accent:var(--rust)"><div class="kpi-label">Low / Out of Stock</div><div class="kpi-value">${inventoryItems.filter(i=>itemStatus(i)!=='InStock').length}</div></div>
+        <div class="kpi-card" style="--accent:var(--green)"><div class="kpi-label">Total Stock Value</div><div class="kpi-value">${fmt(totalValue)}</div></div>
+      </div>
+      <div class="toolbar">
+        <div class="search-wrap">${ICONS.search}<input type="text" id="inv-search" placeholder="Item ya category search karein" value="${esc(inventoryQ)}"/></div>
+        <span style="flex:1"></span>
+        <span class="btn btn-ghost" id="inv-stock-btn">↕ Stock In / Out</span>
+        <span class="btn btn-accent" id="inv-new-item">+ Add Item</span>
+      </div>
+      <div class="panel">
+        <div class="panel-body" style="padding:0; overflow:auto;">
+          <table class="data">
+            <thead><tr><th>Item</th><th>Category</th><th>Unit</th><th>Unit Price</th><th>Current Stock</th><th>Stock Value</th><th>Status</th><th></th></tr></thead>
+            <tbody>
+              ${list.length ? list.map(i=>{
+                const stock = itemStock(i.id), st = itemStatus(i);
+                return `<tr>
+                  <td style="font-weight:600;">${esc(i.name)}</td>
+                  <td><span class="cls-chip">${esc(i.category)}</span></td>
+                  <td>${esc(i.unit)}</td>
+                  <td class="mono">${fmt(i.unitPrice)}</td>
+                  <td class="mono">${stock} ${esc(i.unit)}</td>
+                  <td class="mono">${fmt(stock*i.unitPrice)}</td>
+                  <td><span class="status-badge status-${st}">${st==='InStock'?'In Stock':st}</span></td>
+                  <td><div class="row-actions">
+                    <div class="icon-btn" data-inv-edit="${i.id}" title="Edit">${ICONS.edit}</div>
+                    <div class="icon-btn" data-inv-del="${i.id}" title="Delete">${ICONS.trash}</div>
+                  </div></td>
+                </tr>`;
+              }).join('') : `<tr><td colspan="8"><div class="empty-state">Koi item nahi mila. "+ Add Item" se shuru karein.</div></td></tr>`}
+            </tbody>
+          </table>
+        </div>
+      </div>`;
+    document.getElementById('inv-search').addEventListener('input', e=>{ inventoryQ = e.target.value; renderInventoryItems(); });
+    document.getElementById('inv-new-item').addEventListener('click', ()=>{ editingItemId=null; itemModal(); });
+    document.getElementById('inv-stock-btn').addEventListener('click', ()=>{
+      if (!inventoryItems.length) { toast('Pehle koi item add karein'); return; }
+      stockPickedItemId = null;
+      stockModal();
+    });
+    body.querySelectorAll('[data-inv-edit]').forEach(el=> el.addEventListener('click', ()=>{ editingItemId=parseInt(el.dataset.invEdit); itemModal(); }));
+    body.querySelectorAll('[data-inv-del]').forEach(el=> el.addEventListener('click', ()=>{
+      if(!confirm('Ye item delete karein? Iska stock history bhi hat jayega.')) return;
+      const id = parseInt(el.dataset.invDel);
+      inventoryItems = inventoryItems.filter(i=>i.id!==id);
+      inventoryTxns = inventoryTxns.filter(t=>t.itemId!==id);
+      saveInventoryItems(); saveInventoryTxns();
+      toast('Item deleted');
+      renderInventoryItems();
+    }));
+  }
+
+  function renderInventoryLog(){
+    const body = document.getElementById('ekps-inv-body');
+    const sorted = inventoryTxns.slice().sort((a,b)=> b.id-a.id);
+    body.innerHTML = `
+      <div class="toolbar"><span style="flex:1"></span>
+        <span class="btn btn-accent" id="inv-log-stock-btn">↕ New Stock Entry</span>
+      </div>
+      <div class="panel">
+        <div class="panel-body" style="padding:0; overflow:auto;">
+          <table class="data">
+            <thead><tr><th>Date</th><th>Item</th><th>Type</th><th>Qty</th><th>Note</th><th></th></tr></thead>
+            <tbody>
+              ${sorted.length ? sorted.map(t=>{
+                const item = inventoryItems.find(i=>i.id===t.itemId);
+                return `<tr>
+                  <td>${fmtDate(t.date)}</td>
+                  <td style="font-weight:600;">${esc(item?item.name:'Deleted Item')}</td>
+                  <td><span class="status-badge status-${t.type==='in'?'InStock':'Due'}">${t.type==='in'?'Stock In':'Stock Out'}</span></td>
+                  <td class="mono">${t.qty}</td>
+                  <td>${esc(t.note||'—')}</td>
+                  <td><div class="icon-btn" data-log-del="${t.id}" title="Delete">${ICONS.trash}</div></td>
+                </tr>`;
+              }).join('') : `<tr><td colspan="6"><div class="empty-state">Koi stock transaction nahi hui</div></td></tr>`}
+            </tbody>
+          </table>
+        </div>
+      </div>`;
+    document.getElementById('inv-log-stock-btn').addEventListener('click', ()=>{
+      if (!inventoryItems.length) { toast('Pehle koi item add karein'); return; }
+      stockPickedItemId = null;
+      stockModal();
+    });
+    body.querySelectorAll('[data-log-del]').forEach(el=>{
+      el.addEventListener('click', ()=>{
+        if(!confirm('Ye transaction delete karein?')) return;
+        inventoryTxns = inventoryTxns.filter(t=>t.id!==parseInt(el.dataset.logDel));
+        saveInventoryTxns();
+        toast('Transaction deleted');
+        renderInventoryLog();
+      });
+    });
+  }
+
+  // ================= VENDOR & PURCHASE MANAGEMENT =================
+  function vendorModal(){
+    const editing = editingVendorId != null;
+    const v = editing ? vendors.find(x=>x.id===editingVendorId) : {id:nextVendorId(), name:'', contact:'', phone:'', address:'', gstin:''};
+    modalRoot.innerHTML = `
+      <div class="modal-backdrop" id="ekps-vd-bg">
+        <div class="modal">
+          <div class="modal-head"><h3>${editing?'Edit Vendor':'Add Vendor'}</h3><div class="icon-btn" id="ekps-vd-close">✕</div></div>
+          <div class="modal-body">
+            <div class="field"><label>Vendor / Supplier Name</label><input type="text" id="vd-name" value="${esc(v.name)}" placeholder="e.g. Sharma Uniform House"/></div>
+            <div class="form-grid">
+              <div class="field"><label>Contact Person</label><input type="text" id="vd-contact" value="${esc(v.contact)}"/></div>
+              <div class="field"><label>Phone</label><input type="text" id="vd-phone" value="${esc(v.phone)}"/></div>
+              <div class="field"><label>GSTIN (optional)</label><input type="text" id="vd-gstin" value="${esc(v.gstin)}"/></div>
+            </div>
+            <div class="field"><label>Address</label><input type="text" id="vd-address" value="${esc(v.address)}"/></div>
+          </div>
+          <div class="modal-foot">
+            <span class="btn btn-ghost" id="ekps-vd-cancel">Cancel</span>
+            <span class="btn btn-primary" id="ekps-vd-save">${editing?'Save Changes':'Add Vendor'}</span>
+          </div>
+        </div>
+      </div>`;
+    const close = ()=>{ modalRoot.innerHTML=''; editingVendorId=null; };
+    document.getElementById('ekps-vd-bg').addEventListener('click', e=>{ if(e.target.id==='ekps-vd-bg') close(); });
+    document.getElementById('ekps-vd-close').addEventListener('click', close);
+    document.getElementById('ekps-vd-cancel').addEventListener('click', close);
+    document.getElementById('ekps-vd-save').addEventListener('click', ()=>{
+      const name = document.getElementById('vd-name').value.trim();
+      if (!name) { toast('Vendor ka naam daalein'); return; }
+      const rec = {
+        id: v.id, name,
+        contact: document.getElementById('vd-contact').value.trim(),
+        phone: document.getElementById('vd-phone').value.trim(),
+        gstin: document.getElementById('vd-gstin').value.trim(),
+        address: document.getElementById('vd-address').value.trim(),
+      };
+      if (editing) vendors = vendors.map(x=>x.id===rec.id?rec:x);
+      else vendors.push(rec);
+      saveVendors();
+      toast(editing?'Vendor updated':'Vendor added');
+      close();
+      renderInventoryVendors();
+    });
+  }
+
+  function poModal(){
+    poDraftItems = [{ itemId: inventoryItems[0]?inventoryItems[0].id:null, qty:1, price: inventoryItems[0]?inventoryItems[0].unitPrice:0 }];
+    poDraftVendorId = vendors[0] ? vendors[0].id : null;
+    renderPOModalBody();
+  }
+  function renderPOModalBody(){
+    if (!inventoryItems.length) { toast('Pehle Stock & Inventory me item add karein'); return; }
+    if (!vendors.length) { toast('Pehle ek Vendor add karein'); return; }
+    const total = poDraftItems.reduce((a,r)=>a+((parseFloat(r.qty)||0)*(parseFloat(r.price)||0)),0);
+    modalRoot.innerHTML = `
+      <div class="modal-backdrop" id="ekps-po-bg">
+        <div class="modal modal-lg">
+          <div class="modal-head"><h3>New Purchase Order</h3><div class="icon-btn" id="ekps-po-close">✕</div></div>
+          <div class="modal-body">
+            <div class="form-grid">
+              <div class="field" style="grid-column:span 2;"><label>Vendor</label>
+                <select id="po-vendor">${vendors.map(v=>`<option value="${v.id}" ${v.id===poDraftVendorId?'selected':''}>${esc(v.name)}</option>`).join('')}</select>
+              </div>
+              <div class="field"><label>Purchase Date</label><input type="date" id="po-date" value="${todayISO()}"/></div>
+            </div>
+            <div class="field"><label>Items — Received / stock ho jayega automatically save karte hi</label></div>
+            <div id="po-lines">
+              ${poDraftItems.map((r,idx)=>`
+                <div class="po-line" data-po-row="${idx}">
+                  <select data-po-item="${idx}">${inventoryItems.map(i=>`<option value="${i.id}" ${i.id===r.itemId?'selected':''}>${esc(i.name)}</option>`).join('')}</select>
+                  <input type="number" min="1" placeholder="Qty" data-po-qty="${idx}" value="${r.qty}"/>
+                  <input type="number" min="0" placeholder="Price" data-po-price="${idx}" value="${r.price}"/>
+                  <div class="mono" style="text-align:right; font-weight:700;">${fmt((parseFloat(r.qty)||0)*(parseFloat(r.price)||0))}</div>
+                  <div class="icon-btn" data-po-remove="${idx}">${ICONS.trash}</div>
+                </div>`).join('')}
+            </div>
+            <span class="btn btn-ghost btn-sm" id="po-add-line">+ Add Item Row</span>
+            <div class="cart-totals">
+              <div class="ct-row ct-grand"><span>Purchase Total</span><span>${fmt(total)}</span></div>
+            </div>
+          </div>
+          <div class="modal-foot">
+            <span class="btn btn-ghost" id="ekps-po-cancel">Cancel</span>
+            <span class="btn btn-primary" id="ekps-po-save">Save & Auto-Receive Stock</span>
+          </div>
+        </div>
+      </div>`;
+    const close = ()=>{ modalRoot.innerHTML=''; };
+    document.getElementById('ekps-po-bg').addEventListener('click', e=>{ if(e.target.id==='ekps-po-bg') close(); });
+    document.getElementById('ekps-po-close').addEventListener('click', close);
+    document.getElementById('ekps-po-cancel').addEventListener('click', close);
+    document.getElementById('po-vendor').addEventListener('change', e=>{ poDraftVendorId = parseInt(e.target.value); });
+    document.getElementById('po-add-line').addEventListener('click', ()=>{
+      poDraftItems.push({ itemId: inventoryItems[0]?inventoryItems[0].id:null, qty:1, price: inventoryItems[0]?inventoryItems[0].unitPrice:0 });
+      renderPOModalBody();
+    });
+    modalRoot.querySelectorAll('[data-po-item]').forEach(el=>el.addEventListener('change', e=>{
+      const idx = parseInt(el.dataset.poItem); const item = inventoryItems.find(i=>i.id===parseInt(e.target.value));
+      poDraftItems[idx].itemId = item.id; poDraftItems[idx].price = item.unitPrice; renderPOModalBody();
+    }));
+    modalRoot.querySelectorAll('[data-po-qty]').forEach(el=>el.addEventListener('input', e=>{
+      poDraftItems[parseInt(el.dataset.poQty)].qty = e.target.value;
+      document.querySelectorAll('.ct-grand span:last-child')[0].textContent = fmt(poDraftItems.reduce((a,r)=>a+((parseFloat(r.qty)||0)*(parseFloat(r.price)||0)),0));
+    }));
+    modalRoot.querySelectorAll('[data-po-price]').forEach(el=>el.addEventListener('input', e=>{
+      poDraftItems[parseInt(el.dataset.poPrice)].price = e.target.value;
+      document.querySelectorAll('.ct-grand span:last-child')[0].textContent = fmt(poDraftItems.reduce((a,r)=>a+((parseFloat(r.qty)||0)*(parseFloat(r.price)||0)),0));
+    }));
+    modalRoot.querySelectorAll('[data-po-remove]').forEach(el=>el.addEventListener('click', ()=>{
+      const idx = parseInt(el.dataset.poRemove);
+      if (poDraftItems.length<=1) { toast('Kam se kam 1 item chahiye'); return; }
+      poDraftItems.splice(idx,1);
+      renderPOModalBody();
+    }));
+    document.getElementById('ekps-po-save').addEventListener('click', ()=>{
+      const date = document.getElementById('po-date').value;
+      if (!poDraftVendorId) { toast('Vendor select karein'); return; }
+      if (!date) { toast('Date daalein'); return; }
+      const cleanItems = poDraftItems.filter(r=>r.itemId && (parseFloat(r.qty)||0)>0);
+      if (!cleanItems.length) { toast('Kam se kam ek valid item row daalein'); return; }
+      const po = { id: nextPOId(), poNo: nextPONo(), vendorId: poDraftVendorId, date,
+        items: cleanItems.map(r=>({ itemId: r.itemId, qty: parseFloat(r.qty)||0, price: parseFloat(r.price)||0 })) };
+      purchaseOrders.push(po);
+      savePurchaseOrders();
+      // AUTOMATION: auto stock-in for every line item, no separate manual step needed
+      const vendor = vendors.find(v=>v.id===poDraftVendorId);
+      po.items.forEach(it=>{
+        inventoryTxns.push({ id: Date.now()+Math.floor(Math.random()*1000), itemId: it.itemId, type:'in', qty: it.qty, date,
+          note: `Purchase ${po.poNo} — ${vendor?vendor.name:'Vendor'}`, source:'purchase', refId: po.id });
+      });
+      saveInventoryTxns();
+      toast('Purchase order saved — stock automatically updated');
+      close();
+      renderInventoryVendors();
+    });
+  }
+
+  function renderInventoryVendors(){
+    const body = document.getElementById('ekps-inv-body');
+    const q = vendorQ.trim().toLowerCase();
+    const vlist = vendors.filter(v=> !q || v.name.toLowerCase().includes(q)).sort((a,b)=>a.name.localeCompare(b.name));
+    const poList = purchaseOrders.slice().sort((a,b)=>b.id-a.id);
+    body.innerHTML = `
+      <div class="two-col">
+        <div class="panel">
+          <div class="panel-head"><h3>Vendors / Suppliers</h3><span class="btn btn-sm btn-accent" id="vd-new">+ Add Vendor</span></div>
+          <div class="panel-body">
+            <div class="search-wrap" style="margin-bottom:12px;">${ICONS.search}<input type="text" id="vd-search" placeholder="Vendor search karein" value="${esc(vendorQ)}"/></div>
+            ${vlist.length ? vlist.map(v=>{
+              const pos = vendorPOs(v.id);
+              const spent = pos.reduce((a,p)=>a+poTotal(p),0);
+              return `<div class="vendor-card">
+                <div style="display:flex; justify-content:space-between; align-items:flex-start;">
+                  <div>
+                    <div class="vc-name">${esc(v.name)}</div>
+                    <div class="vc-meta">${v.contact?esc(v.contact)+' &middot; ':''}${esc(v.phone||'—')}${v.gstin?' &middot; GSTIN: '+esc(v.gstin):''}</div>
+                    <div class="vc-meta">${v.address?esc(v.address):''}</div>
+                    <div class="vc-meta">${pos.length} purchase order(s) &middot; Total: ${fmt(spent)}</div>
+                  </div>
+                  <div class="row-actions">
+                    <div class="icon-btn" data-vd-edit="${v.id}" title="Edit">${ICONS.edit}</div>
+                    <div class="icon-btn" data-vd-del="${v.id}" title="Delete">${ICONS.trash}</div>
+                  </div>
+                </div>
+              </div>`;
+            }).join('') : `<div class="empty-state">Koi vendor nahi hai. "+ Add Vendor" se shuru karein.</div>`}
+          </div>
+        </div>
+        <div class="panel">
+          <div class="panel-head"><h3>Purchase Orders</h3><span class="btn btn-sm btn-accent" id="po-new">+ New Purchase</span></div>
+          <div class="panel-body" style="padding:0; overflow:auto; max-height:560px;">
+            <table class="data">
+              <thead><tr><th>PO No.</th><th>Vendor</th><th>Date</th><th>Items</th><th>Total</th></tr></thead>
+              <tbody>
+                ${poList.length ? poList.map(p=>{
+                  const v = vendors.find(x=>x.id===p.vendorId);
+                  return `<tr>
+                    <td class="mono">${esc(p.poNo)}</td>
+                    <td style="font-weight:600;">${esc(v?v.name:'—')}</td>
+                    <td>${fmtDate(p.date)}</td>
+                    <td>${(p.items||[]).length}</td>
+                    <td class="mono">${fmt(poTotal(p))}</td>
+                  </tr>`;
+                }).join('') : `<tr><td colspan="5"><div class="empty-state">Koi purchase order nahi hai</div></td></tr>`}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>`;
+    document.getElementById('vd-search').addEventListener('input', e=>{ vendorQ = e.target.value; renderInventoryVendors(); });
+    document.getElementById('vd-new').addEventListener('click', ()=>{ editingVendorId=null; vendorModal(); });
+    document.getElementById('po-new').addEventListener('click', ()=>{ poModal(); });
+    body.querySelectorAll('[data-vd-edit]').forEach(el=>el.addEventListener('click', ()=>{ editingVendorId=parseInt(el.dataset.vdEdit); vendorModal(); }));
+    body.querySelectorAll('[data-vd-del]').forEach(el=>el.addEventListener('click', ()=>{
+      if(!confirm('Ye vendor delete karein?')) return;
+      vendors = vendors.filter(v=>v.id!==parseInt(el.dataset.vdDel));
+      saveVendors();
+      toast('Vendor deleted');
+      renderInventoryVendors();
+    }));
+  }
+
+  // ================= BILLING / POS (SMART BILLING — standalone page) =================
+  function posFilteredItems(){
+    const q = posQ.trim().toLowerCase();
+    return inventoryItems.filter(i=> (posCatFilter==='all' || i.category===posCatFilter) && (!q || i.name.toLowerCase().includes(q)))
+      .sort((a,b)=>a.name.localeCompare(b.name));
+  }
+
+  function renderBilling(){
+    const recentInvoices = salesInvoices.slice().sort((a,b)=>b.id-a.id).slice(0,8);
+    const cats = ['all'].concat(Array.from(new Set(inventoryItems.map(i=>i.category))));
+    contentEl.innerHTML = `
+      <div class="pos-wrap">
+        <div class="panel">
+          <div class="panel-head"><h3>Select Items</h3></div>
+          <div class="panel-body">
+            <div class="search-wrap" style="margin-bottom:10px;">${ICONS.search}<input type="text" id="pos-search" placeholder="Item search karein" value="${esc(posQ)}"/></div>
+            <div style="display:flex; gap:6px; flex-wrap:wrap; margin-bottom:12px;">
+              ${cats.map(c=>`<span class="subtab ${posCatFilter===c?'active':''}" style="padding:5px 12px; font-size:11.5px;" data-pos-cat="${esc(c)}">${c==='all'?'Sabhi':esc(c)}</span>`).join('')}
+            </div>
+            <div class="pos-item-grid" id="pos-item-grid-inner"></div>
+          </div>
+        </div>
+        <div class="panel">
+          <div class="panel-head"><h3>Bill / Cart</h3><span class="btn btn-sm btn-ghost" id="pos-clear">Clear</span></div>
+          <div class="panel-body">
+            <div class="form-grid" style="grid-template-columns:1fr 1fr;">
+              <div class="field"><label>Customer Type</label>
+                <select id="pos-cust-type">
+                  <option value="walkin" ${posCustomerType==='walkin'?'selected':''}>Walk-in Customer</option>
+                  <option value="student" ${posCustomerType==='student'?'selected':''}>School Student</option>
+                </select>
+              </div>
+              <div class="field"><label>Payment Mode</label>
+                <select id="pos-pay-mode">
+                  ${['Cash','UPI','Card','Bank Transfer'].map(m=>`<option ${m===posPaymentMode?'selected':''}>${m}</option>`).join('')}
+                </select>
+              </div>
+            </div>
+            <div id="pos-cust-fields"></div>
+            <div id="pos-cart-rows"></div>
+            <div class="field" style="margin-top:10px;"><label>Discount (₹)</label><input type="number" min="0" id="pos-discount" value="${posDiscount}"/></div>
+            <div class="cart-totals">
+              <div class="ct-row"><span>Subtotal</span><span id="pos-subtotal-val">${fmt(cartSubtotal())}</span></div>
+              <div class="ct-row"><span>Discount</span><span id="pos-discount-val">−${fmt(posDiscount||0)}</span></div>
+              <div class="ct-row ct-grand"><span>Grand Total</span><span id="pos-grand-val">${fmt(cartTotal())}</span></div>
+            </div>
+            <span class="btn btn-accent" id="pos-generate" style="width:100%; justify-content:center; margin-top:12px;">🧾 Generate Bill & Print</span>
+          </div>
+        </div>
+      </div>
+      <div class="panel" style="margin-top:16px;">
+        <div class="panel-head"><h3>Recent Invoices</h3></div>
+        <div class="panel-body" style="padding:0; overflow:auto;">
+          <table class="data">
+            <thead><tr><th>Invoice No.</th><th>Date</th><th>Customer</th><th>Amount</th><th>Payment</th><th></th></tr></thead>
+            <tbody>
+              ${recentInvoices.length ? recentInvoices.map(v=>`<tr>
+                <td class="mono">${esc(v.invNo)}</td><td>${fmtDate(v.date)}</td>
+                <td style="font-weight:600;">${esc(v.customerName||'Walk-in')}</td>
+                <td class="mono">${fmt(invoiceTotal(v))}</td>
+                <td>${esc(v.paymentMode)}</td>
+                <td><span class="btn btn-sm btn-ghost" data-reprint="${v.id}">${ICONS.print} Print</span></td>
+              </tr>`).join('') : `<tr><td colspan="6"><div class="empty-state">Koi bill nahi bana</div></td></tr>`}
+            </tbody>
+          </table>
+        </div>
+      </div>`;
+
+    renderPosItemGridInner();
+    renderPosCustFieldsInner();
+    renderPosCartRowsInner();
+
+    // Search box: only refreshes the item grid, so focus is never lost while typing
+    document.getElementById('pos-search').addEventListener('input', e=>{ posQ = e.target.value; renderPosItemGridInner(); });
+    contentEl.querySelectorAll('[data-pos-cat]').forEach(chip=>chip.addEventListener('click', ()=>{ posCatFilter = chip.dataset.posCat; renderBilling(); }));
+    document.getElementById('pos-clear').addEventListener('click', ()=>{ posCart=[]; renderPosCartRowsInner(); });
+    document.getElementById('pos-cust-type').addEventListener('change', e=>{ posCustomerType = e.target.value; posStudentPick=null; renderPosCustFieldsInner(); });
+    document.getElementById('pos-pay-mode').addEventListener('change', e=>{ posPaymentMode = e.target.value; });
+    // Discount box: only updates the totals text, never rebuilds itself, so it never loses focus while typing
+    document.getElementById('pos-discount').addEventListener('input', e=>{ posDiscount = parseFloat(e.target.value)||0; updateTotalsDisplay(); });
+
+    contentEl.querySelectorAll('[data-reprint]').forEach(el=>el.addEventListener('click', ()=>{ printInvoiceChoiceModal(parseInt(el.dataset.reprint)); }));
+
+    document.getElementById('pos-generate').addEventListener('click', generateBillFromCart);
+  }
+
+  function renderPosItemGridInner(){
+    const el = document.getElementById('pos-item-grid-inner');
+    if (!el) return;
+    const items = posFilteredItems();
+    el.innerHTML = items.length ? items.map(i=>{
+      const stock = itemStock(i.id);
+      return `<div class="pos-item-card ${stock<=0?'out':''}" data-pos-add="${i.id}">
+        <div class="pi-name">${esc(i.name)}</div>
+        <div class="pi-meta"><span>${fmt(i.unitPrice)}</span><span>${stock<=0?'Out of stock':stock+' '+esc(i.unit)}</span></div>
+      </div>`;
+    }).join('') : `<div class="empty-state">Koi item nahi mila</div>`;
+    el.querySelectorAll('[data-pos-add]').forEach(card=>card.addEventListener('click', ()=>{
+      addToCart(parseInt(card.dataset.posAdd));
+    }));
+  }
+
+  function renderPosCustFieldsInner(){
+    const el = document.getElementById('pos-cust-fields');
+    if (!el) return;
+    el.innerHTML = posCustomerType==='student' ? `
+        <div class="field"><label>Student (ID ya naam type karein)</label>
+          <input type="text" id="pos-student-input" placeholder="e.g. 12 — Rahul Kumar" value="${posStudentPick?(posStudentPick+' — '+(students.find(s=>s.id===posStudentPick)?students.find(s=>s.id===posStudentPick).name:'')):''}"/>
+        </div>` : `
+        <div class="form-grid" style="grid-template-columns:1fr 1fr;">
+          <div class="field"><label>Customer Name</label><input type="text" id="pos-cust-name" value="${esc(posCustomerName)}" placeholder="Optional"/></div>
+          <div class="field"><label>Phone</label><input type="text" id="pos-cust-phone" value="${esc(posCustomerPhone)}" placeholder="Optional"/></div>
+        </div>`;
+    if (posCustomerType==='student') {
+      const input = document.getElementById('pos-student-input');
+      input.addEventListener('input', ()=>{
+        const m = input.value.match(/^(\d+)\s*—/);
+        if (m) { const s = students.find(x=>x.id===parseInt(m[1])); posStudentPick = s ? s.id : null; }
+        else posStudentPick = null;
+      });
+    } else {
+      document.getElementById('pos-cust-name').addEventListener('input', e=>{ posCustomerName = e.target.value; });
+      document.getElementById('pos-cust-phone').addEventListener('input', e=>{ posCustomerPhone = e.target.value; });
+    }
+  }
+
+  function addToCart(itemId){
+    const item = inventoryItems.find(i=>i.id===itemId);
+    if (!item) return;
+    const stock = itemStock(itemId);
+    if (stock <= 0) { toast('Ye item stock me nahi hai'); return; }
+    const existing = posCart.find(c=>c.itemId===itemId);
+    if (existing) {
+      if (existing.qty + 1 > stock) { toast('Stock se zyada quantity nahi daal sakte'); return; }
+      existing.qty += 1;
+    } else {
+      posCart.push({ itemId, name:item.name, price:item.unitPrice, qty:1, unit:item.unit });
+    }
+    renderPosCartRowsInner();
+  }
+
+  // Cart rows are rebuilt on add/remove/±click (discrete clicks — no focus concern).
+  // Direct qty typing only patches that row's line-total + grand totals, so the qty field itself is never
+  // destroyed and never loses focus mid-type — this was the root cause of "billing not working properly".
+  function renderPosCartRowsInner(){
+    const el = document.getElementById('pos-cart-rows');
+    if (!el) return;
+    el.innerHTML = posCart.length ? posCart.map((c,idx)=>`
+      <div class="cart-row">
+        <span class="cr-nm">${esc(c.name)}</span>
+        <span class="cr-stepper">
+          <span class="icon-btn" data-cart-dec="${idx}" title="Kam karein">−</span>
+          <input type="number" min="1" class="cr-qty" data-cart-qty="${idx}" value="${c.qty}"/>
+          <span class="icon-btn" data-cart-inc="${idx}" title="Badhayein">+</span>
+        </span>
+        <span class="cr-price">${fmt(c.price)}</span>
+        <span class="cr-line" id="cr-line-${idx}">${fmt(c.qty*c.price)}</span>
+        <div class="icon-btn" data-cart-remove="${idx}" title="Hataayein">${ICONS.trash}</div>
+      </div>`).join('') : `<div class="empty-state">Cart khali hai — left side se item click karein</div>`;
+
+    el.querySelectorAll('[data-cart-qty]').forEach(inp=>inp.addEventListener('input', e=>{
+      const idx = parseInt(inp.dataset.cartQty);
+      const max = itemStock(posCart[idx].itemId);
+      let v = parseFloat(e.target.value)||1;
+      if (v < 1) v = 1;
+      if (v > max) { v = max; e.target.value = max; toast('Stock se zyada quantity nahi daal sakte'); }
+      posCart[idx].qty = v;
+      const lt = document.getElementById('cr-line-'+idx); if (lt) lt.textContent = fmt(v*posCart[idx].price);
+      updateTotalsDisplay();
+    }));
+    el.querySelectorAll('[data-cart-inc]').forEach(btn=>btn.addEventListener('click', ()=>{
+      const idx = parseInt(btn.dataset.cartInc);
+      const max = itemStock(posCart[idx].itemId);
+      if (posCart[idx].qty + 1 > max) { toast('Stock se zyada quantity nahi daal sakte'); return; }
+      posCart[idx].qty += 1;
+      renderPosCartRowsInner();
+    }));
+    el.querySelectorAll('[data-cart-dec]').forEach(btn=>btn.addEventListener('click', ()=>{
+      const idx = parseInt(btn.dataset.cartDec);
+      posCart[idx].qty = Math.max(1, posCart[idx].qty - 1);
+      renderPosCartRowsInner();
+    }));
+    el.querySelectorAll('[data-cart-remove]').forEach(btn=>btn.addEventListener('click', ()=>{
+      posCart.splice(parseInt(btn.dataset.cartRemove),1);
+      renderPosCartRowsInner();
+    }));
+    updateTotalsDisplay();
+  }
+
+  function updateTotalsDisplay(){
+    const sub = document.getElementById('pos-subtotal-val'); if (sub) sub.textContent = fmt(cartSubtotal());
+    const disc = document.getElementById('pos-discount-val'); if (disc) disc.textContent = '−' + fmt(posDiscount||0);
+    const grand = document.getElementById('pos-grand-val'); if (grand) grand.textContent = fmt(cartTotal());
+  }
+
+  function generateBillFromCart(){
+    if (!posCart.length) { toast('Cart me item add karein'); return; }
+    for (const c of posCart) {
+      if (c.qty > itemStock(c.itemId)) { toast(`${c.name} ka stock kam hai`); return; }
+    }
+    let customerName = '', studentId = null;
+    if (posCustomerType==='student') {
+      if (!posStudentPick) { toast('Valid student select karein'); return; }
+      const s = students.find(x=>x.id===posStudentPick);
+      customerName = s ? s.name : '';
+      studentId = posStudentPick;
+    } else {
+      customerName = posCustomerName.trim() || 'Walk-in Customer';
+    }
+    const inv = {
+      id: nextInvoiceId(), invNo: nextInvoiceNo(), date: todayISO(),
+      customerType: posCustomerType, customerName, customerPhone: posCustomerPhone.trim(), studentId,
+      items: posCart.map(c=>({ itemId:c.itemId, name:c.name, unit:c.unit, qty:c.qty, price:c.price })),
+      discount: parseFloat(posDiscount)||0, paymentMode: posPaymentMode,
+    };
+    salesInvoices.push(inv);
+    saveSalesInvoices();
+    // AUTOMATION: auto stock-out for every sold item, no separate manual step needed
+    inv.items.forEach(it=>{
+      inventoryTxns.push({ id: Date.now()+Math.floor(Math.random()*1000), itemId: it.itemId, type:'out', qty: it.qty, date: inv.date,
+        note: `Sale ${inv.invNo} — ${customerName}`, source:'sale', refId: inv.id });
+    });
+    saveInventoryTxns();
+    toast('Bill generated — stock auto-updated');
+    posCart = []; posDiscount = 0; posCustomerName=''; posCustomerPhone=''; posStudentPick=null;
+    printInvoiceChoiceModal(inv.id);
+    renderBilling();
+  }
+
+  function printInvoiceChoiceModal(invId){
+    modalRoot.innerHTML = `
+      <div class="modal-backdrop" id="ekps-pi-bg">
+        <div class="modal">
+          <div class="modal-head"><h3>Print Invoice</h3><div class="icon-btn" id="ekps-pi-close">✕</div></div>
+          <div class="modal-body">
+            <p style="font-size:13px; color:var(--slate); margin-top:0;">Bill generate ho gaya hai. Print format select karein:</p>
+            <div style="display:flex; gap:12px; margin-top:14px;">
+              <span class="btn btn-primary" id="pi-thermal" style="flex:1; justify-content:center;">🧾 Thermal Receipt</span>
+              <span class="btn btn-accent" id="pi-a4" style="flex:1; justify-content:center;">📄 A4 PDF Invoice</span>
+            </div>
+          </div>
+          <div class="modal-foot"><span class="btn btn-ghost" id="ekps-pi-cancel">Skip / Close</span></div>
+        </div>
+      </div>`;
+    const close = ()=>{ modalRoot.innerHTML=''; };
+    document.getElementById('ekps-pi-bg').addEventListener('click', e=>{ if(e.target.id==='ekps-pi-bg') close(); });
+    document.getElementById('ekps-pi-close').addEventListener('click', close);
+    document.getElementById('ekps-pi-cancel').addEventListener('click', close);
+    document.getElementById('pi-thermal').addEventListener('click', ()=>{ printInvoiceThermal(invId); close(); });
+    document.getElementById('pi-a4').addEventListener('click', ()=>{ printInvoiceA4(invId); close(); });
+  }
+
+  function printInvoiceThermal(invId){
+    const inv = salesInvoices.find(v=>v.id===invId);
+    if (!inv) { toast('Invoice nahi mila'); return; }
+    const rows = inv.items.map(it=>`
+      <div class="ti-row"><span>${esc(it.name)}</span></div>
+      <div class="ti-row ti-sub"><span>${it.qty} x ${fmt(it.price)}</span><span>${fmt(it.qty*it.price)}</span></div>`).join('');
+    const win = window.open('', '_blank');
+    if (!win) { toast('Popup block ho gaya — popup allow karein'); return; }
+    win.document.write(`<!DOCTYPE html><html><head><title>Receipt — ${esc(inv.invNo)}</title><style>
+      @page { size: 80mm auto; margin: 3mm; }
+      * { box-sizing:border-box; }
+      body { margin:0; font-family: 'Courier New', monospace; color:#000; font-size:12px; width:74mm; }
+      .center { text-align:center; }
+      h1 { font-size:14px; margin:2px 0; }
+      .sub { font-size:10.5px; margin:1px 0; }
+      .divider { border-top:1px dashed #000; margin:6px 0; }
+      .ti-row { display:flex; justify-content:space-between; padding:1px 0; font-size:11.5px; }
+      .ti-sub { color:#333; padding-left:4px; }
+      .totals { margin-top:6px; border-top:1px solid #000; padding-top:4px; }
+      .totals .grand { font-weight:700; font-size:14px; }
+      .foot { text-align:center; margin-top:10px; font-size:10.5px; }
+    </style></head><body>
+      <div class="center">
+        <h1>${esc(schoolSettings.name)}</h1>
+        ${schoolSettings.address?`<div class="sub">${esc(schoolSettings.address)}</div>`:''}
+        ${schoolSettings.phone?`<div class="sub">Ph: ${esc(schoolSettings.phone)}</div>`:''}
+      </div>
+      <div class="divider"></div>
+      <div class="ti-row"><span>Invoice</span><span>${esc(inv.invNo)}</span></div>
+      <div class="ti-row"><span>Date</span><span>${fmtDate(inv.date)}</span></div>
+      <div class="ti-row"><span>Customer</span><span>${esc(inv.customerName||'Walk-in')}</span></div>
+      <div class="divider"></div>
+      ${rows}
+      <div class="totals">
+        <div class="ti-row"><span>Subtotal</span><span>${fmt(invoiceSubtotal(inv))}</span></div>
+        <div class="ti-row"><span>Discount</span><span>-${fmt(inv.discount||0)}</span></div>
+        <div class="ti-row grand"><span>TOTAL</span><span>${fmt(invoiceTotal(inv))}</span></div>
+        <div class="ti-row"><span>Payment</span><span>${esc(inv.paymentMode)}</span></div>
+      </div>
+      <div class="foot">Dhanyawaad! Aana rehna 🙏</div>
+    </body></html>`);
+    win.document.close();
+    win.focus();
+    setTimeout(()=> win.print(), 300);
+  }
+
+  function printInvoiceA4(invId){
+    const inv = salesInvoices.find(v=>v.id===invId);
+    if (!inv) { toast('Invoice nahi mila'); return; }
+    const rows = inv.items.map((it,idx)=>`<tr>
+      <td>${idx+1}</td><td>${esc(it.name)}</td><td class="r">${it.qty} ${esc(it.unit||'')}</td>
+      <td class="r">${fmt(it.price)}</td><td class="r">${fmt(it.qty*it.price)}</td></tr>`).join('');
+    const win = window.open('', '_blank');
+    if (!win) { toast('Popup block ho gaya — popup allow karein'); return; }
+    win.document.write(`<!DOCTYPE html><html><head><title>Invoice — ${esc(inv.invNo)}</title><style>
+      @page { size: A4; margin: 14mm; }
+      * { box-sizing:border-box; }
+      body { margin:0; font-family: Arial, Helvetica, sans-serif; color:#1B2A4A; font-size:12.5px; }
+      .head { display:flex; justify-content:space-between; align-items:flex-start; border-bottom:2px solid #1B2A4A; padding-bottom:10px; margin-bottom:14px; }
+      h1 { font-size:19px; margin:0 0 3px 0; }
+      .sub { font-size:11px; color:#555; }
+      .inv-title { text-align:right; }
+      .inv-title .t { font-size:16px; font-weight:800; color:#C1502E; }
+      .info { display:grid; grid-template-columns:1fr 1fr; gap:2px 20px; margin-bottom:16px; }
+      .info div span:first-child { color:#555; display:inline-block; width:100px; }
+      table { width:100%; border-collapse:collapse; margin-bottom:16px; }
+      th, td { border:1px solid #ccc; padding:6px 8px; font-size:12px; }
+      th { background:#f0eee5; text-align:left; }
+      td.r, th.r { text-align:right; }
+      .summary { display:flex; justify-content:flex-end; }
+      .summary table { width:280px; }
+      .summary .grand td { font-weight:800; font-size:14px; border-top:2px solid #1B2A4A; }
+      .foot { margin-top:40px; display:flex; justify-content:space-between; font-size:11px; color:#555; }
+      .sign { text-align:center; width:160px; border-top:1px solid #999; padding-top:5px; }
+    </style></head><body>
+      <div class="head">
+        <div><h1>${esc(schoolSettings.name)}</h1>
+          ${schoolSettings.address?`<div class="sub">${esc(schoolSettings.address)}</div>`:''}
+          ${schoolSettings.phone?`<div class="sub">Ph: ${esc(schoolSettings.phone)}</div>`:''}
+        </div>
+        <div class="inv-title"><div class="t">TAX INVOICE</div><div class="sub">${esc(inv.invNo)}</div><div class="sub">${fmtDate(inv.date)}</div></div>
+      </div>
+      <div class="info">
+        <div><span>Billed To</span>${esc(inv.customerName||'Walk-in Customer')}</div>
+        <div><span>Phone</span>${esc(inv.customerPhone||'—')}</div>
+        <div><span>Payment Mode</span>${esc(inv.paymentMode)}</div>
+        <div><span>Customer Type</span>${inv.customerType==='student'?'School Student':'Walk-in'}</div>
+      </div>
+      <table>
+        <thead><tr><th>#</th><th>Item</th><th class="r">Qty</th><th class="r">Rate</th><th class="r">Amount</th></tr></thead>
+        <tbody>${rows}</tbody>
+      </table>
+      <div class="summary">
+        <table>
+          <tr><td>Subtotal</td><td class="r">${fmt(invoiceSubtotal(inv))}</td></tr>
+          <tr><td>Discount</td><td class="r">−${fmt(inv.discount||0)}</td></tr>
+          <tr class="grand"><td>Grand Total</td><td class="r">${fmt(invoiceTotal(inv))}</td></tr>
+        </table>
+      </div>
+      <div class="foot">
+        <div>Thank you for your purchase!</div>
+        <div class="sign">Authorised Signatory</div>
+      </div>
+    </body></html>`);
+    win.document.close();
+    win.focus();
+    setTimeout(()=> win.print(), 300);
+  }
+
+  // ================= REPORTING & EXPORT =================
+  function exportRows(filename, rows, headers){
+    if (typeof XLSX !== 'undefined') {
+      const ws = XLSX.utils.json_to_sheet(rows, {header: headers});
+      const wb = XLSX.utils.book_new();
+      XLSX.utils.book_append_sheet(wb, ws, 'Report');
+      XLSX.writeFile(wb, filename.replace(/\.csv$/,'') + '.xlsx');
+    } else {
+      const csvRows = [headers.join(',')].concat(rows.map(r=> headers.map(h=>{
+        let v = r[h]==null?'':String(r[h]); if (v.includes(',')||v.includes('"')) v = '"'+v.replace(/"/g,'""')+'"'; return v;
+      }).join(',')));
+      const blob = new Blob([csvRows.join('\n')], {type:'text/csv;charset=utf-8;'});
+      const a = document.createElement('a');
+      a.href = URL.createObjectURL(blob);
+      a.download = filename.replace(/\.xlsx$/,'') + '.csv';
+      document.body.appendChild(a); a.click(); a.remove();
+    }
+    toast('Report export ho gaya');
+  }
+
+  function exportStockReport(){
+    if (!inventoryItems.length) { toast('Koi item nahi hai'); return; }
+    const rows = inventoryItems.map(i=>({
+      'Item Name': i.name, 'Category': i.category, 'Unit': i.unit, 'Unit Price': i.unitPrice,
+      'Current Stock': itemStock(i.id), 'Stock Value': itemStock(i.id)*i.unitPrice,
+      'Reorder Level': i.reorderLevel, 'Status': itemStatus(i)==='InStock'?'In Stock':itemStatus(i)
+    }));
+    exportRows('Stock_Report', rows, Object.keys(rows[0]));
+  }
+  function exportPurchaseReport(){
+    if (!purchaseOrders.length) { toast('Koi purchase order nahi hai'); return; }
+    const rows = [];
+    purchaseOrders.forEach(p=>{
+      const v = vendors.find(x=>x.id===p.vendorId);
+      (p.items||[]).forEach(it=>{
+        const item = inventoryItems.find(i=>i.id===it.itemId);
+        rows.push({ 'PO No.': p.poNo, 'Date': fmtDate(p.date), 'Vendor': v?v.name:'—',
+          'Item': item?item.name:'—', 'Qty': it.qty, 'Price': it.price, 'Line Total': it.qty*it.price });
+      });
+    });
+    exportRows('Purchase_Report', rows, Object.keys(rows[0]));
+  }
+  function exportSalesReport(){
+    if (!salesInvoices.length) { toast('Koi sale nahi hui'); return; }
+    const rows = [];
+    salesInvoices.forEach(inv=>{
+      (inv.items||[]).forEach(it=>{
+        rows.push({ 'Invoice No.': inv.invNo, 'Date': fmtDate(inv.date), 'Customer': inv.customerName||'Walk-in',
+          'Item': it.name, 'Qty': it.qty, 'Price': it.price, 'Line Total': it.qty*it.price,
+          'Payment Mode': inv.paymentMode });
+      });
+    });
+    exportRows('Sales_Report', rows, Object.keys(rows[0]));
+  }
+  function exportVendorReport(){
+    if (!vendors.length) { toast('Koi vendor nahi hai'); return; }
+    const rows = vendors.map(v=>({
+      'Vendor Name': v.name, 'Contact Person': v.contact, 'Phone': v.phone, 'GSTIN': v.gstin, 'Address': v.address,
+      'Total Purchase Orders': vendorPOs(v.id).length, 'Total Spend': vendorPOs(v.id).reduce((a,p)=>a+poTotal(p),0)
+    }));
+    exportRows('Vendor_Report', rows, Object.keys(rows[0]));
+  }
+  function exportStockLogReport(){
+    if (!inventoryTxns.length) { toast('Koi stock transaction nahi hai'); return; }
+    const rows = inventoryTxns.slice().sort((a,b)=>a.id-b.id).map(t=>{
+      const item = inventoryItems.find(i=>i.id===t.itemId);
+      return { 'Date': fmtDate(t.date), 'Item': item?item.name:'Deleted Item', 'Type': t.type==='in'?'Stock In':'Stock Out',
+        'Qty': t.qty, 'Source': t.source||'manual', 'Note': t.note||'' };
+    });
+    exportRows('Stock_Log_Report', rows, Object.keys(rows[0]));
+  }
+
+  function renderInventoryReports(){
+    const body = document.getElementById('ekps-inv-body');
+    body.innerHTML = `
+      <div class="export-grid">
+        <div class="export-card">
+          <h4>📦 Stock Report</h4>
+          <p>Har item ka current stock, stock value aur reorder status — Excel file me.</p>
+          <span class="btn btn-primary" id="exp-stock">⬇ Export Excel</span>
+        </div>
+        <div class="export-card">
+          <h4>🤝 Purchase Report</h4>
+          <p>Sabhi purchase orders, vendor-wise, item-wise breakdown — Excel file me.</p>
+          <span class="btn btn-primary" id="exp-purchase">⬇ Export Excel</span>
+        </div>
+        <div class="export-card">
+          <h4>🧾 Sales / Billing Report</h4>
+          <p>Sabhi POS bills, item-wise sales aur payment mode ke saath — Excel file me.</p>
+          <span class="btn btn-primary" id="exp-sales">⬇ Export Excel</span>
+        </div>
+        <div class="export-card">
+          <h4>🏷 Vendor Report</h4>
+          <p>Vendor list, contact details aur unka total purchase spend — Excel file me.</p>
+          <span class="btn btn-primary" id="exp-vendor">⬇ Export Excel</span>
+        </div>
+        <div class="export-card">
+          <h4>↕ Stock In/Out Log</h4>
+          <p>Har stock movement (purchase, sale, manual adjustment) ka poora record — Excel file me.</p>
+          <span class="btn btn-primary" id="exp-log">⬇ Export Excel</span>
+        </div>
+      </div>`;
+    document.getElementById('exp-stock').addEventListener('click', exportStockReport);
+    document.getElementById('exp-purchase').addEventListener('click', exportPurchaseReport);
+    document.getElementById('exp-sales').addEventListener('click', exportSalesReport);
+    document.getElementById('exp-vendor').addEventListener('click', exportVendorReport);
+    document.getElementById('exp-log').addEventListener('click', exportStockLogReport);
+  }
 
   function downloadDemandBillsPDF(){
     const list = students.filter(s => (totalDue(s) - totalPaid(s.id)) > 0)
@@ -1250,6 +3055,266 @@
     setTimeout(()=> win.print(), 300);
   }
 
+  // ---------- Current Month-wise Demand Bill Generator ----------
+  function downloadCurrentMonthDemandPDF(){
+    const month = currentMonthName();
+    const list = students.filter(s => currentMonthDueOf(s) > 0)
+      .sort((a,b)=> CLASS_ORDER.indexOf(a.cls)-CLASS_ORDER.indexOf(b.cls) || a.id-b.id);
+    if (!list.length) { toast(`Is mahine (${month}) ka koi due nahi hai`); return; }
+
+    const classes = CLASS_ORDER.filter(c => list.some(s=>s.cls===c));
+    let sheetsHtml = '';
+    classes.forEach(cls=>{
+      const clsStudents = list.filter(s=>s.cls===cls);
+      const pages = chunkArr(clsStudents, 8);
+      pages.forEach((page, pi)=>{
+        const slips = page.map(s=>{
+          const due = currentMonthDueOf(s);
+          const buckets = studentDueBuckets(s);
+          const runningDue = buckets.current + buckets.b1_2 + buckets.b3_5 + buckets.b6plus; // upto running/current month tuition due
+          const rest = totalDue(s) - totalPaid(s.id); // full academic session total rest due
+          return `<div class="slip">
+            <div class="slip-head">${esc(schoolSettings.name)}</div>
+            <div class="slip-sub">Current Month Fee Demand &middot; ${esc(month)} &middot; ${fmtDate(todayISO())}</div>
+            <div class="slip-row"><span>Student ID</span><span>${s.id}</span></div>
+            <div class="slip-row"><span>Name</span><span>${esc(s.name)}</span></div>
+            <div class="slip-row"><span>Class</span><span>${esc(s.cls)}</span></div>
+            <div class="slip-row"><span>Month</span><span>${esc(month)}</span></div>
+            <div class="slip-row"><span>Monthly Fee</span><span>${fmt(s.monthlyFee)}</span></div>
+            <div class="slip-row rest"><span>${esc(month)} Payable</span><span>${fmt(due)}</span></div>
+            <div class="slip-row" style="border-top:1px dashed #ccc; margin-top:4px; padding-top:4px;"><span>Running Months Due (Upto ${esc(month)})</span><span>${fmt(runningDue)}</span></div>
+            <div class="slip-row rest2"><span>Full Session Total Rest Due</span><span>${fmt(rest)}</span></div>
+            <div class="slip-foot">Kripya current month ki fee samay par jama karein &middot; Accounts Office</div>
+          </div>`;
+        }).join('');
+        sheetsHtml += `<div class="sheet">
+          <div class="sheet-title">Class: ${esc(cls)} &mdash; ${esc(month)} Demand &mdash; Page ${pi+1} of ${pages.length}</div>
+          <div class="grid">${slips}</div>
+        </div>`;
+      });
+    });
+
+    const win = window.open('', '_blank');
+    if (!win) { toast('Popup block ho gaya — popup allow karein'); return; }
+    win.document.write(`<!DOCTYPE html><html><head><title>Current Month Demand Bills — ${esc(month)}</title><style>
+      @page { size: A4; margin: 10mm; }
+      * { box-sizing:border-box; }
+      body { margin:0; font-family: Arial, Helvetica, sans-serif; color:#1B2A4A; }
+      .sheet { page-break-after: always; }
+      .sheet:last-child { page-break-after: auto; }
+      .sheet-title { font-size:13px; font-weight:700; margin-bottom:8px; text-align:center; }
+      .grid { display:grid; grid-template-columns: 1fr 1fr; grid-auto-rows: 1fr; gap:5mm; height: 267mm; }
+      .slip { border:1.5px dashed #99a; border-radius:4px; padding:9px 11px; font-size:11px; display:flex; flex-direction:column; }
+      .slip-head { font-weight:800; font-size:12.5px; }
+      .slip-sub { font-size:9px; color:#555; margin-bottom:5px; border-bottom:1px solid #ccc; padding-bottom:5px; }
+      .slip-row { display:flex; justify-content:space-between; padding:2px 0; font-size:11px; }
+      .slip-row.rest { font-weight:800; border-top:1px dashed #99a; margin-top:5px; padding-top:5px; font-size:12.5px; color:#C1502E; }
+      .slip-row.rest2 { font-weight:800; font-size:11.5px; color:#B9862A; padding-top:2px; }
+      .slip-foot { margin-top:auto; font-size:8.5px; color:#666; padding-top:6px; border-top:1px dashed #ccc; }
+    </style></head><body>${sheetsHtml}</body></html>`);
+    win.document.close();
+    win.focus();
+    setTimeout(()=> win.print(), 300);
+  }
+
+  // ---------- WhatsApp Bill Sending ----------
+  function waPhone(mobNo){
+    let digits = (mobNo||'').replace(/\D/g,'');
+    if (!digits) return '';
+    if (digits.length === 10) digits = '91' + digits; // default India country code
+    return digits;
+  }
+
+  function sendBillWhatsApp(studentId){
+    const s = students.find(x=>x.id===studentId);
+    if (!s) { toast('Student nahi mila'); return; }
+    const phone = waPhone(s.mobNo);
+    if (!phone) { toast('Is student ka mobile number ledger me nahi hai'); return; }
+    const month = currentMonthName();
+    const buckets = studentDueBuckets(s);
+    const runningDue = buckets.current + buckets.b1_2 + buckets.b3_5 + buckets.b6plus;
+    const monthDue = currentMonthDueOf(s);
+    const rest = totalDue(s) - totalPaid(s.id);
+    const lines = [
+      `*${schoolSettings.name}*`,
+      `Fee Demand Notice — ${month}`,
+      '',
+      `Student: ${s.name} (ID: ${s.id})`,
+      `Class: ${s.cls}`,
+      '',
+      `Monthly Fee: ${fmt(s.monthlyFee)}`,
+      `${month} Payable: ${fmt(monthDue)}`,
+      `Running Months Due (Upto ${month}): ${fmt(runningDue)}`,
+      `Full Session Total Rest Due: ${fmt(rest)}`,
+      '',
+      rest > 0 ? 'Kripya jald se jald fee jama karein.' : 'Aapki fee poori tarah se jama ho chuki hai. Dhanyavaad!',
+      '— Accounts Office'
+    ];
+    const text = encodeURIComponent(lines.join('\n'));
+    window.open(`https://wa.me/${phone}?text=${text}`, '_blank');
+  }
+
+  // ---------- Student-wise Full Statement ----------
+  function printStudentStatement(studentId){
+    const s = students.find(x=>x.id===studentId);
+    if (!s) { toast('Student nahi mila'); return; }
+    const due = totalDue(s), paid = totalPaid(s.id), rest = due - paid;
+
+    const monthRows = MONTHS.map(m=>{
+      const p = monthPaid(s.id, m);
+      const d = Math.max(0, (s.monthlyFee||0) - p);
+      return `<tr><td>${esc(m)}</td><td class="r">${fmt(s.monthlyFee)}</td><td class="r">${p?fmt(p):'—'}</td><td class="r">${d?fmt(d):'—'}</td></tr>`;
+    }).join('');
+
+    const chargeRows = [
+      ['Exam Fee', s.examFee],
+      ['Old Due (Carry Forward)', s.oldDue],
+      ['Uniform Bill', s.uniformBill],
+      ['Book Bill', s.bookBill],
+      ['Other Bill', s.otherBill],
+    ].filter(([,v])=>v>0).map(([k,v])=>`<tr><td>${esc(k)}</td><td class="r">${fmt(v)}</td></tr>`).join('');
+    const extraBillRows = (s.bills||[]).map(b=>`<tr><td>${esc(b.type||'Other')}${b.note?(' — '+esc(b.note)):''}</td><td class="r">${fmt(parseFloat(b.amount)||0)}</td></tr>`).join('');
+    const otherChargesTable = (chargeRows || extraBillRows) ? `
+      <div class="section-title">Other Charges</div>
+      <table>
+        <thead><tr><th>Particulars</th><th class="r">Amount</th></tr></thead>
+        <tbody>${chargeRows}${extraBillRows}</tbody>
+      </table>` : '';
+
+    const paymentRows = studentEntries(s.id).slice().sort((a,b)=>a.id-b.id).map(e=>
+      `<tr><td>${esc(e.receiptNo||('#'+e.id))}</td><td>${fmtDate(e.date)}</td><td>${esc(e.month)}</td><td class="r">${fmt(e.amount)}</td></tr>`
+    ).join('') || `<tr><td colspan="4" style="text-align:center;color:#888;">Koi payment record nahi</td></tr>`;
+
+    const win = window.open('', '_blank');
+    if (!win) { toast('Popup block ho gaya — popup allow karein'); return; }
+    win.document.write(`<!DOCTYPE html><html><head><title>Statement — ${esc(s.name)}</title><style>
+      @page { size: A4; margin: 12mm; }
+      * { box-sizing:border-box; }
+      body { margin:0; font-family: Arial, Helvetica, sans-serif; color:#1B2A4A; font-size:12px; }
+      h1 { font-size:16px; margin:0 0 2px 0; }
+      .sub { font-size:11px; color:#555; margin-bottom:10px; }
+      .info { display:grid; grid-template-columns: 1fr 1fr; gap:2px 20px; margin-bottom:14px; border:1px solid #ccc; padding:8px 10px; border-radius:6px; }
+      .info div span:first-child { color:#555; display:inline-block; width:110px; }
+      table { width:100%; border-collapse: collapse; margin-bottom:14px; }
+      th, td { border:1px solid #ccc; padding:4px 7px; font-size:11px; }
+      th { background:#f0eee5; text-align:left; }
+      td.r, th.r { text-align:right; }
+      .section-title { font-weight:700; font-size:12.5px; margin: 14px 0 6px; }
+      .summary { display:flex; justify-content:flex-end; gap:18px; font-size:12.5px; font-weight:700; border-top:2px solid #1B2A4A; padding-top:8px; margin-top:6px; }
+      .summary .rest { color:#C1502E; }
+    </style></head><body>
+      <h1>${esc(schoolSettings.name)}</h1>
+      <div class="sub">Student Fee Statement &middot; Generated ${fmtDate(todayISO())}</div>
+      <div class="info">
+        <div><span>Student ID</span>${s.id}</div>
+        <div><span>Name</span>${esc(s.name)}</div>
+        <div><span>Class</span>${esc(s.cls)}</div>
+        <div><span>Father's Name</span>${esc(s.fatherName||'—')}</div>
+        <div><span>Mobile No.</span>${esc(s.mobNo||'—')}</div>
+        <div><span>Address</span>${esc(s.address||'—')}</div>
+      </div>
+
+      <div class="section-title">Month-wise Tuition Fee</div>
+      <table>
+        <thead><tr><th>Month</th><th class="r">Monthly Fee</th><th class="r">Paid</th><th class="r">Due</th></tr></thead>
+        <tbody>${monthRows}</tbody>
+      </table>
+
+      ${otherChargesTable}
+
+      <div class="section-title">Payment History</div>
+      <table>
+        <thead><tr><th>Receipt No.</th><th>Date</th><th>Month</th><th class="r">Amount</th></tr></thead>
+        <tbody>${paymentRows}</tbody>
+      </table>
+
+      <div class="summary">
+        <div>Total Due: ${fmt(due)}</div>
+        <div>Total Paid: ${fmt(paid)}</div>
+        <div class="rest">Total Rest Due: ${fmt(rest)}</div>
+      </div>
+    </body></html>`);
+    win.document.close();
+    win.focus();
+    setTimeout(()=> win.print(), 300);
+  }
+
+  // ---------- Multi-Level (Aging) Due Statement Generator ----------
+  function downloadDueStatementPDF(){
+    const list = students.filter(s => (totalDue(s) - totalPaid(s.id)) > 0)
+      .sort((a,b)=> CLASS_ORDER.indexOf(a.cls)-CLASS_ORDER.indexOf(b.cls) || a.id-b.id);
+    if (!list.length) { toast('Koi bhi student due nahi hai'); return; }
+
+    const classes = CLASS_ORDER.filter(c => list.some(s=>s.cls===c));
+    let grand = { current:0, b1_2:0, b3_5:0, b6plus:0, otherCharges:0, total:0 };
+    let bodyHtml = '';
+    classes.forEach(cls=>{
+      const clsStudents = list.filter(s=>s.cls===cls);
+      let clsTotal = { current:0, b1_2:0, b3_5:0, b6plus:0, otherCharges:0, total:0 };
+      const rows = clsStudents.map(s=>{
+        const b = studentDueBuckets(s);
+        Object.keys(clsTotal).forEach(k=> clsTotal[k]+=b[k]);
+        return `<tr>
+          <td>${s.id}</td>
+          <td>${esc(s.name)}</td>
+          <td class="r">${b.current?fmt(b.current):'—'}</td>
+          <td class="r">${b.b1_2?fmt(b.b1_2):'—'}</td>
+          <td class="r">${b.b3_5?fmt(b.b3_5):'—'}</td>
+          <td class="r">${b.b6plus?fmt(b.b6plus):'—'}</td>
+          <td class="r">${b.otherCharges?fmt(b.otherCharges):'—'}</td>
+          <td class="r tot">${fmt(b.total)}</td>
+        </tr>`;
+      }).join('');
+      Object.keys(grand).forEach(k=> grand[k]+=clsTotal[k]);
+      bodyHtml += `
+        <div class="cls-title">Class: ${esc(cls)} (${clsStudents.length} students)</div>
+        <table>
+          <thead><tr><th>ID</th><th>Name</th><th>Current Month</th><th>1&ndash;2 Months</th><th>3&ndash;5 Months</th><th>6+ Months</th><th>Other Charges</th><th>Total Due</th></tr></thead>
+          <tbody>${rows}
+            <tr class="cls-sum">
+              <td colspan="2">Class Sub-Total</td>
+              <td class="r">${fmt(clsTotal.current)}</td>
+              <td class="r">${fmt(clsTotal.b1_2)}</td>
+              <td class="r">${fmt(clsTotal.b3_5)}</td>
+              <td class="r">${fmt(clsTotal.b6plus)}</td>
+              <td class="r">${fmt(clsTotal.otherCharges)}</td>
+              <td class="r tot">${fmt(clsTotal.total)}</td>
+            </tr>
+          </tbody>
+        </table>`;
+    });
+
+    const win = window.open('', '_blank');
+    if (!win) { toast('Popup block ho gaya — popup allow karein'); return; }
+    win.document.write(`<!DOCTYPE html><html><head><title>Multi-Level Due Statement</title><style>
+      @page { size: A4; margin: 10mm; }
+      * { box-sizing:border-box; }
+      body { margin:0; font-family: Arial, Helvetica, sans-serif; color:#1B2A4A; font-size:11px; }
+      .top-title { font-size:16px; font-weight:800; text-align:center; margin-bottom:2px; }
+      .top-sub { font-size:11px; text-align:center; color:#555; margin-bottom:14px; }
+      .cls-title { font-size:12.5px; font-weight:700; margin:14px 0 6px 0; background:#EFEBDD; padding:5px 8px; border-radius:4px; }
+      table { width:100%; border-collapse:collapse; margin-bottom:6px; }
+      th, td { border:1px solid #ccc; padding:4px 6px; font-size:10.5px; }
+      th { background:#1B2A4A; color:#fff; text-align:left; }
+      td.r { text-align:right; font-family:monospace; }
+      td.tot { font-weight:800; color:#C1502E; }
+      tr.cls-sum { background:#FBF1DC; font-weight:700; }
+      .grand { margin-top:16px; border-top:2px solid #1B2A4A; padding-top:8px; font-size:12px; font-weight:800; text-align:right; }
+    </style></head><body>
+      <div class="top-title">${esc(schoolSettings.name)}</div>
+      <div class="top-sub">Multi-Level Due Statement (Aging) &middot; Generated ${fmtDate(todayISO())} &middot; As of ${esc(currentMonthName())}</div>
+      ${bodyHtml}
+      <div class="grand">
+        Grand Total Due: Current Month ${fmt(grand.current)} &nbsp;|&nbsp; 1&ndash;2 Months ${fmt(grand.b1_2)} &nbsp;|&nbsp;
+        3&ndash;5 Months ${fmt(grand.b3_5)} &nbsp;|&nbsp; 6+ Months ${fmt(grand.b6plus)} &nbsp;|&nbsp;
+        Other Charges ${fmt(grand.otherCharges)} &nbsp;|&nbsp; Total: ${fmt(grand.total)}
+      </div>
+    </body></html>`);
+    win.document.close();
+    win.focus();
+    setTimeout(()=> win.print(), 300);
+  }
+
   function exportExcel(){
     if (typeof XLSX === 'undefined') { toast('Excel library load nahi hui — internet check karein'); return; }
     const list = students.slice().sort((a,b)=> CLASS_ORDER.indexOf(a.cls)-CLASS_ORDER.indexOf(b.cls) || a.id-b.id);
@@ -1297,12 +3362,14 @@
         </select>
         <span style="flex:1"></span>
         <span class="btn btn-ghost" id="ekps-demand-pdf">🧾 Demand Bills PDF (Class-wise, A4)</span>
+        <span class="btn btn-ghost" id="ekps-current-month-pdf">📅 Current Month (${currentMonthName()}) Demand Bills</span>
+        <span class="btn btn-ghost" id="ekps-due-statement-pdf">📊 Multi-Level Due Statement</span>
         <span class="btn btn-accent" id="ekps-export-excel">⬇ Export Excel (Month-wise)</span>
       </div>
       <div class="panel">
         <div class="panel-body" style="padding:0; overflow:auto;">
           <table class="data">
-            <thead><tr><th></th><th>ID</th><th>Class</th><th>Name</th><th>Total Due</th><th>Total Paid</th><th>Rest Due</th><th>Status</th></tr></thead>
+            <thead><tr><th></th><th>ID</th><th>Class</th><th>Name</th><th>Total Due</th><th>Total Paid</th><th>Rest Due</th><th>Status</th><th>Actions</th></tr></thead>
             <tbody>
               ${list.length ? list.map(s=>{
                 const due = totalDue(s), paid = totalPaid(s.id), rest = due-paid, st = statusOf(s);
@@ -1320,10 +3387,14 @@
                   <td class="mono">${fmt(paid)}</td>
                   <td class="mono">${fmt(rest)}</td>
                   <td><span class="status-badge status-${st}">${st}</span></td>
+                  <td style="white-space:nowrap;">
+                    <span class="icon-btn" data-wa-send="${s.id}" title="Bill WhatsApp par bhejein">📲</span>
+                    <span class="icon-btn" data-statement="${s.id}" title="Statement nikalein">🧾</span>
+                  </td>
                 </tr>
-                ${expanded?`<tr class="detail-row"><td colspan="8"><div class="month-grid">${months}</div></td></tr>`:''}
+                ${expanded?`<tr class="detail-row"><td colspan="9"><div class="month-grid">${months}</div></td></tr>`:''}
                 `;
-              }).join('') : `<tr><td colspan="8"><div class="empty-state">Koi record nahi mila</div></td></tr>`}
+              }).join('') : `<tr><td colspan="9"><div class="empty-state">Koi record nahi mila</div></td></tr>`}
             </tbody>
           </table>
         </div>
@@ -1334,10 +3405,20 @@
     document.getElementById('ekps-ledger-status').addEventListener('change', e=>{ ledgerFilters.status = e.target.value; renderLedger(); });
     document.getElementById('ekps-export-excel').addEventListener('click', exportExcel);
     document.getElementById('ekps-demand-pdf').addEventListener('click', downloadDemandBillsPDF);
+    document.getElementById('ekps-current-month-pdf').addEventListener('click', downloadCurrentMonthDemandPDF);
+    document.getElementById('ekps-due-statement-pdf').addEventListener('click', downloadDueStatementPDF);
     contentEl.querySelectorAll('[data-toggle]').forEach(el=> el.addEventListener('click', ()=>{
       const id = parseInt(el.dataset.toggle);
       ledgerExpanded[id] = !ledgerExpanded[id];
       renderLedger();
+    }));
+    contentEl.querySelectorAll('[data-wa-send]').forEach(el=> el.addEventListener('click', (e)=>{
+      e.stopPropagation();
+      sendBillWhatsApp(parseInt(el.dataset.waSend));
+    }));
+    contentEl.querySelectorAll('[data-statement]').forEach(el=> el.addEventListener('click', (e)=>{
+      e.stopPropagation();
+      printStudentStatement(parseInt(el.dataset.statement));
     }));
   }
 
@@ -1506,9 +3587,19 @@
         if (!confirm(`Is ${fmtWhen(ts)} wale snapshot par restore karein? Isse maujooda data hat jayega.`)) return;
         students = JSON.parse(JSON.stringify(snap.students));
         entries = JSON.parse(JSON.stringify(snap.entries));
+        admissions = JSON.parse(JSON.stringify(snap.admissions || []));
+        transportRoutes = JSON.parse(JSON.stringify(snap.transportRoutes || []));
+        transportEntries = JSON.parse(JSON.stringify(snap.transportEntries || []));
+        inventoryItems = JSON.parse(JSON.stringify(snap.inventoryItems || []));
+        inventoryTxns = JSON.parse(JSON.stringify(snap.inventoryTxns || []));
         students.forEach(s=>{ if (!Array.isArray(s.bills)) s.bills = []; });
         saveStudents();
         saveEntries();
+        saveAdmissions();
+        saveTransportRoutes();
+        saveTransportEntries();
+        saveInventoryItems();
+        saveInventoryTxns();
         toast('Auto-backup se restore ho gaya');
         renderBackup();
       });
@@ -1519,7 +3610,12 @@
         app: 'Education Key Public School — Fee Manager',
         exportedAt: new Date().toISOString(),
         students,
-        entries
+        entries,
+        admissions,
+        transportRoutes,
+        transportEntries,
+        inventoryItems,
+        inventoryTxns
       };
       const blob = new Blob([JSON.stringify(payload, null, 2)], {type:'application/json'});
       const url = URL.createObjectURL(blob);
@@ -1549,8 +3645,18 @@
           data.students.forEach(s=>{ if (!Array.isArray(s.bills)) s.bills = []; if (typeof s.mobNo !== 'string') s.mobNo = s.mobNo ? String(s.mobNo) : ''; });
           students = data.students;
           entries = data.entries;
+          admissions = Array.isArray(data.admissions) ? data.admissions : [];
+          transportRoutes = Array.isArray(data.transportRoutes) ? data.transportRoutes : [];
+          transportEntries = Array.isArray(data.transportEntries) ? data.transportEntries : [];
+          inventoryItems = Array.isArray(data.inventoryItems) ? data.inventoryItems : [];
+          inventoryTxns = Array.isArray(data.inventoryTxns) ? data.inventoryTxns : [];
           saveStudents();
           saveEntries();
+          saveAdmissions();
+          saveTransportRoutes();
+          saveTransportEntries();
+          saveInventoryItems();
+          saveInventoryTxns();
           toast('Data restore ho gaya');
           renderBackup();
         } catch(err){
@@ -1957,10 +4063,14 @@
     subEl.textContent = TITLES[route][1];
     
     if (route==='dashboard') renderDashboard();
+    else if (route==='admission') renderAdmission();
     else if (route==='collect') renderCollect();
     else if (route==='students') renderStudents();
     else if (route==='ledger') renderLedger();
     else if (route==='receipts') renderReceipts();
+    else if (route==='transport') renderTransport();
+    else if (route==='inventory') renderInventory();
+    else if (route==='billing') renderBilling();
     else if (route==='promotion') renderPromotion();
     else if (route==='exams') renderExams();
     else if (route==='backup') renderBackup();
