@@ -624,24 +624,70 @@
     return (jsMonth + 9) % 12;
   }
   function currentMonthName(){ return MONTHS[currentMonthIndex()]; }
+
+  // ---------- Advance-payment cascade allocation ----------
+  // Priority: jo bhi payment jama hoti hai, wo sabse pehle Old Due / Other Charges
+  // (Old Due -> Exam Fee -> Uniform -> Book -> Other Bill -> extra bills) clear karti hai.
+  // Uske baad bachi hui amount April se shuru karke month-wise tuition fee ke against
+  // cascade hoti hai. Isse agar koi student ek sath kai mahino ka advance jama karta hai,
+  // to wo apne aap aage ke months ka due zero kar deta hai.
+  function otherChargeItems(s){
+    return [
+      { key:'oldDue', label:'Old Due (Carry Forward)', amount: s.oldDue||0 },
+      { key:'examFee', label:'Exam Fee', amount: s.examFee||0 },
+      { key:'uniformBill', label:'Uniform Bill', amount: s.uniformBill||0 },
+      { key:'bookBill', label:'Book Bill', amount: s.bookBill||0 },
+      { key:'otherBill', label:'Other Bill', amount: s.otherBill||0 },
+      ...(Array.isArray(s.bills) ? s.bills.map(b=>({ key:'bill_'+b.id, label:(b.type||'Other')+(b.note?(' — '+b.note):''), amount: parseFloat(b.amount)||0 })) : [])
+    ];
+  }
+  function monthlyAllocation(s){
+    let remaining = totalPaid(s.id);
+    const items = otherChargeItems(s);
+    const otherChargesFull = items.reduce((a,it)=>a+it.amount, 0);
+    const otherChargesPaidByItem = {};
+    items.forEach(it=>{
+      const pay = it.amount > 0 ? Math.min(it.amount, remaining) : 0;
+      otherChargesPaidByItem[it.key] = pay;
+      remaining = Math.max(0, remaining - pay);
+    });
+    const otherChargesPaid = Object.values(otherChargesPaidByItem).reduce((a,v)=>a+v, 0);
+    const byMonth = {};
+    MONTHS.forEach(m=>{
+      const fee = s.monthlyFee || 0;
+      const pay = fee > 0 ? Math.min(fee, remaining) : 0;
+      byMonth[m] = pay;
+      remaining = Math.max(0, remaining - pay);
+    });
+    return { byMonth, otherChargesFull, otherChargesPaidByItem, leftover: remaining }; // leftover = other charges + poora saal ki tuition fee jama hone ke baad bacha hua advance
+  }
+  function monthPaidCascade(s, month){
+    const alloc = monthlyAllocation(s);
+    return alloc.byMonth[month] || 0;
+  }
+  function monthDueCascade(s, month){
+    return Math.max(0, (s.monthlyFee||0) - monthPaidCascade(s, month));
+  }
   function currentMonthDueOf(s){
-    return Math.max(0, (s.monthlyFee||0) - monthPaid(s.id, currentMonthName()));
+    return monthDueCascade(s, currentMonthName());
   }
   // Aging buckets for monthly tuition dues (multi-level due statement)
   function studentDueBuckets(s){
     const curIdx = currentMonthIndex();
     const elapsed = MONTHS.slice(0, curIdx+1);
+    const alloc = monthlyAllocation(s);
     const buckets = { current:0, b1_2:0, b3_5:0, b6plus:0 };
     elapsed.forEach((m, i)=>{
       const age = curIdx - i;
-      const due = Math.max(0, (s.monthlyFee||0) - monthPaid(s.id, m));
+      const due = Math.max(0, (s.monthlyFee||0) - alloc.byMonth[m]);
       if (due <= 0) return;
       if (age === 0) buckets.current += due;
       else if (age <= 2) buckets.b1_2 += due;
       else if (age <= 5) buckets.b3_5 += due;
       else buckets.b6plus += due;
     });
-    const otherCharges = (s.examFee||0) + (s.oldDue||0) + (s.uniformBill||0) + (s.bookBill||0) + (s.otherBill||0) + billsTotal(s);
+    // Other Charges (Old Due/Exam/Uniform/Book/Other Bill) ab payment priority me sabse pehle clear hote hain
+    const otherCharges = Math.max(0, alloc.otherChargesFull - Object.values(alloc.otherChargesPaidByItem).reduce((a,v)=>a+v,0));
     const total = buckets.current + buckets.b1_2 + buckets.b3_5 + buckets.b6plus + otherCharges;
     return Object.assign({ otherCharges, total }, buckets);
   }
@@ -3478,7 +3524,7 @@
         const slips = page.map(s=>{
           const due = currentMonthDueOf(s);
           const buckets = studentDueBuckets(s);
-          const runningDue = buckets.current + buckets.b1_2 + buckets.b3_5 + buckets.b6plus; // upto running/current month tuition due
+          const runningDue = buckets.current + buckets.b1_2 + buckets.b3_5 + buckets.b6plus + buckets.otherCharges; // upto running/current month tuition due + other pending bills (exam/uniform/book/old due etc.)
           const rest = totalDue(s) - totalPaid(s.id); // full academic session total rest due
           return `<div class="slip">
             <div class="slip-head">${esc(schoolSettings.name)}</div>
@@ -3539,7 +3585,7 @@
     if (!phone) { toast('Is student ka mobile number ledger me nahi hai'); return; }
     const month = currentMonthName();
     const buckets = studentDueBuckets(s);
-    const runningDue = buckets.current + buckets.b1_2 + buckets.b3_5 + buckets.b6plus;
+    const runningDue = buckets.current + buckets.b1_2 + buckets.b3_5 + buckets.b6plus + buckets.otherCharges;
     const monthDue = currentMonthDueOf(s);
     const rest = totalDue(s) - totalPaid(s.id);
     const lines = [
@@ -3582,7 +3628,7 @@
       `Amount Received: ${fmt(e.amount)}`,
       `Date: ${fmtDate(e.date)}`,
       '',
-      rest > 0 ? `Rest Due: ${fmt(rest)}` : '"ज्ञान ही जीवन की असली पूँजी है। आपकी फीस पूरी जमा हो चुकी है, धन्यवाद! 🙏",
+      rest > 0 ? `Rest Due: ${fmt(rest)}` : '"ज्ञान ही जीवन की असली पूँजी है। आपकी फीस पूरी जमा हो चुकी है, धन्यवाद! 🙏"',
       '',
       '"शिक्षा ही उज्ज्वल भविष्य का आधार है। Payment की सफलतापूर्वक प्राप्ति के लिए धन्यवाद! 🙏"',
       '— Accounts Office'
@@ -3597,24 +3643,28 @@
     if (!s) { toast('Student nahi mila'); return; }
     const due = totalDue(s), paid = totalPaid(s.id), rest = due - paid;
 
+    // Payment priority: sabse pehle Old Due / Other Charges clear hote hain, uske baad tuition months.
+    const alloc = monthlyAllocation(s);
     const monthRows = MONTHS.map(m=>{
-      const p = monthPaid(s.id, m);
+      const p = alloc.byMonth[m] || 0;
       const d = Math.max(0, (s.monthlyFee||0) - p);
       return `<tr><td>${esc(m)}</td><td class="r">${fmt(s.monthlyFee)}</td><td class="r">${p?fmt(p):'—'}</td><td class="r">${d?fmt(d):'—'}</td></tr>`;
     }).join('');
 
-    const chargeRows = [
-      ['Exam Fee', s.examFee],
-      ['Old Due (Carry Forward)', s.oldDue],
-      ['Uniform Bill', s.uniformBill],
-      ['Book Bill', s.bookBill],
-      ['Other Bill', s.otherBill],
-    ].filter(([,v])=>v>0).map(([k,v])=>`<tr><td>${esc(k)}</td><td class="r">${fmt(v)}</td></tr>`).join('');
-    const extraBillRows = (s.bills||[]).map(b=>`<tr><td>${esc(b.type||'Other')}${b.note?(' — '+esc(b.note)):''}</td><td class="r">${fmt(parseFloat(b.amount)||0)}</td></tr>`).join('');
+    const chargeRows = otherChargeItems(s).filter(it=>it.amount>0 && !it.key.startsWith('bill_')).map(it=>{
+      const paidAmt = alloc.otherChargesPaidByItem[it.key] || 0;
+      const d = Math.max(0, it.amount - paidAmt);
+      return `<tr><td>${esc(it.label)}</td><td class="r">${fmt(it.amount)}</td><td class="r">${d?fmt(d):'Paid (Advance)'}</td></tr>`;
+    }).join('');
+    const extraBillRows = otherChargeItems(s).filter(it=>it.key.startsWith('bill_')).map(it=>{
+      const paidAmt = alloc.otherChargesPaidByItem[it.key] || 0;
+      const d = Math.max(0, it.amount - paidAmt);
+      return `<tr><td>${esc(it.label)}</td><td class="r">${fmt(it.amount)}</td><td class="r">${d?fmt(d):'Paid (Advance)'}</td></tr>`;
+    }).join('');
     const otherChargesTable = (chargeRows || extraBillRows) ? `
-      <div class="section-title">Other Charges</div>
+      <div class="section-title">Other Charges <span style="font-weight:400;font-size:10px;color:#666;">(payment sabse pehle yahan adjust hoti hai)</span></div>
       <table>
-        <thead><tr><th>Particulars</th><th class="r">Amount</th></tr></thead>
+        <thead><tr><th>Particulars</th><th class="r">Amount</th><th class="r">Due</th></tr></thead>
         <tbody>${chargeRows}${extraBillRows}</tbody>
       </table>` : '';
 
@@ -3664,6 +3714,9 @@
         <thead><tr><th>Receipt No.</th><th>Date</th><th>Month</th><th class="r">Amount</th></tr></thead>
         <tbody>${paymentRows}</tbody>
       </table>
+
+      ${alloc.leftover>0 ? `<div class="section-title">Advance Balance</div>
+      <div style="font-size:12.5px; font-weight:700; color:#1E7A46; margin-bottom:10px;">Is student ka ${fmt(alloc.leftover)} advance jama hai — sabhi tuition months aur other charges adjust hone ke baad bhi bacha hua.</div>` : ''}
 
       <div class="summary">
         <div>Total Due: ${fmt(due)}</div>
