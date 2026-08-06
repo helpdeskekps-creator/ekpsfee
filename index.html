@@ -1020,18 +1020,12 @@
                         </form>
                     </div>
 
-                    <!-- 2 & 3. ATTENDANCE INTEGRATION + SALARY CALCULATION + PAYMENT -->
+                    <!-- 2. STAFF ROSTER & MANAGEMENT (Statement / Edit / Delete) -->
                     <div class="bg-white p-6 rounded-xl border border-gray-200 shadow-sm space-y-4">
-                        <h3 class="text-base font-bold text-gray-800">Staff Roster, Salary Calculation & Payment</h3>
-                        <p class="text-xs text-gray-500">Attendance ke absent days ke aadhar par salary automatically calculate hoti hai. Month select karke, seedha isi table se har staff ka payment save karein — history date ke saath yahin save rehti hai.</p>
-
-                        <div class="flex flex-col md:flex-row gap-3 items-end bg-indigo-50 border border-indigo-200 rounded-lg p-3">
-                            <div>
-                                <label class="block text-xs font-semibold text-indigo-800 mb-1">Payment Month Select Karein *</label>
-                                <select id="payroll-month-select" onchange="refreshUI()" class="border border-indigo-300 rounded-lg px-3 py-2 text-sm font-bold text-indigo-900 focus:outline-none"></select>
-                            </div>
-                            <p class="text-[11px] text-indigo-700">Ek baar jis mahine ka poora payment ho jayega, us staff ke liye wahi mahina dubara "Save Payment" ke liye nahi khulega — jab tak Academic Session change na ho.</p>
-                        </div>
+                        <h3 class="text-base font-bold text-gray-800 flex items-center gap-2">
+                            <i class="fa-solid fa-list-check text-indigo-600"></i> Staff Roster & Management
+                        </h3>
+                        <p class="text-xs text-gray-500">Yahan sabhi registered staff ki basic list hai. Kisi staff ka poora payment record dekhne ke liye <strong>Statement</strong>, profile update karne ke liye <strong>Edit</strong>, aur staff school chhod de to <strong>Delete</strong> use karein.</p>
 
                         <div class="overflow-x-auto">
                             <table class="w-full text-left text-sm text-gray-600">
@@ -1040,19 +1034,56 @@
                                         <th class="p-3">Staff ID</th>
                                         <th class="p-3">Name</th>
                                         <th class="p-3">Designation</th>
-                                        <th class="p-3">Earnings (Basic+Allow.)</th>
-                                        <th class="p-3">Absent Days (Attendance)</th>
-                                        <th class="p-3">Absent Cut</th>
-                                        <th class="p-3">Advance/Loan Katoti</th>
-                                        <th class="p-3">Net Payable Salary (Bill)</th>
-                                        <th class="p-3">Payment (Selected Month)</th>
-                                        <th class="p-3">Payment History (Date-wise)</th>
+                                        <th class="p-3">Mobile</th>
+                                        <th class="p-3">Basic Salary</th>
                                         <th class="p-3">Documents</th>
                                         <th class="p-3">Action</th>
                                     </tr>
                                 </thead>
-                                <tbody id="table-staff" class="divide-y divide-gray-100"></tbody>
+                                <tbody id="table-staff-roster" class="divide-y divide-gray-100"></tbody>
                             </table>
+                        </div>
+                    </div>
+
+                    <!-- 3. SALARY CALCULATION & PAYMENT (ONE BY ONE) -->
+                    <div class="bg-white p-6 rounded-xl border border-gray-200 shadow-sm space-y-4">
+                        <h3 class="text-base font-bold text-gray-800 flex items-center gap-2">
+                            <i class="fa-solid fa-money-check-dollar text-indigo-600"></i> Staff Salary Calculation & Payment
+                        </h3>
+                        <p class="text-xs text-gray-500">Ek staff chunein — attendance ke absent days ke aadhar par uski salary automatically calculate ho jayegi. Payment 1 baar me ho ya 2-3 installment/advance me, sab date ke saath history me yahin save hota rehta hai. Har mahine ka bill sirf ek hi baar banta hai (dobara duplicate nahi hota).</p>
+
+                        <div class="flex flex-col md:flex-row gap-3 items-end bg-indigo-50 border border-indigo-200 rounded-lg p-3">
+                            <div>
+                                <label class="block text-xs font-semibold text-indigo-800 mb-1">Payment Month Select Karein *</label>
+                                <select id="payroll-month-select" onchange="refreshUI()" class="border border-indigo-300 rounded-lg px-3 py-2 text-sm font-bold text-indigo-900 focus:outline-none"></select>
+                            </div>
+                            <p class="text-[11px] text-indigo-700">Neeche list se ek staff select karein, uski salary calculation aur payment options right side me one-by-one dikhengi.</p>
+                        </div>
+
+                        <!-- FULL PAYMENT STATUS OVERVIEW GRID — ek nazar me pata chal jaye ki kaun se staff ka
+                             kaun se mahine ka payment ho chuka hai aur kaun se mahine ka baki hai. -->
+                        <div>
+                            <h4 class="font-bold text-[11px] text-indigo-900 uppercase tracking-wider mb-2 flex items-center gap-1.5"><i class="fa-solid fa-table-cells"></i> Sabhi Staff — Mahina-wise Payment Status (Ek Nazar Me)</h4>
+                            <p class="text-[10px] text-gray-400 mb-2">✅ = poora paid &nbsp;|&nbsp; ₹amount (amber) = kuch paid, baki hai &nbsp;|&nbsp; ₹amount (red) = kuch bhi paid nahi &nbsp;|&nbsp; — = us mahine ka bill abhi tak generate hi nahi hua. Kisi bhi cell par click karke seedha us staff + mahine par pahunch jayein.</p>
+                            <div class="overflow-x-auto border border-gray-200 rounded-lg max-h-[320px] overflow-y-auto">
+                                <table class="w-full text-center text-xs">
+                                    <thead id="payroll-grid-head" class="bg-gray-50 text-gray-600 uppercase text-[10px] sticky top-0"></thead>
+                                    <tbody id="payroll-grid-body" class="divide-y divide-gray-100"></tbody>
+                                </table>
+                            </div>
+                        </div>
+
+                        <div id="payroll-onebyone-anchor" class="grid grid-cols-1 md:grid-cols-3 gap-4 pt-2 border-t">
+                            <!-- Staff picker list -->
+                            <div class="md:col-span-1 border border-gray-200 rounded-lg max-h-[520px] overflow-y-auto">
+                                <div id="payroll-staff-list" class="divide-y divide-gray-100"></div>
+                            </div>
+                            <!-- One-by-one salary detail & payment panel -->
+                            <div class="md:col-span-2">
+                                <div id="payroll-detail-panel" class="border border-gray-200 rounded-lg p-5 bg-gray-50 min-h-[300px] flex items-center justify-center text-center text-xs text-gray-400">
+                                    <span><i class="fa-solid fa-arrow-left mr-1"></i> Salary calculate & payment karne ke liye baayi list se ek staff select karein.</span>
+                                </div>
+                            </div>
                         </div>
                     </div>
 
@@ -1479,6 +1510,9 @@
         // Paste your deployed Google Apps Script Web App URL here (same URL used by the Master Control Center).
         const BACKEND_URL = "https://script.google.com/macros/s/AKfycbylc3XtokK86uC3-nZhPFqduEZYa1GPnWzQgh_qxndy5_iqF3dKIuUrqO0w3N7xioJB4g/exec";
 
+        let selectedPayrollStaffId = null; // one-by-one Salary Calculation & Payment panel ke liye currently selected staff
+        let payrollAttendanceEditingStaffId = null; // jab tak edit mode ON hai, us staff ki id yahan set rehti hai
+        let payrollAttendanceEditDays = 0; // edit mode me temporary (unsaved) absent-days value
         let currentSession = JSON.parse(sessionStorage.getItem('erp_session') || 'null');
         let cloudSyncTimer = null;
 
@@ -3183,6 +3217,36 @@
             }
         }
 
+        // ---- Attendance Edit/Save workflow for the One-by-One Salary panel ----
+        // Absent days ab seedhe live-save nahi hote — pehle "Edit" dabao, +/- se
+        // sahi number set karo, phir "Save" dabao. Galti ho to "Cancel" se discard karein.
+        function startEditAttendance(staffId) {
+            const stf = dataStore.staff.find(s => s.id === staffId);
+            if (!stf) return;
+            payrollAttendanceEditingStaffId = staffId;
+            payrollAttendanceEditDays = stf.absentDays || 0;
+            renderPayrollOneByOne();
+        }
+
+        function adjustEditAttendance(delta) {
+            payrollAttendanceEditDays = Math.max(0, (payrollAttendanceEditDays || 0) + delta);
+            renderPayrollOneByOne();
+        }
+
+        function cancelEditAttendance() {
+            payrollAttendanceEditingStaffId = null;
+            renderPayrollOneByOne();
+        }
+
+        function saveEditAttendance(staffId) {
+            const stf = dataStore.staff.find(s => s.id === staffId);
+            if (!stf) return;
+            stf.absentDays = payrollAttendanceEditDays || 0;
+            saveDataStore();
+            payrollAttendanceEditingStaffId = null;
+            refreshUI();
+        }
+
         function resetStaffForm() {
             document.getElementById('form-hr').reset();
             document.getElementById('editStaffId').value = "";
@@ -3233,14 +3297,13 @@
             month = month || document.getElementById('payroll-month-select').value || getSessionMonthsList()[0];
             const entry = getOrCreatePayrollEntry(staffId, month);
             const balance = entry ? Math.max(0, entry.netSalary - (entry.paidAmount || 0)) : 0;
-            if (entry && (entry.paidAmount || 0) > 0 && balance <= 0) {
-                alert(`${stf.name} ka ${month} ka payment pehle se hi PAID/complete hai.\n\nYe mahina dubara tabhi khulega jab Academic Session change hogi.`);
-                return;
-            }
+            const alreadyPaid = entry ? (entry.paidAmount || 0) : 0;
+
             document.getElementById('sp-modal-staff-id').value = staffId;
             document.getElementById('sp-modal-month').value = month;
-            document.getElementById('sp-modal-staff-info').innerHTML =
-                `${stf.name} (${stf.id}) — ${stf.role}<br>Bill Month: <strong>${month}</strong> &nbsp;|&nbsp; Balance Due: <span class="${balance > 0 ? 'text-red-600' : 'text-green-600'} font-bold">₹${balance.toLocaleString('en-IN')}</span>`;
+            document.getElementById('sp-modal-staff-info').innerHTML = balance > 0
+                ? `${stf.name} (${stf.id}) — ${stf.role}<br>Bill Month: <strong>${month}</strong> &nbsp;|&nbsp; Balance Due: <span class="text-red-600 font-bold">₹${balance.toLocaleString('en-IN')}</span>`
+                : `${stf.name} (${stf.id}) — ${stf.role}<br>Bill Month: <strong>${month}</strong> &nbsp;|&nbsp; <span class="text-emerald-600 font-bold">Is mahine ka bill pehle hi PAID hai (₹${alreadyPaid.toLocaleString('en-IN')})</span><br><span class="text-[11px] text-blue-600">Yahan se ab jo bhi amount daalenge wo ADVANCE / EXTRA payment ke roop me alag se save hoga.</span>`;
             document.getElementById('sp-modal-amount').value = balance > 0 ? balance : '';
             document.getElementById('sp-modal-date').value = new Date().toISOString().split('T')[0];
             document.getElementById('sp-modal-mode').value = 'Cash';
@@ -3262,6 +3325,7 @@
 
             const entry = getOrCreatePayrollEntry(staffId, month);
             if (!entry) { alert("Staff record nahi mila."); return; }
+            const wasAlreadyFull = (entry.paidAmount || 0) >= entry.netSalary && (entry.paidAmount || 0) > 0;
             entry.payments = entry.payments || [];
             entry.payments.push({ date, amount, mode });
             entry.paidAmount = (entry.paidAmount || 0) + amount;
@@ -3269,7 +3333,356 @@
             saveDataStore();
             closeStaffPaymentModal();
             refreshUI();
-            alert(`✅ ₹${amount.toLocaleString('en-IN')} payment ${month} ke against save ho gaya.`);
+            alert(wasAlreadyFull
+                ? `✅ ₹${amount.toLocaleString('en-IN')} ADVANCE / extra payment ${month} ke against save ho gaya (installment #${entry.payments.length}).`
+                : `✅ ₹${amount.toLocaleString('en-IN')} payment ${month} ke against save ho gaya (installment #${entry.payments.length}).`);
+        }
+
+        // Small shared helper — document view icon/link ya "not uploaded" placeholder dikhata hai.
+        function staffDocBtn(label, data) {
+            return data
+                ? `<a href="${data}" target="_blank" title="View ${label}" class="text-indigo-600 hover:text-indigo-800 mr-1.5"><i class="fa-solid fa-file-lines"></i></a>`
+                : `<span title="${label} not uploaded" class="text-gray-300 mr-1.5"><i class="fa-solid fa-file-circle-xmark"></i></span>`;
+        }
+
+        // ============ 1) STAFF ROSTER & MANAGEMENT TABLE ============
+        // Simple staff directory — Statement / Edit / Delete. Salary calculation & payment
+        // is intentionally kept OUT of this table and handled separately (one-by-one) below.
+        function renderStaffRosterTable() {
+            const tbody = document.getElementById('table-staff-roster');
+            if (!tbody) return;
+            tbody.innerHTML = dataStore.staff.map(s => `
+                <tr>
+                    <td class="p-3 font-bold text-slate-700">${s.id}</td>
+                    <td class="p-3 font-medium text-gray-800">${s.name}</td>
+                    <td class="p-3 text-gray-500">${s.role}</td>
+                    <td class="p-3 font-mono text-xs text-gray-600">${s.mobile || '-'}</td>
+                    <td class="p-3 font-semibold">₹${(s.salary || 0).toLocaleString('en-IN')}</td>
+                    <td class="p-3">${staffDocBtn('Aadhaar', s.docAadhaar)}${staffDocBtn('PAN', s.docPan)}${staffDocBtn('Certificate', s.docEducation)}</td>
+                    <td class="p-3 whitespace-nowrap">
+                        <button onclick="printStaffStatement('${s.id}')" class="bg-indigo-600 hover:bg-indigo-700 text-white px-2.5 py-1 rounded text-xs font-bold mr-1 mb-1"><i class="fa-solid fa-file-invoice-dollar"></i> Statement</button>
+                        <button onclick="editStaff('${s.id}')" class="bg-blue-600 text-white px-2.5 py-1 rounded text-xs font-bold mr-1"><i class="fa-solid fa-pen"></i> Edit</button>
+                        <button onclick="deleteStaff('${s.id}')" class="bg-red-600 hover:bg-red-700 text-white px-2.5 py-1 rounded text-xs font-bold" title="Staff school chhod de to yahan se remove karein"><i class="fa-solid fa-trash"></i> Delete</button>
+                    </td>
+                </tr>
+            `).join('') || '<tr><td colspan="7" class="p-4 text-center text-xs text-gray-400">No staff registered yet. Upar form se ek staff register karein.</td></tr>';
+        }
+
+        // Called when a staff row is clicked in the one-by-one payroll picker list.
+        function selectPayrollStaff(id) {
+            selectedPayrollStaffId = id;
+            payrollAttendanceEditingStaffId = null; // naya staff select hote hi purana edit mode band
+            renderPayrollOneByOne();
+        }
+
+        // Jab overview grid ke kisi cell par click ho — us staff + mahine par seedha one-by-one
+        // panel me le jaata hai, taaki "kaun sa staff kaun se mahine ka" turant saaf ho jaye.
+        function jumpToPayrollCell(staffId, month) {
+            const monthSelect = document.getElementById('payroll-month-select');
+            if (monthSelect) monthSelect.value = month;
+            selectedPayrollStaffId = staffId;
+            payrollAttendanceEditingStaffId = null;
+            refreshUI();
+            const anchor = document.getElementById('payroll-onebyone-anchor');
+            if (anchor) anchor.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+
+        // ============ FULL PAYMENT STATUS OVERVIEW GRID (All Staff x All Months) ============
+        // Ek hi table me har staff ke har session-month ka status dikhata hai, taaki
+        // "kis staff ka kis mahine ka payment ho chuka hai / baki hai" turant saaf pata chale.
+        function renderPayrollStatusGrid() {
+            const headEl = document.getElementById('payroll-grid-head');
+            const bodyEl = document.getElementById('payroll-grid-body');
+            if (!headEl || !bodyEl) return;
+
+            const months = getSessionMonthsList();
+            const selectedPayrollMonth = (document.getElementById('payroll-month-select') || {}).value || (months[0] || '');
+
+            headEl.innerHTML = `
+                <tr>
+                    <th class="p-2 text-left bg-gray-50 sticky left-0">Staff</th>
+                    ${months.map(m => `<th class="p-2 whitespace-nowrap ${m === selectedPayrollMonth ? 'bg-indigo-100 text-indigo-800' : ''}">${m.split(' ')[0]}</th>`).join('')}
+                </tr>
+            `;
+
+            bodyEl.innerHTML = dataStore.staff.map(s => {
+                const cells = months.map(m => {
+                    const entry = (dataStore.payrollHistory || []).find(p => p.staffId === s.id && p.month === m);
+                    const colBg = m === selectedPayrollMonth ? 'bg-indigo-50' : '';
+                    if (!entry) {
+                        return `<td class="p-2 ${colBg}"><button onclick="jumpToPayrollCell('${s.id}','${m}')" class="text-gray-300 hover:text-gray-500 font-bold" title="${m}: Bill abhi generate nahi hua">—</button></td>`;
+                    }
+                    const paid = entry.paidAmount || 0;
+                    const balance = Math.max(0, entry.netSalary - paid);
+                    let cellHtml;
+                    if (paid > 0 && balance <= 0) {
+                        cellHtml = `<span class="text-emerald-600 font-bold" title="PAID — ₹${paid.toLocaleString('en-IN')}">✅</span>`;
+                    } else if (paid > 0) {
+                        cellHtml = `<span class="text-amber-600 font-bold" title="PARTIAL — ₹${paid.toLocaleString('en-IN')} paid, ₹${balance.toLocaleString('en-IN')} baki">₹${balance.toLocaleString('en-IN')}</span>`;
+                    } else {
+                        cellHtml = `<span class="text-red-600 font-bold" title="UNPAID — ₹${balance.toLocaleString('en-IN')} baki">₹${balance.toLocaleString('en-IN')}</span>`;
+                    }
+                    return `<td class="p-2 ${colBg}"><button onclick="jumpToPayrollCell('${s.id}','${m}')" class="hover:underline">${cellHtml}</button></td>`;
+                }).join('');
+                return `
+                    <tr>
+                        <td class="p-2 text-left font-bold text-gray-700 whitespace-nowrap bg-white sticky left-0">${s.name} <span class="text-gray-400 font-normal">(${s.id})</span></td>
+                        ${cells}
+                    </tr>
+                `;
+            }).join('') || `<tr><td colspan="${months.length + 1}" class="p-4 text-center text-gray-400">No staff registered yet.</td></tr>`;
+        }
+
+        // ============ 2) SALARY CALCULATION & PAYMENT — ONE BY ONE ============
+        // Left: clickable staff picker list with a PAID/PARTIAL/UNPAID badge + amount for the selected month.
+        // Right: full salary-calculation breakdown, an Edit/Save attendance workflow, payment
+        // recording, and a full month-wise ledger (so arrears carried into future months are visible).
+        function renderPayrollOneByOne() {
+            const listEl = document.getElementById('payroll-staff-list');
+            const panelEl = document.getElementById('payroll-detail-panel');
+            if (!listEl || !panelEl) return;
+
+            const selectedPayrollMonth = (document.getElementById('payroll-month-select') || {}).value || (getSessionMonthsList()[0] || '');
+
+            // If nothing selected yet (or the selected staff got deleted), auto-pick the first staff.
+            if (!selectedPayrollStaffId || !dataStore.staff.find(s => s.id === selectedPayrollStaffId)) {
+                selectedPayrollStaffId = dataStore.staff.length ? dataStore.staff[0].id : null;
+            }
+
+            // ---- Left picker list (badge + amount for the selected month) ----
+            listEl.innerHTML = dataStore.staff.map(s => {
+                const monthEntry = (dataStore.payrollHistory || []).find(p => p.staffId === s.id && p.month === selectedPayrollMonth);
+                const netSalary = computeStaffNet(s);
+                const monthBill = monthEntry ? monthEntry.netSalary : netSalary;
+                const monthPaid = monthEntry ? (monthEntry.paidAmount || 0) : 0;
+                const monthBalance = Math.max(0, monthBill - monthPaid);
+                const isFullyPaid = monthPaid > 0 && monthPaid >= monthBill;
+                const isActive = s.id === selectedPayrollStaffId;
+                const badge = isFullyPaid
+                    ? '<span class="bg-emerald-100 text-emerald-700 text-[9px] font-bold px-1.5 py-0.5 rounded whitespace-nowrap">PAID</span>'
+                    : (monthPaid > 0
+                        ? `<span class="bg-amber-100 text-amber-700 text-[9px] font-bold px-1.5 py-0.5 rounded whitespace-nowrap">PARTIAL · ₹${monthBalance.toLocaleString('en-IN')}</span>`
+                        : `<span class="bg-gray-100 text-gray-500 text-[9px] font-bold px-1.5 py-0.5 rounded whitespace-nowrap">UNPAID · ₹${monthBalance.toLocaleString('en-IN')}</span>`);
+                return `
+                    <button type="button" onclick="selectPayrollStaff('${s.id}')" class="w-full text-left px-3 py-2.5 flex items-center justify-between gap-2 ${isActive ? 'bg-indigo-50 border-l-4 border-indigo-600' : 'hover:bg-gray-50 border-l-4 border-transparent'}">
+                        <span class="min-w-0">
+                            <span class="block text-xs font-bold ${isActive ? 'text-indigo-800' : 'text-gray-800'} truncate">${s.name}</span>
+                            <span class="block text-[10px] text-gray-400">${s.id} · ${s.role}</span>
+                        </span>
+                        ${badge}
+                    </button>
+                `;
+            }).join('') || '<div class="p-4 text-center text-xs text-gray-400">No staff registered yet.</div>';
+
+            // ---- Right detail panel ----
+            const s = dataStore.staff.find(st => st.id === selectedPayrollStaffId);
+            if (!s) {
+                panelEl.className = 'border border-gray-200 rounded-lg p-5 bg-gray-50 min-h-[300px] flex items-center justify-center text-center text-xs text-gray-400';
+                panelEl.innerHTML = '<span><i class="fa-solid fa-arrow-left mr-1"></i> Salary calculate & payment karne ke liye baayi list se ek staff select karein.</span>';
+                return;
+            }
+            panelEl.className = 'border border-gray-200 rounded-lg p-5 bg-white space-y-4';
+
+            const earnings = (s.salary || 0) + (s.allowances || 0);
+            const deduction = computeStaffDeduction(s);
+            const netSalary = computeStaffNet(s);
+
+            const monthEntry = (dataStore.payrollHistory || []).find(p => p.staffId === s.id && p.month === selectedPayrollMonth);
+            const monthBill = monthEntry ? monthEntry.netSalary : netSalary;
+            const monthPaid = monthEntry ? (monthEntry.paidAmount || 0) : 0;
+            const monthBalance = Math.max(0, monthBill - monthPaid);
+            const advanceExtra = monthPaid > monthBill ? (monthPaid - monthBill) : 0;
+            const isFullyPaid = monthPaid > 0 && monthBalance <= 0;
+
+            // ---- Attendance block: Edit → adjust → Save (or Cancel), no more live-editing by mistake ----
+            const isEditingAttendance = payrollAttendanceEditingStaffId === s.id;
+            const attendanceBlock = isEditingAttendance ? `
+                <div class="flex items-center gap-3 bg-amber-50 border border-amber-300 rounded-lg px-3 py-2 w-fit">
+                    <button onclick="adjustEditAttendance(-1)" class="w-7 h-7 bg-white border border-amber-300 rounded font-bold text-sm hover:bg-amber-100">-</button>
+                    <span class="font-bold text-amber-700 text-sm">${payrollAttendanceEditDays} Days</span>
+                    <button onclick="adjustEditAttendance(1)" class="w-7 h-7 bg-white border border-amber-300 rounded font-bold text-sm hover:bg-amber-100">+</button>
+                    <button onclick="saveEditAttendance('${s.id}')" class="ml-2 bg-emerald-600 hover:bg-emerald-700 text-white px-3 py-1.5 rounded text-xs font-bold"><i class="fa-solid fa-check"></i> Save</button>
+                    <button onclick="cancelEditAttendance()" class="bg-gray-200 hover:bg-gray-300 text-gray-700 px-3 py-1.5 rounded text-xs font-bold"><i class="fa-solid fa-xmark"></i> Cancel</button>
+                </div>
+            ` : `
+                <div class="flex items-center gap-3 bg-gray-50 border border-gray-200 rounded-lg px-3 py-2 w-fit">
+                    <span class="font-bold text-red-600 text-sm">${s.absentDays || 0} Days</span>
+                    <button onclick="startEditAttendance('${s.id}')" class="bg-blue-600 hover:bg-blue-700 text-white px-3 py-1.5 rounded text-xs font-bold"><i class="fa-solid fa-pen"></i> Edit</button>
+                </div>
+            `;
+
+            // Payment kabhi bhi add ki ja sakti hai — poora paid hone ke baad bhi, taaki
+            // advance ya extra installment record kiya ja sake. Sirf label/status badalta hai.
+            const paymentAction = isFullyPaid
+                ? `<span class="bg-emerald-100 text-emerald-700 text-xs font-bold px-3 py-1.5 rounded block text-center mb-2">✅ ${selectedPayrollMonth} — PAID${advanceExtra > 0 ? ` (+₹${advanceExtra.toLocaleString('en-IN')} Advance)` : ''}</span><button onclick="openStaffPaymentModal('${s.id}', '${selectedPayrollMonth}')" class="bg-blue-600 hover:bg-blue-700 text-white px-3 py-2 rounded text-xs font-bold w-full"><i class="fa-solid fa-plus"></i> Add Advance / Extra Payment</button>`
+                : `<button onclick="openStaffPaymentModal('${s.id}', '${selectedPayrollMonth}')" class="bg-amber-600 hover:bg-amber-700 text-white px-3 py-2 rounded text-xs font-bold w-full mb-1"><i class="fa-solid fa-money-bill-wave"></i> Save Payment (Balance: ₹${monthBalance.toLocaleString('en-IN')})</button><p class="text-[10px] text-gray-400 text-center">Chahein to poora amount ek baar me daalein, ya thoda-thoda karke 2-3 baar me installment/advance ke roop me — dono tarah ka record date ke saath history me save hota rahega.</p>`;
+
+            const historyHtml = (monthEntry && monthEntry.payments && monthEntry.payments.length)
+                ? monthEntry.payments.map((pay, idx) => `<div class="flex justify-between text-xs py-1 border-b border-gray-100 last:border-0"><span class="text-gray-600">#${idx + 1} — ${pay.mode}</span><span class="font-semibold text-gray-800">₹${pay.amount.toLocaleString('en-IN')}</span><span class="text-gray-400">${pay.date}</span></div>`).join('')
+                : '<p class="text-[11px] text-gray-400">Is mahine abhi tak koi payment nahi hua hai.</p>';
+
+            // ---- Full month-wise ledger for THIS staff (shows arrears carried into other months,
+            // aur agle/pichhle mahino ka bill kitna bana, kis month me kitna installment/advance gaya) ----
+            const ledger = getStaffLedgerData(s.id);
+            const ledgerRowsHtml = ledger.rows.length ? ledger.rows.map(r => {
+                const rowInstallments = r.payments.length
+                    ? r.payments.map((pay, idx) => `${idx + 1}) ₹${pay.amount.toLocaleString('en-IN')} (${pay.date})`).join(', ')
+                    : '—';
+                const statusColor = r.status === 'UNPAID' ? 'text-gray-500' : (r.status === 'PARTIAL' ? 'text-amber-600' : 'text-emerald-600');
+                return `
+                    <tr class="${r.month === selectedPayrollMonth ? 'bg-indigo-50' : ''}">
+                        <td class="p-2 font-medium text-gray-700 whitespace-nowrap">${r.month}</td>
+                        <td class="p-2 text-right">₹${r.netSalary.toLocaleString('en-IN')}</td>
+                        <td class="p-2 text-right">₹${r.paid.toLocaleString('en-IN')}</td>
+                        <td class="p-2 text-right font-bold ${r.balance > 0 ? 'text-red-600' : 'text-emerald-600'}">₹${r.balance.toLocaleString('en-IN')}</td>
+                        <td class="p-2 font-bold ${statusColor}">${r.status}</td>
+                        <td class="p-2 text-gray-500">${rowInstallments}</td>
+                    </tr>
+                `;
+            }).join('') : `<tr><td colspan="6" class="p-3 text-center text-gray-400">Abhi tak koi mahina bill/pay nahi hua — "Save Payment" karte hi yahan record bannna shuru hoga.</td></tr>`;
+
+            panelEl.innerHTML = `
+                <div class="flex items-start justify-between gap-2 border-b pb-3">
+                    <div>
+                        <h4 class="font-bold text-sm text-gray-800">${s.name} <span class="text-gray-400 font-normal">(${s.id})</span></h4>
+                        <p class="text-xs text-gray-500">${s.role}</p>
+                    </div>
+                    <button onclick="printStaffStatement('${s.id}')" class="bg-indigo-600 hover:bg-indigo-700 text-white px-2.5 py-1.5 rounded text-xs font-bold shrink-0"><i class="fa-solid fa-file-invoice-dollar"></i> Full Statement</button>
+                </div>
+
+                <div class="bg-indigo-600 text-white rounded-lg px-3 py-2 text-xs font-bold flex items-center justify-between">
+                    <span><i class="fa-solid fa-calendar-check mr-1"></i> Dikhaya Ja Raha Hai — Mahina:</span>
+                    <span class="text-sm">${selectedPayrollMonth || 'Koi mahina select nahi hai'}</span>
+                </div>
+
+                ${ledger.totalBalance > 0 ? `<div class="bg-red-50 border border-red-200 rounded-lg px-3 py-2 text-xs text-red-700 font-bold flex items-center justify-between"><span><i class="fa-solid fa-triangle-exclamation mr-1"></i> Total Outstanding (Sabhi Mahino Ka Baki)</span><span>₹${ledger.totalBalance.toLocaleString('en-IN')}</span></div>` : ''}
+
+                <div>
+                    <p class="text-[11px] font-bold text-gray-500 uppercase mb-1">Attendance — Absent Days (${selectedPayrollMonth || 'current'})</p>
+                    ${attendanceBlock}
+                </div>
+
+                <div class="grid grid-cols-2 gap-3 text-sm">
+                    <div class="bg-gray-50 rounded-lg p-3">
+                        <p class="text-[10px] font-bold text-gray-500 uppercase">Earnings (Basic + Allow.)</p>
+                        <p class="font-bold text-gray-800">₹${earnings.toLocaleString('en-IN')}</p>
+                    </div>
+                    <div class="bg-red-50 rounded-lg p-3">
+                        <p class="text-[10px] font-bold text-gray-500 uppercase">Absent Cut <span class="font-normal">(${s.absentDeductionType === 'CUSTOM' ? 'Custom' : 'Auto Basic÷30'})</span></p>
+                        <p class="font-bold text-red-600">- ₹${deduction.toLocaleString('en-IN')}</p>
+                    </div>
+                    <div class="bg-red-50 rounded-lg p-3">
+                        <p class="text-[10px] font-bold text-gray-500 uppercase">Advance/Loan Katoti</p>
+                        <p class="font-bold text-red-600">- ₹${(s.advanceDeduction || 0).toLocaleString('en-IN')}</p>
+                    </div>
+                    <div class="bg-emerald-50 rounded-lg p-3">
+                        <p class="text-[10px] font-bold text-gray-500 uppercase">Net Payable Salary (Bill)</p>
+                        <p class="font-bold text-emerald-700">₹${netSalary.toLocaleString('en-IN')}</p>
+                    </div>
+                </div>
+
+                <div class="border-t pt-3">
+                    <p class="text-[11px] font-bold text-gray-500 uppercase mb-1">Payment — ${selectedPayrollMonth || 'Select a month above'}</p>
+                    ${paymentAction}
+                </div>
+
+                <div class="border-t pt-3">
+                    <p class="text-[11px] font-bold text-gray-500 uppercase mb-1">Payment History (${selectedPayrollMonth || 'This Month'}, Date-wise)</p>
+                    ${historyHtml}
+                </div>
+
+                <div class="border-t pt-3">
+                    <p class="text-[11px] font-bold text-gray-500 uppercase mb-1">Poora Month-wise Ledger (Sabhi Mahine — Bill / Paid / Balance)</p>
+                    <div class="overflow-x-auto border border-gray-200 rounded-lg">
+                        <table class="w-full text-left text-xs text-gray-600">
+                            <thead class="bg-gray-50 text-gray-500 uppercase text-[10px]">
+                                <tr><th class="p-2">Month</th><th class="p-2 text-right">Bill</th><th class="p-2 text-right">Paid</th><th class="p-2 text-right">Balance</th><th class="p-2">Status</th><th class="p-2">Installments (Date-wise)</th></tr>
+                            </thead>
+                            <tbody class="divide-y divide-gray-100">${ledgerRowsHtml}</tbody>
+                            ${ledger.rows.length ? `<tfoot><tr class="bg-gray-50 font-bold"><td class="p-2">TOTAL</td><td class="p-2 text-right">₹${ledger.totalBill.toLocaleString('en-IN')}</td><td class="p-2 text-right">₹${ledger.totalPaid.toLocaleString('en-IN')}</td><td class="p-2 text-right ${ledger.totalBalance > 0 ? 'text-red-600' : 'text-emerald-600'}">₹${ledger.totalBalance.toLocaleString('en-IN')}</td><td colspan="2"></td></tr></tfoot>` : ''}
+                        </table>
+                    </div>
+                </div>
+            `;
+        }
+
+        // Shared helper — kisi bhi staff ka poora month-wise bill/paid/balance ledger banata hai.
+        // Isi ek function ka data "Full Statement" print aur one-by-one panel ki inline ledger
+        // dono me use hota hai, taaki dono jagah number hamesha match karein.
+        function getStaffLedgerData(staffId) {
+            const rows = (dataStore.payrollHistory || [])
+                .filter(p => p.staffId === staffId)
+                .sort((a, b) => new Date(a.month + ' 1') - new Date(b.month + ' 1'));
+            let totalBill = 0, totalPaid = 0;
+            const detailed = rows.map(p => {
+                const paid = p.paidAmount || 0;
+                const balance = Math.max(0, p.netSalary - paid);
+                const advanceExtra = paid > p.netSalary ? (paid - p.netSalary) : 0;
+                totalBill += p.netSalary;
+                totalPaid += paid;
+                const status = advanceExtra > 0 ? 'PAID + ADVANCE' : (balance <= 0 && paid > 0 ? 'PAID' : (paid > 0 ? 'PARTIAL' : 'UNPAID'));
+                return { month: p.month, netSalary: p.netSalary, paid, balance, advanceExtra, status, payments: p.payments || [] };
+            });
+            return { rows: detailed, totalBill, totalPaid, totalBalance: Math.max(0, totalBill - totalPaid) };
+        }
+
+        // Poora staff-wise payment statement — sabhi mahino ka bill, paid aur balance,
+        // aur har installment ki date-wise detail — print/PDF ke liye taiyar karta hai.
+        function printStaffStatement(staffId) {
+            const stf = dataStore.staff.find(s => s.id === staffId);
+            if (!stf) return;
+            const ledger = getStaffLedgerData(staffId);
+
+            if (!ledger.rows.length) { alert(`${stf.name} ke liye abhi tak koi bill/payment record nahi hai.`); return; }
+
+            const rowsHtml = ledger.rows.map(p => {
+                const paymentsList = (p.payments && p.payments.length)
+                    ? p.payments.map((pay, idx) => `${idx + 1}. ₹${pay.amount.toLocaleString('en-IN')} — ${pay.mode} (${pay.date})`).join('<br>')
+                    : '-';
+                return `
+                    <tr>
+                        <td style="padding:6px; border:1px solid #ccc;">${p.month}</td>
+                        <td style="padding:6px; border:1px solid #ccc; text-align:right;">₹${p.netSalary.toLocaleString('en-IN')}</td>
+                        <td style="padding:6px; border:1px solid #ccc; text-align:right;">₹${p.paid.toLocaleString('en-IN')}${p.advanceExtra > 0 ? ` <span style="color:#2563eb; font-size:10px;">(₹${p.advanceExtra.toLocaleString('en-IN')} advance)</span>` : ''}</td>
+                        <td style="padding:6px; border:1px solid #ccc; text-align:right; color:${p.balance > 0 ? '#b91c1c' : '#047857'};">₹${p.balance.toLocaleString('en-IN')}</td>
+                        <td style="padding:6px; border:1px solid #ccc; font-size:11px; font-weight:bold;">${p.status}</td>
+                        <td style="padding:6px; border:1px solid #ccc; font-size:11px;">${paymentsList}</td>
+                    </tr>
+                `;
+            }).join('');
+
+            document.getElementById('print-content').innerHTML = `
+                <div style="padding:15px; border:1px solid #000;">
+                    <h2 style="font-size:18px; font-weight:bold; text-align:center; text-transform:uppercase;">${schoolProfile.name}</h2>
+                    <p style="font-size:11px; text-align:center;">${schoolProfile.address}</p>
+                    <hr style="margin:10px 0;">
+                    <p style="font-size:13px; font-weight:bold; text-align:center; color:#4338ca;">STAFF SALARY PAYMENT STATEMENT</p>
+                    <p style="font-size:12px; margin-top:6px;"><strong>Staff Name:</strong> ${stf.name} (${stf.id}) &nbsp; | &nbsp; <strong>Designation:</strong> ${stf.role}</p>
+                    <table style="width:100%; border-collapse:collapse; margin-top:10px; font-size:12px;">
+                        <thead>
+                            <tr style="background:#f3f4f6;">
+                                <th style="padding:6px; border:1px solid #ccc; text-align:left;">Month</th>
+                                <th style="padding:6px; border:1px solid #ccc; text-align:right;">Bill</th>
+                                <th style="padding:6px; border:1px solid #ccc; text-align:right;">Paid</th>
+                                <th style="padding:6px; border:1px solid #ccc; text-align:right;">Balance</th>
+                                <th style="padding:6px; border:1px solid #ccc; text-align:left;">Status</th>
+                                <th style="padding:6px; border:1px solid #ccc; text-align:left;">Payment Details (Installments)</th>
+                            </tr>
+                        </thead>
+                        <tbody>${rowsHtml}</tbody>
+                        <tfoot>
+                            <tr style="background:#f3f4f6; font-weight:bold;">
+                                <td style="padding:6px; border:1px solid #ccc;">TOTAL</td>
+                                <td style="padding:6px; border:1px solid #ccc; text-align:right;">₹${ledger.totalBill.toLocaleString('en-IN')}</td>
+                                <td style="padding:6px; border:1px solid #ccc; text-align:right;">₹${ledger.totalPaid.toLocaleString('en-IN')}</td>
+                                <td style="padding:6px; border:1px solid #ccc; text-align:right; color:${ledger.totalBalance > 0 ? '#b91c1c' : '#047857'};">₹${ledger.totalBalance.toLocaleString('en-IN')}</td>
+                                <td colspan="2" style="padding:6px; border:1px solid #ccc;"></td>
+                            </tr>
+                        </tfoot>
+                    </table>
+                </div>
+            `;
+            document.getElementById('print-modal').classList.remove('hidden');
         }
 
         function collectFee(e) {
@@ -3563,61 +3976,9 @@
                 </tr>
             `}).join('') || '<tr><td colspan="7" class="p-4 text-center text-xs text-gray-400">No ex-students or TC issued students in archive.</td></tr>';
 
-            const selectedPayrollMonth = (document.getElementById('payroll-month-select') || {}).value || (getSessionMonthsList()[0] || '');
-
-            document.getElementById('table-staff').innerHTML = dataStore.staff.map(s => {
-                const earnings = (s.salary || 0) + (s.allowances || 0);
-                const deduction = computeStaffDeduction(s);
-                const netSalary = computeStaffNet(s);
-                const docBtn = (label, data) => data
-                    ? `<a href="${data}" target="_blank" title="View ${label}" class="text-indigo-600 hover:text-indigo-800 mr-1.5"><i class="fa-solid fa-file-lines"></i></a>`
-                    : `<span title="${label} not uploaded" class="text-gray-300 mr-1.5"><i class="fa-solid fa-file-circle-xmark"></i></span>`;
-
-                // Bill/Paid/Balance for the currently selected month
-                const monthEntry = (dataStore.payrollHistory || []).find(p => p.staffId === s.id && p.month === selectedPayrollMonth);
-                const monthBill = monthEntry ? monthEntry.netSalary : netSalary;
-                const monthPaid = monthEntry ? (monthEntry.paidAmount || 0) : 0;
-                const monthBalance = Math.max(0, monthBill - monthPaid);
-                const advanceExtra = monthPaid > monthBill ? (monthPaid - monthBill) : 0;
-                const isFullyPaid = monthPaid > 0 && monthBalance <= 0;
-
-                // Once fully paid, lock this staff+month so it can't be re-paid/duplicated —
-                // it only opens up again when the Academic Session changes (new set of months).
-                const paymentCell = isFullyPaid
-                    ? `<span class="bg-emerald-100 text-emerald-700 text-[10px] font-bold px-2 py-1 rounded block text-center">✅ PAID${advanceExtra > 0 ? ` (+₹${advanceExtra.toLocaleString('en-IN')} Advance)` : ''}</span><span class="text-[9px] text-gray-400 block text-center mt-0.5">Locked — next session me hi dubara khulega</span>`
-                    : `<button onclick="openStaffPaymentModal('${s.id}', '${selectedPayrollMonth}')" class="bg-amber-600 hover:bg-amber-700 text-white px-2.5 py-1 rounded text-xs font-bold w-full"><i class="fa-solid fa-money-bill-wave"></i> Save Payment</button><span class="text-[10px] block mt-1 ${monthBalance > 0 ? 'text-red-600 font-semibold' : ''}">Balance: ₹${monthBalance.toLocaleString('en-IN')}${monthPaid > 0 ? ` (₹${monthPaid.toLocaleString('en-IN')} paid)` : ''}</span>`;
-
-                // Date-wise payment history for the selected month
-                const historyHtml = (monthEntry && monthEntry.payments && monthEntry.payments.length)
-                    ? monthEntry.payments.map((pay, idx) => `<div class="text-[10px] text-gray-600">${idx + 1}. ₹${pay.amount.toLocaleString('en-IN')} — ${pay.mode} <span class="text-gray-400">(${pay.date})</span></div>`).join('')
-                    : '<span class="text-gray-400 text-[10px]">Koi payment nahi hua</span>';
-
-                return `
-                    <tr>
-                        <td class="p-3 font-bold text-slate-700">${s.id}</td>
-                        <td class="p-3 font-medium text-gray-800">${s.name}</td>
-                        <td class="p-3 text-gray-500">${s.role}</td>
-                        <td class="p-3 font-semibold">₹${earnings.toLocaleString('en-IN')}</td>
-                        <td class="p-3">
-                            <div class="flex items-center gap-2">
-                                <button onclick="updateStaffAbsence('${s.id}', -1)" class="px-2 py-0.5 bg-gray-200 rounded font-bold text-xs hover:bg-gray-300">-</button>
-                                <span class="font-bold text-red-600">${s.absentDays || 0} Days</span>
-                                <button onclick="updateStaffAbsence('${s.id}', 1)" class="px-2 py-0.5 bg-gray-200 rounded font-bold text-xs hover:bg-gray-300">+</button>
-                            </div>
-                        </td>
-                        <td class="p-3 text-red-600 font-bold">- ₹${deduction.toLocaleString('en-IN')} <span class="block text-[9px] font-normal text-gray-400">${s.absentDeductionType === 'CUSTOM' ? 'Custom Rule' : 'Auto (Basic÷30)'}</span></td>
-                        <td class="p-3 text-red-600 font-bold">- ₹${(s.advanceDeduction || 0).toLocaleString('en-IN')}</td>
-                        <td class="p-3 text-green-700 font-bold">₹${netSalary.toLocaleString('en-IN')}</td>
-                        <td class="p-3 min-w-[150px]">${paymentCell}</td>
-                        <td class="p-3 min-w-[140px]">${historyHtml}</td>
-                        <td class="p-3">${docBtn('Aadhaar', s.docAadhaar)}${docBtn('PAN', s.docPan)}${docBtn('Certificate', s.docEducation)}</td>
-                        <td class="p-3 whitespace-nowrap">
-                            <button onclick="editStaff('${s.id}')" class="bg-blue-600 text-white px-2.5 py-1 rounded text-xs font-bold mr-1"><i class="fa-solid fa-pen"></i> Edit</button>
-                            <button onclick="deleteStaff('${s.id}')" class="bg-red-600 hover:bg-red-700 text-white px-2.5 py-1 rounded text-xs font-bold" title="Staff school chhod de to yahan se remove karein"><i class="fa-solid fa-trash"></i> Delete</button>
-                        </td>
-                    </tr>
-                `;
-            }).join('') || '<tr><td colspan="12" class="p-4 text-center text-xs text-gray-400">No staff registered yet.</td></tr>';
+            renderStaffRosterTable();
+            renderPayrollStatusGrid();
+            renderPayrollOneByOne();
 
             // Monthly Expense Report (grouped from payrollHistory runs)
             const payrollHistory = dataStore.payrollHistory || [];
