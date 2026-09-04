@@ -7,18 +7,32 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
+        /* Default page = A4 (used for the bulk "6 Per A4" demand slip grid). Individual
+           Demand Bill prints (single student / advance) switch to the named A5 page
+           below via the .demand-bill-a5 class, so they always print on an A5 sheet. */
+        @page {
+            size: A4;
+            margin: 8mm;
+        }
+        @page demand-bill-a5-page {
+            size: A5;
+            margin: 8mm;
+        }
+        .demand-bill-a5 {
+            page: demand-bill-a5-page;
+        }
         @media print {
             body * { visibility: hidden; }
             #printable-area, #printable-area * { visibility: visible; }
             #printable-area { position: absolute; left: 0; top: 0; width: 100%; font-size: 11px; }
             .no-print { display: none !important; }
             
-            /* A4 8-Grid Printable CSS */
+            /* A4 6-Grid Printable CSS (2 columns x 3 rows = 6 slips per A4 sheet) */
             .a4-grid-container {
                 display: grid !important;
                 grid-template-columns: repeat(2, 1fr) !important;
-                grid-template-rows: repeat(4, 1fr) !important;
-                gap: 8px !important;
+                grid-template-rows: repeat(3, 1fr) !important;
+                gap: 10px !important;
                 width: 100% !important;
                 height: 100vh !important;
                 box-sizing: border-box !important;
@@ -26,12 +40,21 @@
             }
             .bill-card-print {
                 border: 1px dashed #333 !important;
-                padding: 6px !important;
+                padding: 8px !important;
                 box-sizing: border-box !important;
-                font-size: 9px !important;
+                font-size: 9.5px !important;
                 display: flex !important;
                 flex-direction: column !important;
                 justify-content: space-between !important;
+            }
+
+            /* Individual Demand Bill (single / advance) — always prints as a standalone
+               A5 page instead of sharing the A4 flow, since it's a single-student slip. */
+            .demand-bill-a5 {
+                width: 100% !important;
+                max-width: none !important;
+                box-sizing: border-box !important;
+                page-break-after: always;
             }
         }
     </style>
@@ -233,26 +256,31 @@
                                 <i class="fa-solid fa-cash-register text-green-600"></i> Collect Payment & Issue Receipt
                             </h3>
                             <form id="form-fees-dash" onsubmit="collectFee(event)" class="space-y-3">
-                                <div>
-                                    <label class="block text-xs font-semibold text-gray-600 mb-1">Select Student *</label>
-                                    <select id="fee-student-id" required onchange="autoFillFeeDetails()" class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none"></select>
+                                <div class="relative">
+                                    <label class="block text-xs font-semibold text-gray-600 mb-1">Search Student *</label>
+                                    <div class="relative">
+                                        <i class="fa-solid fa-magnifying-glass absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-xs"></i>
+                                        <input type="text" id="fee-student-search" required autocomplete="off" placeholder="Type Name or Student ID..." oninput="filterFeeStudentSearch()" onfocus="filterFeeStudentSearch()" class="w-full border border-gray-300 rounded-lg pl-8 pr-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-green-200 focus:border-green-400 transition">
+                                    </div>
+                                    <input type="hidden" id="fee-student-id">
+                                    <div id="fee-student-search-results" class="hidden absolute z-20 mt-1 w-full bg-white border border-gray-200 rounded-lg shadow-lg max-h-48 overflow-y-auto"></div>
                                 </div>
                                 <div>
                                     <label class="block text-xs font-semibold text-gray-600 mb-1">Amount Paid (₹) *</label>
-                                    <input type="number" id="fee-amount" required placeholder="e.g. 1500" class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none">
+                                    <input type="number" id="fee-amount" required placeholder="e.g. 1500" class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-green-200 focus:border-green-400 transition">
                                 </div>
                                 <div>
                                     <label class="block text-xs font-semibold text-gray-600 mb-1">Particulars / Month *</label>
-                                    <input type="text" id="fee-month" placeholder="e.g. Monthly Fee" required class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none">
+                                    <input type="text" id="fee-month" placeholder="e.g. Monthly Fee" required class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-green-200 focus:border-green-400 transition">
                                 </div>
                                 <div>
                                     <label class="block text-xs font-semibold text-gray-600 mb-1">Mode</label>
-                                    <select id="fee-mode" class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none">
+                                    <select id="fee-mode" class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-green-200 focus:border-green-400 transition">
                                         <option value="Cash">Cash</option>
                                         <option value="UPI / Online">UPI / PhonePe</option>
                                     </select>
                                 </div>
-                                <button type="submit" class="sub-protected-btn w-full bg-green-600 text-white font-bold py-2 rounded-lg text-xs hover:bg-green-700 shadow-sm flex items-center justify-center gap-2">
+                                <button type="submit" class="sub-protected-btn w-full bg-green-600 text-white font-bold py-2 rounded-lg text-xs hover:bg-green-700 shadow-sm flex items-center justify-center gap-2 transition-colors">
                                     <i class="fa-solid fa-receipt"></i> Save & Print Payment Receipt
                                 </button>
                             </form>
@@ -323,10 +351,6 @@
                                     <div>
                                         <label class="block text-xs font-semibold text-gray-600 mb-1">Aadhaar Number / आधार संख्या (Optional)</label>
                                         <input type="text" id="admAadhaar" maxlength="12" placeholder="12-Digit Aadhaar No" class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none">
-                                    </div>
-                                    <div class="md:col-span-3">
-                                        <label class="block text-xs font-semibold text-gray-600 mb-1">Student Photo / फोटो (Optional)</label>
-                                        <input type="file" id="admPhoto" accept="image/*" onchange="processStudentPhoto(this)" class="w-full border border-gray-300 rounded-lg p-1.5 text-xs bg-white">
                                     </div>
                                 </div>
                             </div>
@@ -657,39 +681,25 @@
 
                 <!-- 3. FEE, LEDGER & DEMAND BILLS HUB -->
                 <div id="tab-fees" class="tab-content hidden space-y-6">
-                    <div class="bg-white p-6 rounded-xl border border-gray-200 shadow-sm space-y-4">
-                        <h3 class="text-base font-bold text-gray-800 flex items-center gap-2 border-b pb-3">
-                            <i class="fa-solid fa-chart-line text-blue-600"></i> Class-wise Student Strength & Bill Dues Analytics
-                        </h3>
-                        <p class="text-xs text-gray-500">Overview of student counts, clear balances, and pending bill defaulters by class.</p>
-                        
-                        <div id="class-analytics-container" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4"></div>
-                    </div>
-
-                    <!-- STUDENT ACCOUNT STATEMENT, LEDGER HISTORY & COLLECT PAYMENT RECEIPT -->
-                    <div class="bg-white p-6 rounded-xl border border-gray-200 shadow-sm space-y-4">
-                        <div class="flex flex-col md:flex-row justify-between items-center gap-4 border-b pb-3">
-                            <h3 class="text-base font-bold text-gray-800 flex items-center gap-2">
-                                <i class="fa-solid fa-file-invoice-dollar text-blue-600"></i> Student Account Statement & Ledger History
+                    <!-- STEP 1: ALL STUDENTS LIST — CLICK A STUDENT TO OPEN THEIR LEDGER, CLICK DUE AMOUNT TO PRINT DEMAND BILL -->
+                    <div class="bg-white p-6 rounded-2xl border border-gray-200 shadow-sm space-y-4">
+                        <div class="flex flex-col md:flex-row justify-between items-center gap-3 border-b border-gray-100 pb-4">
+                            <h3 class="text-base font-bold text-gray-800 flex items-center gap-2.5">
+                                <span class="w-9 h-9 rounded-lg bg-blue-50 flex items-center justify-center"><i class="fa-solid fa-list-ul text-blue-600"></i></span>
+                                All Students — Total Due & Last Payment
                             </h3>
-                            <div class="flex items-center gap-3">
-                                <select id="ledger-student-id" onchange="renderStudentLedger()" class="border border-gray-300 rounded-lg px-3 py-1.5 text-xs font-semibold focus:outline-none"></select>
-                                <button onclick="printStudentStatement()" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-1.5 rounded-lg text-xs font-bold shadow-sm flex items-center gap-2">
-                                    <i class="fa-solid fa-print"></i> Print Full Statement
-                                </button>
-                            </div>
-                        </div>
-
-                        <!-- ALL STUDENTS: DUES, LAST PAYMENT & QUICK ACTIONS (CLASS-WISE FILTERABLE) -->
-                        <div class="border border-gray-200 rounded-lg overflow-hidden">
-                            <div class="flex flex-col md:flex-row justify-between items-center gap-3 p-3 bg-slate-50 border-b border-gray-200">
-                                <h4 class="text-xs font-bold text-slate-700 uppercase tracking-wider flex items-center gap-1.5">
-                                    <i class="fa-solid fa-list-ul"></i> All Students — Total Due & Last Payment
-                                </h4>
-                                <select id="student-list-class-filter" onchange="renderStudentAccountsList()" class="border border-gray-300 rounded-lg px-3 py-1.5 text-xs font-semibold focus:outline-none">
+                            <div class="flex flex-wrap items-center gap-2 w-full md:w-auto">
+                                <div class="relative w-full md:w-56">
+                                    <i class="fa-solid fa-magnifying-glass absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-xs"></i>
+                                    <input type="text" id="student-list-search" oninput="renderStudentAccountsList()" placeholder="Search Name or ID..." autocomplete="off" class="w-full border border-gray-300 rounded-lg pl-8 pr-3 py-2 text-xs font-semibold focus:outline-none focus:ring-2 focus:ring-blue-200 focus:border-blue-400 transition">
+                                </div>
+                                <select id="student-list-class-filter" onchange="renderStudentAccountsList()" class="border border-gray-300 rounded-lg px-3 py-2 text-xs font-semibold focus:outline-none focus:ring-2 focus:ring-blue-200 focus:border-blue-400 transition">
                                     <option value="">All Classes</option>
                                 </select>
                             </div>
+                        </div>
+                        <p class="text-[11px] text-gray-500 -mt-1"><i class="fa-solid fa-circle-info text-blue-400 mr-1"></i>Student ke naam/ID par click karke unka poora Statement & Ledger kholein. <strong class="text-red-600">Due Amount</strong> par click karne se Demand Bill popup khulega — wahi se <strong>current bill</strong> ya <strong>advance month tak</strong> ka bill select karke print karein.</p>
+                        <div class="border border-gray-200 rounded-xl overflow-hidden">
                             <div class="overflow-x-auto">
                                 <table class="w-full text-left text-sm text-gray-600">
                                     <thead class="bg-gray-50 text-gray-700 uppercase text-xs">
@@ -706,63 +716,88 @@
                                 </table>
                             </div>
                         </div>
+                    </div>
+
+                    <!-- STEP 2: STUDENT ACCOUNT STATEMENT, LEDGER HISTORY & COLLECT PAYMENT RECEIPT (OPENS AFTER SELECTING A STUDENT ABOVE) -->
+                    <div id="ledger-detail-card" class="hidden bg-white p-6 rounded-2xl border-2 border-blue-200 shadow-sm space-y-5">
+                        <div class="flex flex-col md:flex-row justify-between items-center gap-4 border-b border-gray-100 pb-4">
+                            <div class="flex items-center gap-3 w-full md:w-auto">
+                                <button onclick="closeStudentLedgerView()" class="w-9 h-9 shrink-0 rounded-lg bg-slate-100 hover:bg-slate-200 flex items-center justify-center text-slate-600 transition-colors" title="Back to Students List">
+                                    <i class="fa-solid fa-arrow-left"></i>
+                                </button>
+                                <div>
+                                    <h3 class="text-base font-bold text-gray-800 flex items-center gap-2">
+                                        <i class="fa-solid fa-file-invoice-dollar text-blue-600"></i> Student Account Statement & Ledger History
+                                    </h3>
+                                    <p id="ledger-selected-student-info" class="text-xs text-slate-500 font-semibold mt-0.5"></p>
+                                </div>
+                            </div>
+                            <div class="flex items-center gap-2 w-full md:w-auto">
+                                <select id="ledger-student-id" onchange="renderStudentLedger(); updateLedgerSelectedStudentInfo();" class="border border-gray-300 rounded-lg px-3 py-2 text-xs font-semibold focus:outline-none focus:ring-2 focus:ring-blue-200 focus:border-blue-400 transition"></select>
+                                <button onclick="printStudentStatement()" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg text-xs font-bold shadow-sm flex items-center gap-2 transition-colors whitespace-nowrap">
+                                    <i class="fa-solid fa-print"></i> Print Full Statement
+                                </button>
+                            </div>
+                        </div>
 
                         <!-- COLLECT PAYMENT RECEIPT (right next to the ledger, for the currently selected student) -->
-                        <div class="p-4 bg-green-50 border border-green-200 rounded-lg space-y-3">
+                        <div class="p-4 bg-gradient-to-br from-green-50 to-emerald-50 border border-green-200 rounded-xl space-y-3">
                             <h4 class="font-bold text-xs text-green-900 uppercase tracking-wider flex items-center gap-1.5">
                                 <i class="fa-solid fa-cash-register"></i> Collect Payment Receipt (Selected Student Ke Liye)
                             </h4>
                             <form onsubmit="collectFeeFromLedger(event)" class="grid grid-cols-1 md:grid-cols-4 gap-3 items-end">
                                 <div>
                                     <label class="block text-xs font-semibold text-gray-600 mb-1">Amount Paid (₹) *</label>
-                                    <input type="number" id="ledger-fee-amount" required placeholder="e.g. 1500" class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none">
+                                    <input type="number" id="ledger-fee-amount" required placeholder="e.g. 1500" class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-green-200 focus:border-green-400 transition bg-white">
                                 </div>
                                 <div>
                                     <label class="block text-xs font-semibold text-gray-600 mb-1">Particulars / Month *</label>
-                                    <input type="text" id="ledger-fee-month" placeholder="e.g. Monthly Fee" required class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none">
+                                    <input type="text" id="ledger-fee-month" placeholder="e.g. Monthly Fee" required class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-green-200 focus:border-green-400 transition bg-white">
                                 </div>
                                 <div>
                                     <label class="block text-xs font-semibold text-gray-600 mb-1">Mode</label>
-                                    <select id="ledger-fee-mode" class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none">
+                                    <select id="ledger-fee-mode" class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-green-200 focus:border-green-400 transition bg-white">
                                         <option value="Cash">Cash</option>
                                         <option value="UPI / Online">UPI / PhonePe</option>
                                     </select>
                                 </div>
-                                <button type="submit" class="sub-protected-btn w-full bg-green-600 text-white font-bold py-2 rounded-lg text-xs hover:bg-green-700 shadow-sm flex items-center justify-center gap-2">
+                                <button type="submit" class="sub-protected-btn w-full bg-green-600 text-white font-bold py-2.5 rounded-lg text-xs hover:bg-green-700 shadow-sm flex items-center justify-center gap-2 transition-colors">
                                     <i class="fa-solid fa-receipt"></i> Collect & Print Receipt
                                 </button>
                             </form>
                         </div>
 
-                        <div id="ledger-output-container" class="border border-gray-100 rounded-lg p-4 bg-slate-50 overflow-x-auto"></div>
+                        <div id="ledger-output-container" class="border border-gray-100 rounded-xl p-4 bg-slate-50 overflow-x-auto"></div>
                     </div>
 
                     <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                        <div class="bg-white p-6 rounded-xl border border-gray-200 shadow-sm space-y-4">
-                            <h3 class="text-base font-bold text-gray-800 flex items-center gap-2">
-                                <i class="fa-solid fa-snowflake text-blue-500"></i> Freeze / Pause Fee Generation
+                        <div class="bg-white p-6 rounded-2xl border border-gray-200 shadow-sm space-y-4">
+                            <h3 class="text-base font-bold text-gray-800 flex items-center gap-2.5">
+                                <span class="w-9 h-9 rounded-lg bg-blue-50 flex items-center justify-center"><i class="fa-solid fa-snowflake text-blue-500"></i></span>
+                                Freeze / Pause Fee Generation
                             </h3>
                             <p class="text-xs text-gray-500">Temporarily freeze student fee billing for leave/vacation period.</p>
                             
                             <div class="space-y-3">
                                 <div>
                                     <label class="block text-xs font-semibold text-gray-600 mb-1">Select Student</label>
-                                    <select id="pause-student-id" class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none"></select>
+                                    <select id="pause-student-id" class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-200 focus:border-blue-400 transition"></select>
                                 </div>
                                 <div class="flex gap-2">
-                                    <button onclick="toggleFeePause('PAUSED')" class="sub-protected-btn w-1/2 bg-amber-500 hover:bg-amber-600 text-white font-bold py-2 rounded-lg text-xs shadow-sm flex items-center justify-center gap-1">
+                                    <button onclick="toggleFeePause('PAUSED')" class="sub-protected-btn w-1/2 bg-amber-500 hover:bg-amber-600 text-white font-bold py-2.5 rounded-lg text-xs shadow-sm flex items-center justify-center gap-1 transition-colors">
                                         <i class="fa-solid fa-pause"></i> Freeze Fee
                                     </button>
-                                    <button onclick="toggleFeePause('ACTIVE')" class="sub-protected-btn w-1/2 bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-2 rounded-lg text-xs shadow-sm flex items-center justify-center gap-1">
+                                    <button onclick="toggleFeePause('ACTIVE')" class="sub-protected-btn w-1/2 bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-2.5 rounded-lg text-xs shadow-sm flex items-center justify-center gap-1 transition-colors">
                                         <i class="fa-solid fa-play"></i> Resume Fee
                                     </button>
                                 </div>
                             </div>
                         </div>
 
-                        <div class="bg-white p-6 rounded-xl border border-gray-200 shadow-sm space-y-4">
-                            <h3 class="text-base font-bold text-gray-800 flex items-center gap-2">
-                                <i class="fa-solid fa-file-circle-plus text-purple-600"></i> Add Individual Student Custom Due Bill
+                        <div class="bg-white p-6 rounded-2xl border border-gray-200 shadow-sm space-y-4">
+                            <h3 class="text-base font-bold text-gray-800 flex items-center gap-2.5">
+                                <span class="w-9 h-9 rounded-lg bg-purple-50 flex items-center justify-center"><i class="fa-solid fa-file-circle-plus text-purple-600"></i></span>
+                                Add Individual Student Custom Due Bill
                             </h3>
                             <p class="text-xs text-gray-500">Specific student ke account me custom description ke sath bill add karne ke liye.</p>
                             
@@ -770,101 +805,42 @@
                                 <div class="grid grid-cols-2 gap-2">
                                     <div>
                                         <label class="block text-xs font-semibold text-gray-600 mb-1">Select Student *</label>
-                                        <select id="indiv-student-id" required class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none"></select>
+                                        <select id="indiv-student-id" required class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-purple-200 focus:border-purple-400 transition"></select>
                                     </div>
                                     <div>
                                         <label class="block text-xs font-semibold text-gray-600 mb-1">Due Amount (₹) *</label>
-                                        <input type="number" id="indiv-bill-amount" placeholder="e.g. 250" required class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none">
+                                        <input type="number" id="indiv-bill-amount" placeholder="e.g. 250" required class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-purple-200 focus:border-purple-400 transition">
                                     </div>
                                 </div>
                                 <div>
                                     <label class="block text-xs font-semibold text-gray-600 mb-1">Bill Description (Reason) *</label>
-                                    <input type="text" id="indiv-bill-desc" placeholder="e.g. Dress & ID Card Charge" required class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none">
+                                    <input type="text" id="indiv-bill-desc" placeholder="e.g. Dress & ID Card Charge" required class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-purple-200 focus:border-purple-400 transition">
                                 </div>
-                                <button type="submit" class="sub-protected-btn w-full bg-purple-600 hover:bg-purple-700 text-white font-bold py-2 rounded-lg text-xs shadow-sm flex items-center justify-center gap-2">
+                                <button type="submit" class="sub-protected-btn w-full bg-purple-600 hover:bg-purple-700 text-white font-bold py-2.5 rounded-lg text-xs shadow-sm flex items-center justify-center gap-2 transition-colors">
                                     <i class="fa-solid fa-plus-circle"></i> Add Custom Bill
                                 </button>
                             </form>
                         </div>
                     </div>
 
-                    <!-- ACADEMIC BILL GENERATOR WITH SMART DUPLICATE PROTECTION & TRACKER -->
-                    <div class="bg-white p-6 rounded-xl border border-gray-200 shadow-sm space-y-4">
-                        <div class="flex flex-col md:flex-row justify-between md:items-center border-b pb-3 gap-2">
+                    <!-- PRINT DEMAND SLIPS & EXCEL REPORTS WITH MONTH-WISE DYNAMIC CALCULATION -->
+                    <div class="bg-white p-6 rounded-2xl border border-gray-200 shadow-sm space-y-4">
+                        <div class="flex flex-col md:flex-row justify-between items-center gap-4 border-b border-gray-100 pb-4">
                             <div>
-                                <h3 class="text-base font-bold text-gray-800 flex items-center gap-2">
-                                    <i class="fa-solid fa-calculator text-blue-600"></i> Automated Session Bill Generator
+                                <h3 class="text-base font-bold text-gray-800 flex items-center gap-2.5">
+                                    <span class="w-9 h-9 rounded-lg bg-amber-50 flex items-center justify-center"><i class="fa-solid fa-print text-amber-500"></i></span>
+                                    Print Demand Slips & Excel Reports
                                 </h3>
-                                <p class="text-xs text-gray-500">Smart Bill Generator with Duplicate Prevention & Dynamic Session Engine.</p>
-                            </div>
-                            
-                            <!-- GENERATED MONTHS BADGE TRACKER -->
-                            <div class="flex items-center gap-1.5 flex-wrap">
-                                <span class="text-[10px] font-bold text-slate-500 uppercase mr-1">Generated Months:</span>
-                                <div id="generated-months-badges" class="flex flex-wrap gap-1"></div>
-                            </div>
-                        </div>
-                        
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                            <!-- BULK GENERATOR FORM -->
-                            <div class="p-4 bg-blue-50 border border-blue-200 rounded-lg space-y-3">
-                                <h4 class="font-bold text-xs text-blue-900 uppercase tracking-wider flex items-center gap-1.5">
-                                    <i class="fa-solid fa-users"></i> A. Bulk Generate For All Active Students
-                                </h4>
-                                <p class="text-[11px] text-slate-600">Select Month to generate. System will automatically skip already generated months to avoid duplicate bills.</p>
-                                <form onsubmit="generateMonthlyBillForActiveStudents(event)" class="space-y-3">
-                                    <div>
-                                        <label class="block text-xs font-semibold text-slate-700 mb-1">Select Next Billing Month *</label>
-                                        <select id="bulkBillMonthSelect" required class="w-full border border-gray-300 rounded-lg px-3 py-2 text-xs font-bold text-blue-900 bg-white focus:outline-none"></select>
-                                    </div>
-                                    <button type="submit" class="sub-protected-btn w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 rounded-lg text-xs shadow-sm flex items-center justify-center gap-2">
-                                        <i class="fa-solid fa-bolt"></i> Generate Bulk Monthly Session Bill
-                                    </button>
-                                </form>
-                            </div>
-
-                            <!-- SINGLE GENERATOR FORM -->
-                            <div class="p-4 bg-emerald-50 border border-emerald-200 rounded-lg space-y-3">
-                                <h4 class="font-bold text-xs text-emerald-900 uppercase tracking-wider flex items-center gap-1.5">
-                                    <i class="fa-solid fa-user-check"></i> B. Generate Monthly Bill (One-By-One)
-                                </h4>
-                                <p class="text-[11px] text-slate-600">Single student select karke exact month bill itemized breakdown ke sath generate karein.</p>
-                                <form onsubmit="generateSingleMonthlyBill(event)" class="space-y-2">
-                                    <div class="grid grid-cols-2 gap-2">
-                                        <div>
-                                            <label class="block text-xs font-semibold text-slate-700 mb-1">Select Student *</label>
-                                            <select id="singleBillStudentSelect" required class="w-full border border-gray-300 rounded-lg px-2 py-1.5 text-xs focus:outline-none"></select>
-                                        </div>
-                                        <div>
-                                            <label class="block text-xs font-semibold text-slate-700 mb-1">Select Month *</label>
-                                            <select id="singleBillMonthSelect" required class="w-full border border-gray-300 rounded-lg px-2 py-1.5 text-xs focus:outline-none"></select>
-                                        </div>
-                                    </div>
-                                    <button type="submit" class="sub-protected-btn w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-2 rounded-lg text-xs shadow-sm flex items-center justify-center gap-2">
-                                        <i class="fa-solid fa-plus-circle"></i> Generate Single Student Bill
-                                    </button>
-                                </form>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- AUTOMATED PRINT DEMAND SLIPS & EXCEL REPORTS WITH MONTH-WISE DYNAMIC CALCULATION -->
-                    <div class="bg-white p-6 rounded-xl border border-gray-200 shadow-sm space-y-4">
-                        <div class="flex flex-col md:flex-row justify-between items-center gap-4 border-b pb-4">
-                            <div>
-                                <h3 class="text-base font-bold text-gray-800 flex items-center gap-2">
-                                    <i class="fa-solid fa-print text-amber-500"></i> Print Demand Slips & Excel Reports
-                                </h3>
-                                <p class="text-xs text-gray-500">Select Month to calculate itemized descriptions, outstanding dues up to that month, and generate 8-Slips per A4 Page or download Excel Dues Report.</p>
+                                <p class="text-xs text-gray-500 mt-1">Select Month to calculate itemized descriptions, outstanding dues up to that month, and generate 6-Slips per A4 Page or download Excel Dues Report.</p>
                             </div>
 
                             <div class="flex flex-wrap items-center gap-3">
-                                <select id="bill-month-filter" class="border border-gray-300 rounded-lg px-3 py-2 text-xs font-bold text-blue-900 bg-blue-50 focus:outline-none"></select>
-                                <button onclick="exportDuesToExcel()" class="bg-emerald-600 hover:bg-emerald-700 text-white font-bold px-4 py-2 rounded-lg text-xs shadow-md flex items-center gap-2">
+                                <select id="bill-month-filter" class="border border-gray-300 rounded-lg px-3 py-2 text-xs font-bold text-blue-900 bg-blue-50 focus:outline-none focus:ring-2 focus:ring-blue-200 transition"></select>
+                                <button onclick="exportDuesToExcel()" class="bg-emerald-600 hover:bg-emerald-700 text-white font-bold px-4 py-2 rounded-lg text-xs shadow-md flex items-center gap-2 transition-colors">
                                     <i class="fa-solid fa-file-excel"></i> Export Excel Dues Report
                                 </button>
-                                <button onclick="printBulkBillsA4()" class="bg-amber-600 hover:bg-amber-700 text-white font-bold px-5 py-2 rounded-lg text-xs shadow-md flex items-center gap-2">
-                                    <i class="fa-solid fa-print"></i> Print Demand Slips (8 Per A4)
+                                <button onclick="printBulkBillsA4()" class="bg-amber-600 hover:bg-amber-700 text-white font-bold px-5 py-2 rounded-lg text-xs shadow-md flex items-center gap-2 transition-colors">
+                                    <i class="fa-solid fa-print"></i> Print Demand Slips (6 Per A4)
                                 </button>
                             </div>
                         </div>
@@ -961,25 +937,6 @@
                             </div>
 
                             <div class="border-t pt-4">
-                                <h4 class="font-bold text-[11px] text-indigo-900 uppercase tracking-wider mb-2">Document Management (Aadhaar, PAN, Educational Certificates)</h4>
-                                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                                    <div>
-                                        <label class="block text-xs font-semibold text-gray-600 mb-1">Upload Aadhaar Copy</label>
-                                        <input type="file" accept="image/*,.pdf" onchange="processStaffDocument(this,'aadhaar')" class="w-full border border-gray-300 rounded-lg px-2 py-1.5 text-xs focus:outline-none">
-                                    </div>
-                                    <div>
-                                        <label class="block text-xs font-semibold text-gray-600 mb-1">Upload PAN Copy</label>
-                                        <input type="file" accept="image/*,.pdf" onchange="processStaffDocument(this,'pan')" class="w-full border border-gray-300 rounded-lg px-2 py-1.5 text-xs focus:outline-none">
-                                    </div>
-                                    <div>
-                                        <label class="block text-xs font-semibold text-gray-600 mb-1">Upload Educational Certificate</label>
-                                        <input type="file" accept="image/*,.pdf" onchange="processStaffDocument(this,'education')" class="w-full border border-gray-300 rounded-lg px-2 py-1.5 text-xs focus:outline-none">
-                                    </div>
-                                </div>
-                                <p class="text-[10px] text-gray-400 mt-1">Documents is browser me hi securely save hote hain aur roster table se kabhi bhi dekhe ja sakte hain.</p>
-                            </div>
-
-                            <div class="border-t pt-4">
                                 <h4 class="font-bold text-[11px] text-indigo-900 uppercase tracking-wider mb-2">Salary Structure & Absent-Day Deduction Rule</h4>
                                 <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
                                     <div>
@@ -1036,7 +993,6 @@
                                         <th class="p-3">Designation</th>
                                         <th class="p-3">Mobile</th>
                                         <th class="p-3">Basic Salary</th>
-                                        <th class="p-3">Documents</th>
                                         <th class="p-3">Action</th>
                                     </tr>
                                 </thead>
@@ -1215,7 +1171,7 @@
                                 <p class="text-xs text-gray-500">Is list se aap student ko TC/Left mark karke alag archive table me shift kar sakte hain.</p>
                             </div>
                             <button onclick="printBulkBillsA4()" class="bg-amber-600 hover:bg-amber-700 text-white font-bold px-4 py-2 rounded-lg text-xs shadow-md flex items-center gap-2">
-                                <i class="fa-solid fa-print"></i> Print All 8-In-1 Demand Slips
+                                <i class="fa-solid fa-print"></i> Print All 6-In-1 Demand Slips
                             </button>
                         </div>
                         <div class="overflow-x-auto">
@@ -1473,6 +1429,50 @@
         </div>
     </div>
 
+    <!-- DEMAND BILL MODAL — opens when "Due Amount" / "Demand Bill" is clicked in the student
+         list. Lets the admin choose a plain CURRENT bill or extend it into an ADVANCE bill
+         (up to a chosen future month) right here, instead of scrolling to a separate card. -->
+    <div id="demand-bill-modal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center hidden z-[60] p-4">
+        <div class="bg-white rounded-2xl shadow-xl max-w-md w-full p-6 space-y-4">
+            <div class="flex items-center justify-between border-b border-gray-100 pb-3">
+                <h3 class="text-base font-bold text-gray-800 flex items-center gap-2">
+                    <span class="w-9 h-9 rounded-lg bg-blue-50 flex items-center justify-center"><i class="fa-solid fa-file-invoice text-blue-600"></i></span>
+                    Demand Bill
+                </h3>
+                <button type="button" onclick="closeDemandBillModal()" class="text-gray-400 hover:text-gray-600 w-8 h-8 flex items-center justify-center"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+
+            <p id="demandModalStudentInfo" class="text-sm font-bold text-slate-800"></p>
+
+            <!-- Hidden select — keeps re-using the existing populate/preview logic, just not shown as a dropdown since a single student is already picked from the list -->
+            <select id="advanceBillStudentSelect" class="hidden"></select>
+
+            <div>
+                <label class="block text-xs font-semibold text-gray-600 mb-1.5">Bill Type</label>
+                <div class="grid grid-cols-2 gap-2">
+                    <button type="button" id="demandModeCurrentBtn" onclick="setDemandBillMode('current')" class="py-2.5 rounded-lg text-xs font-bold border-2 transition-colors">
+                        <i class="fa-solid fa-receipt mr-1"></i> Current Due Bill
+                    </button>
+                    <button type="button" id="demandModeAdvanceBtn" onclick="setDemandBillMode('advance')" class="py-2.5 rounded-lg text-xs font-bold border-2 transition-colors">
+                        <i class="fa-solid fa-calendar-plus mr-1"></i> Advance Bill
+                    </button>
+                </div>
+            </div>
+
+            <div id="demandAdvanceMonthWrap" class="hidden space-y-1">
+                <label class="block text-xs font-semibold text-gray-600 mb-1">Advance Dena Hai Kis Month Tak *</label>
+                <select id="advanceBillMonthSelect" onchange="updateDemandBillModalPreview()" class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-200 focus:border-emerald-400 transition"></select>
+            </div>
+
+            <div id="advance-bill-preview" class="text-xs bg-blue-50 border border-blue-200 rounded-lg px-3 py-2.5 text-slate-700 leading-relaxed"></div>
+
+            <div class="flex justify-end gap-2 pt-2 border-t border-gray-100">
+                <button type="button" onclick="closeDemandBillModal()" class="px-4 py-2 bg-gray-200 text-xs font-semibold rounded-lg">Cancel</button>
+                <button type="button" onclick="confirmPrintDemandBill()" class="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold rounded-lg shadow-sm flex items-center gap-2"><i class="fa-solid fa-print"></i> Print Bill</button>
+            </div>
+        </div>
+    </div>
+
     <!-- PRINT MODAL CONTAINER -->
     <div id="print-modal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center hidden z-50">
         <div class="bg-white p-6 rounded-xl max-w-4xl w-full space-y-4 shadow-xl max-h-[95vh] overflow-y-auto" id="printable-area">
@@ -1489,7 +1489,6 @@
     <!-- DATA ENGINE (JAVASCRIPT) -->
     <script>
         let currentModalStudent = null;
-        let tempUploadedPhotoBase64 = "";
 
         // DYNAMIC SCHOOL PROFILE SETTINGS WITH LOCAL STORAGE
         let defaultSchoolProfile = {
@@ -1508,7 +1507,7 @@
 
         // ================= CLOUD BACKEND CONFIG =================
         // Paste your deployed Google Apps Script Web App URL here (same URL used by the Master Control Center).
-        const BACKEND_URL = "https://script.google.com/macros/s/AKfycbylc3XtokK86uC3-nZhPFqduEZYa1GPnWzQgh_qxndy5_iqF3dKIuUrqO0w3N7xioJB4g/exec";
+        const BACKEND_URL = "https://script.google.com/macros/s/AKfycbzbgFC0jZBa6IAZE6APPWWgl6yv1r75rtTvxecHTcaAdoTQuOQabQm2ijLvoIjkQYmR4w/exec";
 
         let selectedPayrollStaffId = null; // one-by-one Salary Calculation & Payment panel ke liye currently selected staff
         let payrollAttendanceEditingStaffId = null; // jab tak edit mode ON hai, us staff ki id yahan set rehti hai
@@ -1810,6 +1809,18 @@
                 fMonthSelect.innerHTML = months.map(m => `<option value="${m}">Billing Month: ${m}</option>`).join('');
             }
 
+            // Advance Demand Bill — Target Month Select (up to which month to bill in
+            // advance). Defaults to the LAST month of the session (full remaining
+            // session advance) so the one-click "Advance Bill" button on the student
+            // list has a sensible target even before the admin opens this card.
+            const advMonthSelect = document.getElementById('advanceBillMonthSelect');
+            if (advMonthSelect) {
+                const currAdv = advMonthSelect.value;
+                advMonthSelect.innerHTML = months.map(m => `<option value="${m}">${m}</option>`).join('');
+                if (currAdv && months.includes(currAdv)) advMonthSelect.value = currAdv;
+                else advMonthSelect.value = months[months.length - 1];
+            }
+
             // Payroll Month Select
             const pMonthSelect = document.getElementById('payroll-month-select');
             if (pMonthSelect) {
@@ -2011,6 +2022,72 @@
             return (student.monthlyFee || 0) + (student.transportFee || 0) + (student.hostelFee || 0) + (student.computerFee || 0);
         }
 
+        // Projects the total amount payable if a parent wants to pay their dues IN
+        // ADVANCE, up to and including a selected future session month — even for
+        // months that haven't been billed to the ledger yet. Returns the already
+        // outstanding ledger balance, the list of not-yet-billed months included, the
+        // advance portion, and the grand total.
+        // Returns the list of NOT-YET-FULLY-PAID ledger DEBIT items (bills) for a
+        // student, applying every payment (CREDIT) against the earliest bills first
+        // (FIFO) — so Demand Bills always show exactly WHICH months/charges are still
+        // outstanding, not simply every bill ever raised. Optionally capped to bills up
+        // to (and including) a given session month.
+        function getOutstandingBillItems(student, uptoMonth) {
+            const monthsList = getSessionMonthsList();
+            const uptoIdx = uptoMonth ? monthsList.indexOf(uptoMonth) : -1;
+
+            let debitItems = student.ledger.filter(item => item.type === 'DEBIT' && !item.deleted);
+            if (uptoIdx !== -1) {
+                debitItems = debitItems.filter(item => {
+                    const monthInDesc = monthsList.find(m => item.description && item.description.includes(m));
+                    if (!monthInDesc) return true; // one-time / custom bills are always kept
+                    return monthsList.indexOf(monthInDesc) <= uptoIdx;
+                });
+            }
+
+            let creditPool = student.ledger.filter(item => item.type === 'CREDIT' && !item.deleted)
+                                            .reduce((sum, item) => sum + item.amount, 0);
+
+            const outstanding = [];
+            debitItems.forEach(item => {
+                if (creditPool >= item.amount) {
+                    creditPool -= item.amount; // this bill is fully paid off already
+                } else {
+                    outstanding.push({ description: item.description, amount: item.amount - creditPool, date: item.date });
+                    creditPool = 0;
+                }
+            });
+
+            return outstanding;
+        }
+
+        function calculateProjectedDueUpToMonth(student, targetMonth) {
+            const monthsList = getSessionMonthsList();
+            const targetIndex = monthsList.indexOf(targetMonth);
+            const currentDue = calculateStudentBalance(student);
+            const monthlyFee = calculateTotalMonthlyFee(student);
+
+            let advanceMonths = [];
+            if (targetIndex !== -1) {
+                monthsList.forEach((m, idx) => {
+                    if (idx > targetIndex) return; // beyond the selected advance month
+                    if (!isMonthEligibleForBilling(student, m)) return; // before this student's own Bill Start Month
+                    const alreadyBilled = student.ledger.some(item => item.type === 'DEBIT' && !item.deleted && item.description.includes(m));
+                    if (alreadyBilled) return; // this month is already on the ledger, not an "advance" month
+                    advanceMonths.push(m);
+                });
+            }
+
+            const advanceTotal = advanceMonths.length * monthlyFee;
+            return {
+                currentDue,
+                monthlyFee,
+                advanceMonths,
+                advanceTotal,
+                grandTotal: currentDue + advanceTotal
+            };
+        }
+
         function getDetailedFeeDescription(student, monthName) {
             let details = [];
             if(student.monthlyFee > 0) details.push(`Tuition: ₹${student.monthlyFee}`);
@@ -2052,22 +2129,15 @@
                 student.feeStatus = statusValue;
                 saveDataStore();
                 alert(`Fee Billing status updated to ${student.feeStatus} for ${student.name}`);
+                if (statusValue === 'ACTIVE') autoGenerateDueMonthlyBills(); // instantly catch up any missed months on resume
                 refreshUI();
             }
         }
 
-        function processStudentPhoto(input) {
-            if (input.files && input.files[0]) {
-                const reader = new FileReader();
-                reader.onload = function(e) {
-                    tempUploadedPhotoBase64 = e.target.result;
-                };
-                reader.readAsDataURL(input.files[0]);
-            }
-        }
-
         function syncDropdowns() {
-            const studentDropdowns = ['fee-student-id', 'pause-student-id', 'ledger-student-id', 'indiv-student-id', 'singleBillStudentSelect', 'promoSingleStudentSelect'];
+            // 'fee-student-id' is intentionally excluded here — it is now a hidden field
+            // driven by the Search Student autocomplete box, not a <select>.
+            const studentDropdowns = ['pause-student-id', 'ledger-student-id', 'indiv-student-id', 'singleBillStudentSelect', 'promoSingleStudentSelect', 'advanceBillStudentSelect'];
             studentDropdowns.forEach(id => {
                 const select = document.getElementById(id);
                 if (select) {
@@ -2237,10 +2307,20 @@
             const st = dataStore.students.find(s => s.id === studentId);
             if(!st) return;
             const due = calculateStudentBalance(st);
-            const desc = getDetailedFeeDescription(st, "Current");
-            
+            const outstandingItems = getOutstandingBillItems(st);
+
+            const billRowsHtml = outstandingItems.length > 0
+                ? outstandingItems.map(item => `
+                    <tr>
+                        <td style="padding:3px 4px 3px 0; font-size:10.5px; border-bottom:1px dotted #ccc;">${item.description}</td>
+                        <td style="padding:3px 4px; font-size:9.5px; color:#555; text-align:center; white-space:nowrap; border-bottom:1px dotted #ccc;">${item.date || '-'}</td>
+                        <td style="padding:3px 0; font-size:10.5px; text-align:right; white-space:nowrap; border-bottom:1px dotted #ccc;">₹${item.amount.toLocaleString('en-IN')}</td>
+                    </tr>
+                `).join('')
+                : `<tr><td colspan="3" style="padding:6px 0; font-size:11px; color:#166534; text-align:center;">✅ Koi bhi month ka due nahi hai.</td></tr>`;
+
             document.getElementById('print-content').innerHTML = `
-                <div style="padding:20px; border:2px dashed #000; line-height:1.6; max-width:400px; margin:auto;">
+                <div class="demand-bill-a5" style="padding:20px; border:2px dashed #000; line-height:1.6; max-width:400px; margin:auto;">
                     <div style="text-align:center; border-bottom:1px solid #000; padding-bottom:8px; margin-bottom:12px;">
                         <h2 style="font-size:16px; font-weight:bold; text-transform:uppercase;">${schoolProfile.name}</h2>
                         <p style="font-size:10px;">${schoolProfile.address} | Cell: ${schoolProfile.phone}</p>
@@ -2249,7 +2329,20 @@
                     <p style="font-size:12px;"><strong>Student ID:</strong> ${st.id} | <strong>Class:</strong> ${st.class}</p>
                     <p style="font-size:12px;"><strong>Name:</strong> ${st.name} ${st.feeStatus === 'LEFT' ? '(TC Issued)' : ''}</p>
                     <p style="font-size:12px;"><strong>Father's Name:</strong> ${st.guardian}</p>
-                    <p style="font-size:10px; color:#444;"><strong>Fee Structure:</strong> ${desc}</p>
+                    <p style="font-size:9px; color:#666;"><strong>Bill Printed On:</strong> ${new Date().toLocaleDateString('en-IN')}</p>
+
+                    <p style="font-size:11px; font-weight:bold; margin:10px 0 3px; border-top:1px solid #000; padding-top:6px;">Description & Bill Details (Month-wise Due):</p>
+                    <table style="width:100%; border-collapse:collapse;">
+                        <thead>
+                            <tr style="font-size:8.5px; color:#555; text-transform:uppercase;">
+                                <td style="padding-bottom:2px; border-bottom:1px solid #000;">Month / Description</td>
+                                <td style="padding-bottom:2px; border-bottom:1px solid #000; text-align:center;">Bill Date</td>
+                                <td style="padding-bottom:2px; border-bottom:1px solid #000; text-align:right;">Amount</td>
+                            </tr>
+                        </thead>
+                        <tbody>${billRowsHtml}</tbody>
+                    </table>
+
                     <div style="border-top:1px solid #000; border-bottom:1px solid #000; padding:5px 0; margin:10px 0; font-size:14px; font-weight:bold; display:flex; justify-content:space-between;">
                         <span>Total Outstanding Pending Dues:</span>
                         <span style="color:red;">₹${due.toLocaleString('en-IN')}</span>
@@ -2258,6 +2351,182 @@
                 </div>
             `;
             document.getElementById('print-modal').classList.remove('hidden');
+        }
+
+        // Prints an ADVANCE Demand Bill — lets a parent pay several months ahead of
+        // time. Includes the current outstanding ledger balance (itemized month-wise,
+        // just like the regular Demand Bill) PLUS the fee for every not-yet-billed
+        // month from the student's own Bill Start Month up to the selected target
+        // month (inclusive), so it's crystal clear what's already due vs what's being
+        // collected in advance.
+        function printAdvanceDemandSlip(e) {
+            if (e && e.preventDefault) e.preventDefault();
+            const studentId = document.getElementById('advanceBillStudentSelect').value;
+            const targetMonth = document.getElementById('advanceBillMonthSelect').value;
+            const st = dataStore.students.find(s => s.id === studentId);
+            if (!st) { alert("Kripya pehle ek student select karein."); return; }
+            if (!targetMonth) { alert("Kripya advance kis month tak dena hai wo select karein."); return; }
+
+            const proj = calculateProjectedDueUpToMonth(st, targetMonth);
+            const outstandingItems = getOutstandingBillItems(st);
+
+            const dueRowsHtml = outstandingItems.length > 0
+                ? outstandingItems.map(item => `
+                    <tr>
+                        <td style="padding:3px 4px 3px 0; font-size:10.5px; border-bottom:1px dotted #ccc;">${item.description}</td>
+                        <td style="padding:3px 4px; font-size:9.5px; color:#555; text-align:center; white-space:nowrap; border-bottom:1px dotted #ccc;">${item.date || '-'}</td>
+                        <td style="padding:3px 0; font-size:10.5px; text-align:right; white-space:nowrap; border-bottom:1px dotted #ccc;">₹${item.amount.toLocaleString('en-IN')}</td>
+                    </tr>
+                `).join('')
+                : `<tr><td colspan="3" style="padding:4px 0; font-size:10.5px; color:#166534; text-align:center;">✅ Koi bhi purana month due nahi hai.</td></tr>`;
+
+            const advanceRowsHtml = proj.advanceMonths.length > 0
+                ? proj.advanceMonths.map(m => `
+                    <tr>
+                        <td style="padding:3px 0; font-size:11px;">${m} Monthly Fee</td>
+                        <td style="padding:3px 0; font-size:11px; text-align:right;">₹${proj.monthlyFee.toLocaleString('en-IN')}</td>
+                    </tr>
+                `).join('')
+                : `<tr><td colspan="2" style="padding:3px 0; font-size:11px; color:#666; text-align:center;">Is period ke liye koi naya advance month nahi hai.</td></tr>`;
+
+            document.getElementById('print-content').innerHTML = `
+                <div class="demand-bill-a5" style="padding:20px; border:2px dashed #000; line-height:1.6; max-width:420px; margin:auto;">
+                    <div style="text-align:center; border-bottom:1px solid #000; padding-bottom:8px; margin-bottom:12px;">
+                        <h2 style="font-size:16px; font-weight:bold; text-transform:uppercase;">${schoolProfile.name}</h2>
+                        <p style="font-size:10px;">${schoolProfile.address} | Cell: ${schoolProfile.phone}</p>
+                        <strong style="font-size:12px; background:#eee; padding:2px 8px; border-radius:4px;">ADVANCE DEMAND BILL SLIP</strong>
+                    </div>
+                    <p style="font-size:12px;"><strong>Student ID:</strong> ${st.id} | <strong>Class:</strong> ${st.class}</p>
+                    <p style="font-size:12px;"><strong>Name:</strong> ${st.name}</p>
+                    <p style="font-size:12px;"><strong>Father's Name:</strong> ${st.guardian}</p>
+                    <p style="font-size:9px; color:#666;"><strong>Slip Printed On:</strong> ${new Date().toLocaleDateString('en-IN')}</p>
+
+                    <p style="font-size:11px; font-weight:bold; margin:10px 0 3px; border-top:1px solid #000; padding-top:6px;">Description & Bill Details (Already Due Months):</p>
+                    <table style="width:100%; border-collapse:collapse;">
+                        <thead>
+                            <tr style="font-size:8.5px; color:#555; text-transform:uppercase;">
+                                <td style="padding-bottom:2px; border-bottom:1px solid #000;">Month / Description</td>
+                                <td style="padding-bottom:2px; border-bottom:1px solid #000; text-align:center;">Bill Date</td>
+                                <td style="padding-bottom:2px; border-bottom:1px solid #000; text-align:right;">Amount</td>
+                            </tr>
+                        </thead>
+                        <tbody>${dueRowsHtml}</tbody>
+                    </table>
+                    <div style="display:flex; justify-content:space-between; font-size:12px; margin-top:4px;">
+                        <span>Current Outstanding Dues:</span>
+                        <span style="font-weight:bold; color:red;">₹${proj.currentDue.toLocaleString('en-IN')}</span>
+                    </div>
+
+                    <p style="font-size:11px; font-weight:bold; margin:10px 0 2px; border-top:1px solid #000; padding-top:6px;">Advance Months Included (up to ${targetMonth}):</p>
+                    <table style="width:100%; border-collapse:collapse;">
+                        <tbody>${advanceRowsHtml}</tbody>
+                    </table>
+
+                    <div style="border-top:1px solid #000; border-bottom:1px solid #000; padding:6px 0; margin:10px 0; font-size:14px; font-weight:bold; display:flex; justify-content:space-between;">
+                        <span>Grand Total Payable (Advance):</span>
+                        <span style="color:red;">₹${proj.grandTotal.toLocaleString('en-IN')}</span>
+                    </div>
+                    <p style="font-size:10px; text-align:center;">This is an advance demand slip. Amount paid will be adjusted against the listed months.</p>
+                </div>
+            `;
+            document.getElementById('print-modal').classList.remove('hidden');
+        }
+
+        // ============== UNIFIED DEMAND BILL MODAL ==============
+        // Opens from the "Due Amount" / "Demand Bill" click in the student list. Lets the
+        // admin pick either a plain CURRENT due bill or extend it into an ADVANCE bill
+        // (up to a chosen future month), all from one popup — no separate card to scroll to.
+        let demandBillMode = 'current';
+
+        function openDemandBillModal(studentId) {
+            const st = dataStore.students.find(s => s.id === studentId);
+            if (!st) return;
+
+            const studentSelect = document.getElementById('advanceBillStudentSelect');
+            if (studentSelect) studentSelect.value = studentId;
+
+            const due = calculateStudentBalance(st);
+            const infoEl = document.getElementById('demandModalStudentInfo');
+            if (infoEl) infoEl.innerHTML = `${st.name} <span class="text-gray-400 font-normal">(${st.id} · ${st.class})</span> — Current Due: <span class="${due > 0 ? 'text-red-600' : 'text-green-600'}">₹${due.toLocaleString('en-IN')}</span>`;
+
+            const monthSelect = document.getElementById('advanceBillMonthSelect');
+            if (monthSelect) {
+                const monthsList = getSessionMonthsList();
+                if (!monthSelect.value) monthSelect.value = monthsList[monthsList.length - 1];
+            }
+
+            setDemandBillMode('current');
+            document.getElementById('demand-bill-modal').classList.remove('hidden');
+        }
+
+        function closeDemandBillModal() {
+            document.getElementById('demand-bill-modal').classList.add('hidden');
+        }
+
+        function setDemandBillMode(mode) {
+            demandBillMode = mode;
+            const currentBtn = document.getElementById('demandModeCurrentBtn');
+            const advanceBtn = document.getElementById('demandModeAdvanceBtn');
+            const advanceWrap = document.getElementById('demandAdvanceMonthWrap');
+
+            if (currentBtn && advanceBtn) {
+                const activeCls = ['border-blue-500', 'bg-blue-50', 'text-blue-700'];
+                const inactiveCls = ['border-gray-200', 'text-gray-500'];
+                currentBtn.classList.remove(...activeCls, ...inactiveCls);
+                advanceBtn.classList.remove(...activeCls, ...inactiveCls);
+                currentBtn.classList.add(...(mode === 'current' ? activeCls : inactiveCls));
+                advanceBtn.classList.add(...(mode === 'advance' ? activeCls : inactiveCls));
+            }
+            if (advanceWrap) advanceWrap.classList.toggle('hidden', mode !== 'advance');
+
+            updateDemandBillModalPreview();
+        }
+
+        // Live preview inside the Demand Bill modal — shows just the current due when
+        // "Current Due Bill" is selected, or the full current + advance breakdown (reusing
+        // calculateProjectedDueUpToMonth) when "Advance Bill" is selected.
+        function updateDemandBillModalPreview() {
+            const previewEl = document.getElementById('advance-bill-preview');
+            if (!previewEl) return;
+            const studentId = document.getElementById('advanceBillStudentSelect') ? document.getElementById('advanceBillStudentSelect').value : '';
+            const student = dataStore.students.find(st => st.id === studentId);
+            if (!student) { previewEl.innerHTML = '<span class="text-gray-400">Student data nahi mila.</span>'; return; }
+
+            if (demandBillMode === 'current') {
+                const due = calculateStudentBalance(student);
+                previewEl.innerHTML = `Current Outstanding Due: <strong class="text-red-600">₹${due.toLocaleString('en-IN')}</strong>`;
+                return;
+            }
+
+            const targetMonth = document.getElementById('advanceBillMonthSelect') ? document.getElementById('advanceBillMonthSelect').value : '';
+            if (!targetMonth) { previewEl.innerHTML = '<span class="text-gray-400">Advance month select karein preview dekhne ke liye.</span>'; return; }
+
+            const proj = calculateProjectedDueUpToMonth(student, targetMonth);
+            if (proj.advanceMonths.length === 0) {
+                previewEl.innerHTML = `<span class="text-slate-600">Is student ke liye <strong>${targetMonth}</strong> tak koi naya advance month nahi hai — sirf current outstanding due <strong class="text-red-600">₹${proj.currentDue.toLocaleString('en-IN')}</strong> hai.</span>`;
+            } else {
+                previewEl.innerHTML = `
+                    Current Outstanding: <strong class="text-red-600">₹${proj.currentDue.toLocaleString('en-IN')}</strong>
+                    &nbsp;+&nbsp; Advance (${proj.advanceMonths.length} month${proj.advanceMonths.length > 1 ? 's' : ''}: ${proj.advanceMonths.join(', ')}): <strong class="text-amber-600">₹${proj.advanceTotal.toLocaleString('en-IN')}</strong>
+                    &nbsp;=&nbsp; Grand Total Payable: <strong class="text-emerald-700">₹${proj.grandTotal.toLocaleString('en-IN')}</strong>
+                `;
+            }
+        }
+
+        // Called by the modal's "Print Bill" button — routes to the plain Demand Bill or
+        // the itemized Advance Demand Bill depending on which mode is selected.
+        function confirmPrintDemandBill() {
+            const studentId = document.getElementById('advanceBillStudentSelect').value;
+            if (!studentId) { alert("Kripya pehle ek student select karein."); return; }
+
+            if (demandBillMode === 'current') {
+                printSingleDemandSlip(studentId);
+            } else {
+                const targetMonth = document.getElementById('advanceBillMonthSelect').value;
+                if (!targetMonth) { alert("Kripya advance kis month tak dena hai wo select karein."); return; }
+                printAdvanceDemandSlip();
+            }
+            closeDemandBillModal();
         }
 
         function getGeneratedMonthsList() {
@@ -2365,18 +2634,20 @@
             return targetIdx >= startIdx;
         }
 
-        // ============== AUTO MONTHLY BILL GENERATION AT MONTH-END ==============
-        // Runs automatically (on login/app load and on a background timer). For every
-        // session month whose last date has already passed, and which hasn't been billed
-        // yet, it silently generates that month's bill for every eligible ACTIVE student
-        // (respecting each student's own Bill Start Month) — no manual click needed.
-        function getMonthLastDate(monthYear) {
+        // ============== AUTO MONTHLY BILL GENERATION (ADMISSION MONTH → CURRENT MONTH) ==============
+        // Runs automatically (on login/app load, right after a new admission, and on a
+        // background timer). For every session month starting from a student's own
+        // "Bill Start Month" up to and INCLUDING the current running month — no need to
+        // wait for a month to fully finish — it silently generates that month's bill for
+        // every eligible ACTIVE student, skipping months already billed. No manual click
+        // needed; a newly admitted student is instantly caught up to the current month.
+        function getMonthFirstDate(monthYear) {
             const parts = monthYear.split(' ');
             const monthNames = ["January","February","March","April","May","June","July","August","September","October","November","December"];
             const monthIdx = monthNames.indexOf(parts[0]);
             const year = parseInt(parts[1]);
             if (monthIdx === -1 || isNaN(year)) return null;
-            return new Date(year, monthIdx + 1, 0); // last day of that month
+            return new Date(year, monthIdx, 1); // first day of that month
         }
 
         function autoGenerateDueMonthlyBills() {
@@ -2384,18 +2655,20 @@
             const today = new Date();
             const todayStr = today.toISOString().split('T')[0];
             const sessionMonthsList = getSessionMonthsList();
-            const generatedMonths = getGeneratedMonthsList();
 
             let totalGeneratedCount = 0;
             sessionMonthsList.forEach(monthYear => {
-                const lastDate = getMonthLastDate(monthYear);
-                if (!lastDate) return;
-                if (lastDate > today) return; // month not finished yet, skip
-                if (generatedMonths.includes(monthYear)) return; // already generated for this month
+                const firstDate = getMonthFirstDate(monthYear);
+                if (!firstDate) return;
+                if (firstDate > today) return; // this month hasn't started yet, skip (future month)
 
+                // IMPORTANT: check per-student, not per-month. A month must never be
+                // skipped for everyone just because one student already has a bill for
+                // it — otherwise a newly admitted student never gets caught up on
+                // earlier months once other students already have that month billed.
                 dataStore.students.forEach(st => {
                     if (st.feeStatus !== 'ACTIVE') return;
-                    if (!isMonthEligibleForBilling(st, monthYear)) return;
+                    if (!isMonthEligibleForBilling(st, monthYear)) return; // before this student's own Bill Start Month
                     const alreadyExists = st.ledger.some(item => item.type === 'DEBIT' && !item.deleted && item.description.includes(monthYear));
                     if (alreadyExists) return;
                     const totalBill = calculateTotalMonthlyFee(st);
@@ -2601,6 +2874,7 @@
         function renderStudentAccountsList() {
             const tbody = document.getElementById('student-accounts-list-table');
             const classFilterEl = document.getElementById('student-list-class-filter');
+            const searchEl = document.getElementById('student-list-search');
             if (!tbody || !classFilterEl) return;
 
             // Rebuild class filter options from live student data, preserving current selection
@@ -2610,23 +2884,35 @@
             classFilterEl.value = classes.includes(currentFilter) ? currentFilter : '';
 
             const filterClass = classFilterEl.value;
-            const list = dataStore.students.filter(st => !filterClass || st.class === filterClass);
+            const query = searchEl ? searchEl.value.toLowerCase().trim() : '';
+            let list = dataStore.students.filter(st => !filterClass || st.class === filterClass);
+            if (query) {
+                list = list.filter(st => st.name.toLowerCase().includes(query) || st.id.toLowerCase().includes(query));
+            }
+
+            const ledgerSel = document.getElementById('ledger-student-id');
+            const selectedId = ledgerSel ? ledgerSel.value : '';
 
             tbody.innerHTML = list.map(st => {
                 const due = calculateStudentBalance(st);
                 const payments = st.ledger.filter(item => item.type === 'CREDIT' && !item.deleted);
                 const lastPay = payments.length > 0 ? payments[payments.length - 1] : null;
+                const isSelected = st.id === selectedId;
 
                 return `
-                    <tr class="hover:bg-slate-50">
+                    <tr class="cursor-pointer transition-colors hover:bg-blue-50/70 ${isSelected ? 'bg-blue-50' : ''}" onclick="viewStudentLedger('${st.id}')" title="Click to open ${st.name}'s statement & ledger">
                         <td class="p-3 font-bold text-blue-600">${st.id}</td>
                         <td class="p-3 font-medium text-slate-800">${st.name}</td>
                         <td class="p-3 text-xs text-gray-500">${st.class}</td>
-                        <td class="p-3 font-bold ${due > 0 ? 'text-red-600' : 'text-green-600'}">₹${due.toLocaleString('en-IN')}</td>
+                        <td class="p-3 font-bold ${due > 0 ? 'text-red-600' : 'text-green-600'}">
+                            <button type="button" onclick="event.stopPropagation(); openDemandBillModal('${st.id}')" class="inline-flex items-center gap-1.5 hover:underline decoration-2 underline-offset-2" title="Click to open Demand Bill (Current ya Advance)">
+                                ₹${due.toLocaleString('en-IN')} <i class="fa-solid fa-print text-[10px] opacity-60"></i>
+                            </button>
+                        </td>
                         <td class="p-3 text-xs text-gray-600">${lastPay ? `₹${lastPay.amount.toLocaleString('en-IN')} <span class="text-gray-400">(${lastPay.date})</span>` : '<span class="text-gray-400">No payment yet</span>'}</td>
-                        <td class="p-3 no-print">
+                        <td class="p-3 no-print" onclick="event.stopPropagation()">
                             <div class="flex flex-wrap gap-1">
-                                <button onclick="viewStudentLedger('${st.id}')" class="bg-blue-600 hover:bg-blue-700 text-white px-2 py-1 rounded text-xs font-bold"><i class="fa-solid fa-file-invoice-dollar"></i> Ledger</button>
+                                <button onclick="openDemandBillModal('${st.id}')" class="bg-emerald-600 hover:bg-emerald-700 text-white px-2 py-1 rounded text-xs font-bold" title="Print Demand Bill (Current ya Advance)"><i class="fa-solid fa-file-invoice"></i> Demand Bill</button>
                                 <button onclick="reprintLastPaymentReceipt('${st.id}')" class="bg-green-600 hover:bg-green-700 text-white px-2 py-1 rounded text-xs font-bold"><i class="fa-solid fa-print"></i> Last Receipt</button>
                                 <button onclick="quickAddIndividualBill('${st.id}')" class="bg-purple-600 hover:bg-purple-700 text-white px-2 py-1 rounded text-xs font-bold"><i class="fa-solid fa-plus-circle"></i> Add Bill</button>
                             </div>
@@ -2636,12 +2922,34 @@
             }).join('') || '<tr><td colspan="6" class="p-4 text-center text-xs text-gray-400">No students found.</td></tr>';
         }
 
+        // Opens the Student Account Statement & Ledger History card for the clicked
+        // student (Step 2), fills the info line, renders their ledger, and scrolls to it.
         function viewStudentLedger(studentId) {
             const sel = document.getElementById('ledger-student-id');
             if (sel) sel.value = studentId;
+            updateLedgerSelectedStudentInfo();
+            const card = document.getElementById('ledger-detail-card');
+            if (card) card.classList.remove('hidden');
             renderStudentLedger();
-            const target = document.getElementById('ledger-output-container');
-            if (target) target.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            renderStudentAccountsList(); // re-render list to highlight the selected row
+            if (card) card.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+
+        // Hides the Student Account Statement & Ledger History card and returns focus
+        // to the All Students list (Step 1).
+        function closeStudentLedgerView() {
+            const card = document.getElementById('ledger-detail-card');
+            if (card) card.classList.add('hidden');
+            const list = document.getElementById('student-accounts-list-table');
+            if (list) list.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+
+        function updateLedgerSelectedStudentInfo() {
+            const sel = document.getElementById('ledger-student-id');
+            const infoEl = document.getElementById('ledger-selected-student-info');
+            if (!sel || !infoEl) return;
+            const student = dataStore.students.find(st => st.id === sel.value);
+            infoEl.textContent = student ? `${student.name} (${student.id}) — ${student.class} — Guardian: ${student.guardian}` : '';
         }
 
         function reprintLastPaymentReceipt(studentId) {
@@ -2678,6 +2986,19 @@
         }
 
 
+        // Builds a short, human-readable label of exactly which months/charges are
+        // still pending — used on bulk Demand Slips and the Excel Dues Report so it's
+        // always clear WHICH month's bill is due, not just a lump total.
+        function getDueMonthsLabel(student, uptoMonth) {
+            const monthsList = getSessionMonthsList();
+            const items = getOutstandingBillItems(student, uptoMonth);
+            if (items.length === 0) return 'No Dues';
+            return items.map(item => {
+                const monthName = monthsList.find(m => item.description && item.description.includes(m));
+                return monthName || item.description;
+            }).join(', ');
+        }
+
         function printBulkBillsA4() {
             const months = getSessionMonthsList();
             const selectedMonth = document.getElementById('bill-month-filter') && document.getElementById('bill-month-filter').value ? document.getElementById('bill-month-filter').value : months[0];
@@ -2686,6 +3007,7 @@
             const buildBillCard = (st) => {
                 const monthDue = calculateStudentBalanceUpToMonth(st, selectedMonth);
                 const itemizedDesc = getDetailedFeeDescription(st, selectedMonth);
+                const dueMonthsLabel = getDueMonthsLabel(st, selectedMonth);
 
                 return `
                     <div class="bill-card-print">
@@ -2700,8 +3022,9 @@
                             </div>
                             <div style="font-size:9px; margin-top:2px;"><strong>Name:</strong> ${st.name}</div>
                             <div style="font-size:9px;"><strong>Father:</strong> ${st.guardian}</div>
-                            <div style="font-size:8px; color:#1e3a8a; font-weight:bold; margin-top:2px;">Billing Month: ${selectedMonth}</div>
-                            <div style="font-size:8px; color:#333; margin-top:2px; font-family:monospace;">${itemizedDesc}</div>
+                            <div style="font-size:8px; color:#1e3a8a; font-weight:bold; margin-top:2px;">Billing Up To: ${selectedMonth}</div>
+                            <div style="font-size:7.5px; color:#7c2d12; margin-top:2px;"><strong>Due Months:</strong> ${dueMonthsLabel}</div>
+                            <div style="font-size:7.5px; color:#333; margin-top:1px; font-family:monospace;">${itemizedDesc}</div>
                         </div>
                         <div>
                             <div style="border-top:1px solid #000; border-bottom:1px solid #000; padding:3px 0; margin:4px 0; display:flex; justify-content:space-between;">
@@ -2715,7 +3038,7 @@
             };
 
             let gridHtml = '';
-            const pageSize = 8;
+            const pageSize = 6;
             for (let i = 0; i < activeStudents.length; i += pageSize) {
                 const pageStudents = activeStudents.slice(i, i + pageSize);
                 gridHtml += '<div class="a4-grid-container">';
@@ -2732,18 +3055,24 @@
             const selectedMonth = document.getElementById('bill-month-filter') && document.getElementById('bill-month-filter').value ? document.getElementById('bill-month-filter').value : months[0];
             let csvContent = "data:text/csv;charset=utf-8,";
             csvContent += `Selected Billing Month: ${selectedMonth}\n`;
-            csvContent += "Student Roll ID,Student Name,Class,Father Name,Mother Name,Primary Mobile,Fee Status,Monthly Fee Breakdown,Total Dues Up To Selected Month (INR),Last Payment 1 Amount (INR),Last Payment 1 Date\n";
+            csvContent += "Student Roll ID,Student Name,Class,Father Name,Mother Name,Primary Mobile,Fee Status,Monthly Fee Breakdown,Pending Due Months List (Month-wise),Total Dues Up To Selected Month (INR),Total Payments Made (Count),Total Amount Paid Till Date (INR),Full Payment History (Date: Amount - Description),Last Payment Amount (INR),Last Payment Date\n";
 
+            // Every student is included here (not just students currently in due) so the
+            // report is a complete month-wise dues + full payment ledger snapshot for
+            // the whole school, not a partial "only defaulters" list.
             dataStore.students.forEach(st => {
                 const monthDue = calculateStudentBalanceUpToMonth(st, selectedMonth);
                 const breakdown = getDetailedFeeDescription(st, selectedMonth);
+                const dueMonthsLabel = getDueMonthsLabel(st, selectedMonth);
 
-                if (monthDue > 0) {
-                    const payments = st.ledger.filter(item => item.type === 'CREDIT' && !item.deleted);
-                    const lastPay1 = payments.length > 0 ? payments[payments.length - 1] : { amount: 0, date: 'N/A' };
+                const payments = st.ledger.filter(item => item.type === 'CREDIT' && !item.deleted);
+                const totalPaid = payments.reduce((sum, p) => sum + p.amount, 0);
+                const paymentHistory = payments.length > 0
+                    ? payments.map(p => `${p.date}: ₹${p.amount}${p.description ? ' (' + p.description.replace(/"/g, "'") + ')' : ''}`).join(' | ')
+                    : 'No Payments Yet';
+                const lastPay = payments.length > 0 ? payments[payments.length - 1] : { amount: 0, date: 'N/A' };
 
-                    csvContent += `"${st.id}","${st.name}","${st.class}","${st.guardian}","${st.motherName || ''}","${st.mobile}","${st.feeStatus}","${breakdown}","${monthDue}","${lastPay1.amount}","${lastPay1.date}"\n`;
-                }
+                csvContent += `"${st.id}","${st.name}","${st.class}","${st.guardian}","${st.motherName || ''}","${st.mobile}","${st.feeStatus}","${breakdown}","${dueMonthsLabel}","${monthDue}","${payments.length}","${totalPaid}","${paymentHistory}","${lastPay.amount}","${lastPay.date}"\n`;
             });
 
             const encodedUri = encodeURI(csvContent);
@@ -2834,8 +3163,6 @@
                     targetStudent.altMobile = altMobile;
                     targetStudent.address = address;
 
-                    if (tempUploadedPhotoBase64) targetStudent.photo = tempUploadedPhotoBase64;
-
                     targetStudent.monthlyFee = monthlyFee;
                     targetStudent.admissionFee = admissionFee;
                     targetStudent.examFee = examFee;
@@ -2883,15 +3210,17 @@
                     id: newId, name, dob, gender, aadhaar, session, class: cls, prevSchool, prevClass, prevBoard, tcNo, prevResult, leaveReason,
                     guardian: parent, mobile, fatherOcc, fatherQual, fatherIncome,
                     motherName, motherMobile, motherOcc, motherQual, motherIncome,
-                    altMobile, address, photo: tempUploadedPhotoBase64, monthlyFee, admissionFee, examFee, transportFee, hostelFee, computerFee, miscFee,
+                    altMobile, address, monthlyFee, admissionFee, examFee, transportFee, hostelFee, computerFee, miscFee,
                     feeStatus, feeStartMonth, ledger: initialLedger 
                 };
                 dataStore.students.unshift(targetStudent);
             }
 
-            tempUploadedPhotoBase64 = "";
             saveDataStore();
             resetStudentForm();
+            // Instantly catch this student up on every eligible month's bill from their
+            // own Bill Start Month through the current running month — no reload needed.
+            autoGenerateDueMonthlyBills();
             refreshUI();
             
             openAdmissionApprovalModal(targetStudent);
@@ -2900,11 +3229,9 @@
         function openAdmissionApprovalModal(st) {
             currentModalStudent = st;
             const totalMonthly = calculateTotalMonthlyFee(st);
-            const photoHtml = st.photo ? `<img src="${st.photo}" class="w-16 h-20 object-cover border rounded shadow-sm">` : `<div class="w-16 h-20 bg-slate-200 border rounded flex items-center justify-center text-[10px] text-slate-500">No Photo</div>`;
 
             document.getElementById('approval-modal-body').innerHTML = `
                 <div class="flex items-start gap-4 mb-2">
-                    ${photoHtml}
                     <div class="grid grid-cols-2 gap-2 text-xs flex-1">
                         <p><strong>Student ID:</strong> <span class="text-blue-700 font-bold">${st.id}</span></p>
                         <p><strong>Student Name:</strong> ${st.name}</p>
@@ -2928,17 +3255,13 @@
         function printAdmissionFormFromModal() {
             if(!currentModalStudent) return;
             const st = currentModalStudent;
-            const photoHtml = st.photo ? `<img src="${st.photo}" style="width:80px; height:100px; object-fit:cover; border:1px solid #000;">` : `<div style="width:80px; height:100px; border:1px solid #000; display:flex; align-items:center; justify-content:center; font-size:9px; text-align:center;">PASSPORT PHOTO</div>`;
 
             document.getElementById('print-content').innerHTML = `
                 <div style="padding:20px; border:2px solid #000; line-height:1.5;">
-                    <div style="display:flex; justify-content:space-between; items-center; border-bottom:2px solid #000; padding-bottom:10px; margin-bottom:12px;">
-                        <div>
-                            <h1 style="font-size:20px; font-weight:bold; text-transform:uppercase; margin:0;">${schoolProfile.name}</h1>
-                            <p style="font-size:11px; margin:2px 0;">${schoolProfile.address} | Email: ${schoolProfile.email}</p>
-                            <span style="font-size:12px; font-weight:bold; background:#eee; padding:3px 10px; border:1px solid #000; border-radius:4px;">OFFICIAL STUDENT ADMISSION FORM (SESSION ${schoolProfile.session})</span>
-                        </div>
-                        <div>${photoHtml}</div>
+                    <div style="border-bottom:2px solid #000; padding-bottom:10px; margin-bottom:12px;">
+                        <h1 style="font-size:20px; font-weight:bold; text-transform:uppercase; margin:0;">${schoolProfile.name}</h1>
+                        <p style="font-size:11px; margin:2px 0;">${schoolProfile.address} | Email: ${schoolProfile.email}</p>
+                        <span style="font-size:12px; font-weight:bold; background:#eee; padding:3px 10px; border:1px solid #000; border-radius:4px;">OFFICIAL STUDENT ADMISSION FORM (SESSION ${schoolProfile.session})</span>
                     </div>
 
                     <h4 style="font-size:12px; font-weight:bold; margin-bottom:4px; text-decoration:underline;">1. Basic Student Info:</h4>
@@ -3036,7 +3359,6 @@
         function resetStudentForm() {
             document.getElementById('admissionForm').reset();
             document.getElementById('editStudentId').value = "";
-            tempUploadedPhotoBase64 = "";
             populateFeeStartMonthOptions();
             document.getElementById('admFormTitle').innerText = "📋 STUDENT ADMISSION & FEE REGISTRATION FORM";
         }
@@ -3101,16 +3423,6 @@
             document.getElementById('edit-ledger-modal').classList.add('hidden');
         }
 
-        let tempStaffDocs = { aadhaar: "", pan: "", education: "" };
-
-        function processStaffDocument(input, type) {
-            if (input.files && input.files[0]) {
-                const reader = new FileReader();
-                reader.onload = function(e) { tempStaffDocs[type] = e.target.result; };
-                reader.readAsDataURL(input.files[0]);
-            }
-        }
-
         function toggleCustomCutInput() {
             const type = document.getElementById('staff-deduction-type').value;
             document.getElementById('staff-custom-cut-wrap').classList.toggle('hidden', type !== 'CUSTOM');
@@ -3166,16 +3478,12 @@
                         stf.salaryHistory.push({ date: new Date().toISOString().split('T')[0], oldSalary: stf.salary, newSalary: salary });
                     }
                     Object.assign(stf, fields);
-                    if (tempStaffDocs.aadhaar) stf.docAadhaar = tempStaffDocs.aadhaar;
-                    if (tempStaffDocs.pan) stf.docPan = tempStaffDocs.pan;
-                    if (tempStaffDocs.education) stf.docEducation = tempStaffDocs.education;
                     alert("Staff member details updated successfully!");
                 }
             } else {
                 const newId = `STF-${200 + dataStore.staff.length + 1}`;
                 dataStore.staff.unshift(Object.assign({
-                    id: newId, absentDays: 0, salaryHistory: [],
-                    docAadhaar: tempStaffDocs.aadhaar, docPan: tempStaffDocs.pan, docEducation: tempStaffDocs.education
+                    id: newId, absentDays: 0, salaryHistory: []
                 }, fields));
             }
             saveDataStore();
@@ -3251,7 +3559,6 @@
             document.getElementById('form-hr').reset();
             document.getElementById('editStaffId').value = "";
             document.getElementById('staffFormTitle').innerText = "Register / Edit Staff Member";
-            tempStaffDocs = { aadhaar: "", pan: "", education: "" };
             document.getElementById('staff-custom-cut-wrap').classList.add('hidden');
         }
 
@@ -3338,13 +3645,6 @@
                 : `✅ ₹${amount.toLocaleString('en-IN')} payment ${month} ke against save ho gaya (installment #${entry.payments.length}).`);
         }
 
-        // Small shared helper — document view icon/link ya "not uploaded" placeholder dikhata hai.
-        function staffDocBtn(label, data) {
-            return data
-                ? `<a href="${data}" target="_blank" title="View ${label}" class="text-indigo-600 hover:text-indigo-800 mr-1.5"><i class="fa-solid fa-file-lines"></i></a>`
-                : `<span title="${label} not uploaded" class="text-gray-300 mr-1.5"><i class="fa-solid fa-file-circle-xmark"></i></span>`;
-        }
-
         // ============ 1) STAFF ROSTER & MANAGEMENT TABLE ============
         // Simple staff directory — Statement / Edit / Delete. Salary calculation & payment
         // is intentionally kept OUT of this table and handled separately (one-by-one) below.
@@ -3358,7 +3658,6 @@
                     <td class="p-3 text-gray-500">${s.role}</td>
                     <td class="p-3 font-mono text-xs text-gray-600">${s.mobile || '-'}</td>
                     <td class="p-3 font-semibold">₹${(s.salary || 0).toLocaleString('en-IN')}</td>
-                    <td class="p-3">${staffDocBtn('Aadhaar', s.docAadhaar)}${staffDocBtn('PAN', s.docPan)}${staffDocBtn('Certificate', s.docEducation)}</td>
                     <td class="p-3 whitespace-nowrap">
                         <button onclick="printStaffStatement('${s.id}')" class="bg-indigo-600 hover:bg-indigo-700 text-white px-2.5 py-1 rounded text-xs font-bold mr-1 mb-1"><i class="fa-solid fa-file-invoice-dollar"></i> Statement</button>
                         <button onclick="editStaff('${s.id}')" class="bg-blue-600 text-white px-2.5 py-1 rounded text-xs font-bold mr-1"><i class="fa-solid fa-pen"></i> Edit</button>
@@ -3694,19 +3993,74 @@
             const mode = document.getElementById('fee-mode').value;
             const refNo = `REC-26-${Math.floor(1000 + Math.random() * 9000)}`;
 
-            if(student) {
-                student.ledger.push({
-                    date: new Date().toISOString().split('T')[0],
-                    refNo: refNo,
-                    type: 'CREDIT',
-                    description: `${monthDesc} Payment Received (${mode})`,
-                    amount: amount
-                });
-                saveDataStore();
-                refreshUI();
-                printReceipt(student, refNo, amount, monthDesc, mode);
-            }
+            if (!student) { alert("Kripya search box se ek student select karein."); return; }
+
+            student.ledger.push({
+                date: new Date().toISOString().split('T')[0],
+                refNo: refNo,
+                type: 'CREDIT',
+                description: `${monthDesc} Payment Received (${mode})`,
+                amount: amount
+            });
+            saveDataStore();
+            // Reset the search-based student picker for the next entry
+            document.getElementById('fee-student-id').value = '';
+            document.getElementById('fee-student-search').value = '';
+            document.getElementById('fee-amount').value = '';
+            document.getElementById('fee-month').value = '';
+            refreshUI();
+            printReceipt(student, refNo, amount, monthDesc, mode);
         }
+
+        // Filters students as the admin types into the "Search Student" box on the
+        // Dashboard's quick Collect Payment form, and shows a click-to-select dropdown.
+        function filterFeeStudentSearch() {
+            const input = document.getElementById('fee-student-search');
+            const resultsBox = document.getElementById('fee-student-search-results');
+            if (!input || !resultsBox) return;
+            const query = input.value.toLowerCase().trim();
+
+            if (!query) { resultsBox.classList.add('hidden'); resultsBox.innerHTML = ''; return; }
+
+            const matches = dataStore.students.filter(st =>
+                st.name.toLowerCase().includes(query) || st.id.toLowerCase().includes(query)
+            ).slice(0, 8);
+
+            if (matches.length === 0) {
+                resultsBox.innerHTML = '<div class="p-3 text-xs text-gray-400 text-center">Koi student nahi mila.</div>';
+                resultsBox.classList.remove('hidden');
+                return;
+            }
+
+            resultsBox.innerHTML = matches.map(st => `
+                <div onclick="selectFeeStudent('${st.id}')" class="p-2.5 text-xs hover:bg-blue-50 cursor-pointer border-b border-gray-100 last:border-b-0 flex items-center justify-between gap-2">
+                    <span><span class="font-bold text-blue-600">${st.id}</span> — <span class="font-semibold text-slate-800">${st.name}</span> <span class="text-gray-400">(${st.class})</span></span>
+                    ${st.feeStatus === 'LEFT' ? '<span class="text-[9px] bg-red-100 text-red-700 px-1.5 py-0.5 rounded font-bold">LEFT</span>' : ''}
+                </div>
+            `).join('');
+            resultsBox.classList.remove('hidden');
+        }
+
+        // Called when the admin clicks a suggestion in the Search Student dropdown —
+        // stores the real student id in the hidden field and auto-fills the due amount.
+        function selectFeeStudent(studentId) {
+            const student = dataStore.students.find(st => st.id === studentId);
+            if (!student) return;
+            document.getElementById('fee-student-id').value = studentId;
+            document.getElementById('fee-student-search').value = `${student.name} (${student.id} - ${student.class})`;
+            document.getElementById('fee-student-search-results').classList.add('hidden');
+            autoFillFeeDetails();
+        }
+
+        // Closes the Search Student suggestions dropdown when clicking anywhere outside it.
+        document.addEventListener('click', function(e) {
+            const resultsBox = document.getElementById('fee-student-search-results');
+            const input = document.getElementById('fee-student-search');
+            if (!resultsBox || !input) return;
+            if (e.target !== input && !resultsBox.contains(e.target)) {
+                resultsBox.classList.add('hidden');
+            }
+        });
 
         function collectFeeFromLedger(e) {
             e.preventDefault();
@@ -3951,7 +4305,7 @@
                     <td class="p-3 font-bold ${due > 0 ? 'text-red-600' : 'text-green-600'}">₹${due.toLocaleString('en-IN')}</td>
                     <td class="p-3">
                         <button onclick="printSingleDemandSlip('${st.id}')" class="bg-amber-600 text-white px-2 py-1 rounded text-xs font-bold mr-1"><i class="fa-solid fa-print"></i> Demand Slip</button>
-                        <button onclick="document.getElementById('ledger-student-id').value='${st.id}'; switchTab('fees');" class="bg-blue-600 text-white px-2 py-1 rounded text-xs font-bold mr-1"><i class="fa-solid fa-file-invoice-dollar"></i> Statement</button>
+                        <button onclick="switchTab('fees'); viewStudentLedger('${st.id}');" class="bg-blue-600 text-white px-2 py-1 rounded text-xs font-bold mr-1"><i class="fa-solid fa-file-invoice-dollar"></i> Statement</button>
                         <button onclick="setStudentLeftStatus('${st.id}', true)" class="bg-red-600 hover:bg-red-700 text-white px-2 py-1 rounded text-xs font-bold"><i class="fa-solid fa-user-xmark"></i> Shift to Left Archive</button>
                     </td>
                 </tr>
@@ -3969,7 +4323,7 @@
                     <td class="p-3 font-mono text-xs text-gray-600">${st.mobile}</td>
                     <td class="p-3 font-bold ${due > 0 ? 'text-red-600' : 'text-emerald-600'}">₹${due.toLocaleString('en-IN')}</td>
                     <td class="p-3">
-                        <button onclick="document.getElementById('ledger-student-id').value='${st.id}'; switchTab('fees');" class="bg-blue-600 text-white px-2 py-1 rounded text-xs font-bold mr-1"><i class="fa-solid fa-receipt"></i> Due Ledger</button>
+                        <button onclick="switchTab('fees'); viewStudentLedger('${st.id}');" class="bg-blue-600 text-white px-2 py-1 rounded text-xs font-bold mr-1"><i class="fa-solid fa-receipt"></i> Due Ledger</button>
                         <button onclick="printSingleDemandSlip('${st.id}')" class="bg-amber-600 text-white px-2 py-1 rounded text-xs font-bold mr-1"><i class="fa-solid fa-print"></i> TC Due Slip</button>
                         <button onclick="setStudentLeftStatus('${st.id}', false)" class="bg-emerald-600 text-white px-2 py-1 rounded text-xs font-bold"><i class="fa-solid fa-rotate-left"></i> Re-Admit / Restore</button>
                     </td>
